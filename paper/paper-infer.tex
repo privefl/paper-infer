@@ -1,0 +1,158 @@
+%% LyX 1.3 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english, 12pt]{article}
+\usepackage{times}
+%\usepackage{algorithm2e}
+\usepackage{xurl}
+\usepackage{bbm}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{geometry}
+\geometry{verbose,letterpaper,tmargin=2cm,bmargin=2cm,lmargin=2cm,rmargin=2cm}
+\usepackage{rotating}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{setspace}
+\usepackage{lineno}
+\usepackage{hyperref}
+\usepackage{bbm}
+\usepackage{makecell}
+%\usepackage[font=small]{caption}
+
+\renewcommand{\arraystretch}{1.3}
+
+\usepackage{xr}
+\externaldocument{paper-infer-supp}
+
+%\linenumbers
+%\doublespacing
+\onehalfspacing
+\usepackage[authoryear]{natbib}
+%\usepackage[numbers,super]{natbib} %\bibpunct{(}{)}{;}{author-year}{}{,}
+
+%Pour les rajouts
+\usepackage{color}
+\definecolor{trustcolor}{rgb}{0,0,1}
+
+\usepackage{dsfont}
+\usepackage[warn]{textcomp}
+\usepackage{adjustbox}
+\usepackage{multirow}
+\usepackage{graphicx}
+\graphicspath{{../figures/}}
+\DeclareMathOperator*{\argmin}{\arg\!\min}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\let\tabbeg\tabular
+\let\tabend\endtabular
+\renewenvironment{tabular}{\begin{adjustbox}{max width=\textwidth}\tabbeg}{\tabend\end{adjustbox}}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Bold symbol macro for standard LaTeX users
+%\newcommand{\boldsymbol}[1]{\mbox{\boldmath $#1$}}
+
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+\usepackage{babel}
+\makeatother
+
+
+\begin{document}
+
+
+\title{}
+\author{Florian Priv\'e,$^{\text{1,}*}$  and Bjarni J. Vilhj\'almsson$^{\text{1,5}}$}
+
+\date{~ }
+\maketitle
+
+\noindent$^{\text{\sf 1}}$National Centre for Register-Based Research, Aarhus University, Aarhus, 8210, Denmark. \\
+
+\noindent$^{\text{\sf 5}}$Bioinformatics Research Centre, Aarhus University, Aarhus, 8000, Denmark. \\
+\noindent$^\ast$To whom correspondence should be addressed.\\
+
+\noindent Contact: \url{florian.prive.21@gmail.com}
+
+%\vspace*{6em}
+\clearpage
+
+\begin{abstract}
+
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Materials and Methods}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Results}
+
+
+\begin{figure}[!h]
+	%\centerline{\includegraphics[width=0.95\textwidth]{res-FIN}}
+	\caption{}
+	\label{fig:finngen}
+\end{figure}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Discussion}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\clearpage
+%\vspace*{3em}
+
+\section*{Acknowledgements}
+
+Authors also thank GenomeDK and Aarhus University for providing computational resources and support that contributed to these research results.
+This research has been conducted using the UK Biobank Resource under Application Number 58024.
+
+\section*{Funding}
+
+F.P.\ and B.J.V.\ are supported by a Lundbeck Foundation Fellowship (R335-2019-2339 to B.J.V.).
+
+\section*{Declaration of Interests}
+
+B.J.V.\ is on Allelica's international advisory board.
+The other authors have no competing interests to declare.
+
+\section*{Code and data availability}
+
+The UK Biobank data is available through a procedure described at \url{https://www.ukbiobank.ac.uk/using-the-resource/}. 
+All code used for this paper is available at \url{https://github.com/privefl/paper-infer/tree/master/code}.
+We have extensively used R packages bigstatsr and bigsnpr \cite[]{prive2017efficient} for analyzing large genetic data, packages from the future framework \cite[]{bengtsson2020unifying} for easy scheduling and parallelization of analyses on the HPC cluster, and packages from the tidyverse suite \cite[]{wickham2019welcome} for shaping and visualizing results.
+The latest version of R package bigsnpr can be installed from GitHub, and a recent enough version can be installed from CRAN [TODO: VERIFY].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+%\vspace*{3em}
+
+\bibliographystyle{natbib}
+\bibliography{refs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{document}

@@ -2,3 +2,16 @@
 .Rhistory
 .RData
 .Ruserdata
+*.bbl
+*.blg
+*.dvi
+*.log
+*.out
+paper-infer.pdf
+paper-infer-supp.pdf
+*.synctex.gz
+*.aux
+*.tex.bak
+natbib.bst
+natbib.sty
+cover-letter.pdf
