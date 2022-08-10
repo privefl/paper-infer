@@ -97,11 +97,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\section{Materials and Methods}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \section{Results}
 
 
@@ -119,6 +114,49 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Materials and Methods}
+
+\subsection{New model and inference with LDpred2-auto}
+
+LDpred2 originally assumed the following model for effect sizes,
+\begin{equation}\label{eq:prev_model}
+\beta_j = S_j \gamma_j \sim \left\{
+\begin{array}{ll}
+\mathcal N\left(0,~\dfrac{h^2}{M p}\right) & \mbox{with probability $p$,} \\
+0 & \mbox{otherwise,}
+\end{array}
+\right.
+\end{equation}
+where $p$ is the proportion of causal variants, $M$ the number of variants, $h^2$ the (SNP) heritability, $\gamma$ the effect sizes on the allele scale, $S$ the standard deviations of the genotypes, and $\beta$ the effects of the scaled genotypes \cite[]{prive2020ldpred2}.
+In LDpred2-auto, $p$ and $h^2$ are directly estimated within the Gibbs sampler, as opposed to testing several values of $p$ and $h^2$ from a grid of hyper-parameters. This makes LDpred2-auto a method free of hyper-parameters which can therefore be applied directly to data without the need of a validation dataset to choose best-performing hyper-parameters \cite[]{prive2020ldpred2}.
+Previously, $p$ was sampled from $\text{Beta}(1 + M_c, 1 + M - M_c)$, where $M_c = \sum_j(\beta_j \neq 0)$.
+
+Here we introduce a few changes to LDpred2-auto, which makes it better at inferring these important parameters.
+First, we extend LDpred2-auto with a third parameter $\alpha$ that controls the relationship between minor allele frequencies (or equivalently, standard deviations) of genotypes and expected effect sizes; the model becomes
+\begin{equation}\label{eq:new_model}
+\beta_j = S_j \gamma_j \sim \left\{
+\begin{array}{ll}
+\mathcal N \big( 0,~\sigma_\beta^2 \cdot (S_j^2)^{(\alpha + 1)} \big) & \mbox{with probability $p$,} \\
+0 & \mbox{otherwise.}
+\end{array}
+\right.
+\end{equation}
+Therefore, it was earlier assumed that $\alpha = -1$ and $\sigma_\beta^2 = h^2 / (M p)$ in equation \eqref{eq:prev_model}. 
+This new model in equation \eqref{eq:new_model} is similar to the model assumed by SBayesS, where $\alpha$ is called $S$ \cite{zeng2021widespread}. 
+In SBayesS, they estimate $\alpha$ and $\sigma_\beta^2$ by maximizing the likelihood of the normal distribution (over the causal variants from the Gibbs sampler).
+In the new LDpred2-auto, we first sample causal variants with replacement (bootstrap) before finding the maximum likelihood estimators, such that we add some proper sampling to these two parameters. 
+This maximum likelihood estimation is implemented using R package roptim, and we bound the estimate of $\alpha$ to be within -1.5 and 0.5 (the default, but can be modified), and the estimate of $\sigma_\beta^2$ to be between 0.5 and 2 times the previous estimate.
+We now sample $p$ from $\text{Beta}(1 + M_c / \bar{l^2}, 1 + (M - M_c) / \bar{l^2})$, where $\bar{l^2}$ is the average LD score, to add more sampling in order to account for the reduced effective number of correlated variants.
+As for $h^2$, we still estimate it by $h^2 = \boldsymbol{\beta}^T \boldsymbol{R} \boldsymbol{\beta}$, where $\boldsymbol{R}$ is the correlation matrix between variants. We constrain this estimate to be at least 0.001 to prevent the Gibbs sampler from being trapped in very small heritability estimates.
+
+
+
+\subsection{Extending the set of HapMap3 variants}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %\clearpage
 %\vspace*{3em}
