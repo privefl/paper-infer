@@ -68,37 +68,38 @@
 \renewcommand{\theequation}{S\arabic{equation}}
 \setcounter{equation}{0}
 
-\section*{Supplementary Materials}
-
-\vspace*{7em}
-\clearpage
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{est_h2_one}}
-\caption{ \label{}}
+\caption{Inferred SNP heritability $h^2$ in simulations with continuous outcomes. Horizontal lines represent the true simulated values. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for the LD Score regression estimate is obtained from $\pm$1.96 times its standard error. \label{fig:simu_h2}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{est_p_one}}
-\caption{ \label{}}
+\caption{Inferred polygenicity $p$ in simulations with continuous outcomes. \label{fig:simu_p}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{est_alpha_one}}
-\caption{ \label{}}
-\end{figure}
-
-\begin{figure}[p]
-\centerline{\includegraphics[width=\textwidth]{est_r2_one}}
-\caption{ \label{}}
+\caption{Inferred $\alpha$ in simulations with continuous outcomes. \label{fig:simu_alpha}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{postp_calib}}
-\caption{ \label{}}
+\caption{Calibration of per-variant posterior probabilities of being causal in simulations with continuous outcomes. \label{fig:simu_postp_calib}}
 \end{figure}
+
+\begin{figure}[p]
+\centerline{\includegraphics[width=\textwidth]{local_h2_calib}}
+\caption{Calibration of per-block heritability estimates in simulations with continuous outcomes. \label{fig:simu_h2_calib}}
+\end{figure}
+
+\begin{figure}[p]
+\centerline{\includegraphics[width=\textwidth]{est_r2_one}}
+\caption{Inferred predictive performance $r^2$ in simulations with continuous outcomes. \label{fig:simu_r2}}
+\end{figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -140,11 +141,6 @@
 \FloatBarrier
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=\textwidth]{ukbb_runtimes}}
-	\caption{ \label{}}
-\end{figure}
-
-\begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{ukbb_h2_p}}
 	\caption{ \label{}}
 \end{figure}
@@ -160,8 +156,28 @@
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=\textwidth]{ukbb_compare_sets}}
+\centerline{\includegraphics[width=\textwidth]{ukbb_compare_hm3_small}}
+\caption{ \label{}}
+\end{figure}
+
+\begin{figure}[p]
+\centerline{\includegraphics[width=\textwidth]{ukbb_compare_hm3_altpop}}
+\caption{ \label{}}
+\end{figure}
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=\textwidth]{ukbb_compare_hm3_plus}}
 	\caption{ \label{}}
+\end{figure}
+
+\begin{figure}[p]
+\centerline{\includegraphics[width=\textwidth]{ukbb_chains}}
+\caption{ \label{}}
+\end{figure}
+
+\begin{figure}[p]
+\centerline{\includegraphics[width=\textwidth]{ukbb_runtimes}}
+\caption{ \label{}}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

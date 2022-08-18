@@ -94,7 +94,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Introduction}
+\section*{Introduction}
 
 Most traits and diseases are heritable, if not all. 
 What differs is the proportion of phenotypic variance that can be attributable to genetics, i.e.\ the heritability of these phenotypes.
@@ -119,8 +119,28 @@ We show that we can also reliably estimate the predictive ability of PGS derived
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\section{Results}
+\section*{Results}
 
+\subsection*{Validating the inference with simulations}
+
+For simulations, we use the UK Biobank imputed data \cite[]{bycroft2018uk}; we use 356,409 individuals of Northwestern European ancestry and 322,805 SNPs across seven chromosomes (Methods).
+We first simulate continuous phenotypes using function \texttt{snp\_simuPheno} from R package bigsnpr \cite[]{prive2017efficient}, varying three parameters: the SNP-heritability $h^2$, the polygenicity $p$ (i.e. the proportion of causal variants), and the parameter $\alpha$ in equation \eqref{eq:new_model} that controls the relationship between minor allele frequencies and expected effect sizes.
+This function first picks a proportion $p$ of causal variants at random, sample effect sizes $\gamma$ using the variance component parameterized by $\alpha$ and then scale the effect sizes so that the genetic component $G \gamma$ has a variance $h^2$, where $G$ is the genotype matrix. Finally, some Gaussian noise is added so that the full phenotype has a variance of 1. 
+Then, a GWAS is run to obtain summary statistics using $N$ (either the 200,000 dedicated to this, or a subset of 20,000) individuals using a simple linear regression implemented in \texttt{big\_univLinReg} from R package bigstatsr \cite[]{prive2017efficient}.
+Finally, we run the new LDpred2-auto model (Methods) with and without the option \texttt{allow\_jump\_sign}, which was proposed in \cite{prive2021identifying} for robustness (when disabled). 
+LDpred2-auto is run with 50 Gibbs sampler chains with different starting values for $p$.
+
+LDpred2-auto generally reliably infers the three parameters from its model, i.e.\ the SNP heritability $h^2$, polygenicity $p$, and $\alpha$ (Figures \ref{fig:simu_h2},\ref{fig:simu_p} and \ref{fig:simu_alpha}).
+Moreover, LDpred2-auto can also infer per-variant probabilities of being causal and per-block (local) heritability estimates that are well calibrated (Figures \ref{fig:simu_postp_calib} and \ref{fig:simu_h2_calib}).
+Finally, LDpred2-auto can be used to infer the predictive performance $r^2$ of its resulting polygenic score, directly from within the Gibbs sampler (Figure \ref{fig:simu_h2}).
+[TODO: TALK ABOUT WHERE IT FAILED AND LIMITATIONS]
+[TODO: RUN AND REPORT THE MEAN]
+
+We also run simulations with binary outcomes where the simulated continuous liabilities are transformed to binary outcomes using a thresholding corresponding to the prevalence [TODO: MAYBE REWORD].
+Results are very similar as with the continuous phenotypes above, and are similar whether we use either a linear regression GWAS and the total sample size $N$, or a logistic regression GWAS and the effective sample size (i.e.\ $N_\text{eff} = 4 / (1 / N_\text{case} + 1 / N_\text{control})$). The only difference is the transformation to the liability scale that needs to be applied to the $h^2$ and $r^2$ estimates from LDpred2-auto, where $K_\text{GWAS}=0.5$ should be used when using $N_\text{eff}$ \cite[]{grotzinger2021pervasive}.
+ [TO FINISH]
+
+\subsection*{Genetic architectures of 250 phenotypes from the UK Biobank}
 
 \begin{figure}[!h]
 	%\centerline{\includegraphics[width=0.95\textwidth]{res-FIN}}
@@ -132,7 +152,7 @@ We show that we can also reliably estimate the predictive ability of PGS derived
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Discussion}
+\section*{Discussion}
 
 
 [KEEP RG FOR DISCU + CITE EXISTING METHODS]
@@ -143,9 +163,19 @@ We show that we can also reliably estimate the predictive ability of PGS derived
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Materials and Methods}
+\section*{Materials and Methods}
 
-\subsection{New model and inference with LDpred2-auto}
+\subsection*{Data for simulations}
+
+For simulations, we use the UK Biobank imputed (BGEN) data, read as allele dosages with function \texttt{snp\_readBGEN} from R package bigsnpr \cite[]{bycroft2018uk,prive2017efficient}. 
+We use the set of 1,054,330 HapMap3 variants recommended to use for LDpred2 \cite[]{prive2020ldpred2}.
+Since we run lots of different models, we restrict the simulations to chromosomes 3, 6, 9, 12, 15, 18 and 21, resulting in a set of 322,805 SNPs.
+We restrict individuals to the ones used for computing the principal components (PCs) in the UK Biobank (Field 22020). These individuals are unrelated and have passed some quality control including removing samples with a missing rate on autosomes larger than 0.02, having a mismatch between inferred sex and self-reported sex, and outliers based on heterozygosity (more details can be found in section S3 of \citet{bycroft2018uk}).
+To get a set of genetically homogeneous individuals, we compute a robust Mahalanobis distance based on the first 16 PCs (Field 22009) and further restrict individuals to those within a log-distance of 4.5 \cite[]{prive2020efficient}.  
+This results in 356,409 individuals of Northwestern European ancestry.
+We randomly sample 200,000 individuals to form a training set (to run the GWAS), and use the remaining individuals to form a test set (to evaluate the predictive models).
+
+\subsection*{New model and inference with LDpred2-auto}
 
 LDpred2 originally assumed the following model for effect sizes,
 \begin{equation}\label{eq:prev_model}
@@ -180,7 +210,7 @@ As for $h^2$, we still estimate it by $h^2 = \boldsymbol{\beta}^T \boldsymbol{R}
 
 
 
-\subsection{Extending the set of HapMap3 variants used}
+\subsection*{Extending the set of HapMap3 variants used}
 
 The HapMap3 variants generally provide a good coverage of the whole genome.
 We recall that the set of 1,054,330 HapMap3 variants recommended to use for LDpred2 \cite[]{prive2020ldpred2} is a subset of the original set of HapMap3 variants, which does not include duplicated positions (e.g.\ multi-allelic variants), ambiguous variants (e.g.\ both 'A' and 'T' or 'C' and 'G'), and which includes SNPs only (e.g.\ no indel).
@@ -193,6 +223,9 @@ We start by including all previously used HapMap3 variants.
 For the sake of simplicity, we then use a greedy approach, where we repeatedly include the variant which increases this sum most, until no variant improves it by more than 2. 
 Note that we allow only non-ambiguous SNPs to be included.
 This results in an extended set of 1,444,196 SNPs.
+
+
+[TODO: EXPLAIN HOW TO INFER R2]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
