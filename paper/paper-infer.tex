@@ -66,14 +66,18 @@
 
 
 \title{Inferring disease architecture and predictive ability\\with LDpred2-auto}
-\author{Florian Priv\'e,$^{\text{1,}*}$  and Bjarni J. Vilhj\'almsson$^{\text{1,2}}$}
+\author{Florian Priv\'e,$^{\text{1,}*}$ Bogdan Pasaniuc,$^{\text{2,3,4,5}}$ and Bjarni J. Vilhj\'almsson$^{\text{1,6}}$}
 
 \date{~ }
 \maketitle
 
-\noindent$^{\text{\sf 1}}$National Centre for Register-Based Research, Aarhus University, Aarhus, 8210, Denmark. \\
-\noindent$^{\text{\sf 2}}$Bioinformatics Research Centre, Aarhus University, Aarhus, 8000, Denmark. \\
-\noindent$^\ast$To whom correspondence should be addressed.\\
+\noindent$^{\text{\sf 1}}$National Centre for Register-based Research, Aarhus University, Aarhus, Denmark. \\
+\noindent$^{\text{\sf 2}}$Bioinformatics Interdepartmental Program, University of California, Los Angeles, CA. \\
+\noindent$^{\text{\sf 3}}$Department of Human Genetics, David Geffen School of Medicine, University of California, Los Angeles, CA. \\
+\noindent$^{\text{\sf 4}}$Department of Pathology and Laboratory Medicine, David Geffen School of Medicine, University of California, Los Angeles, CA. \\
+\noindent$^{\text{\sf 5}}$Department of Computational Medicine, David Geffen School of Medicine, University of California, Los Angeles, CA. \\
+\noindent$^{\text{\sf 6}}$Bioinformatics Research Centre, Aarhus University, Aarhus, Denmark. \\
+\noindent$^\ast$To whom correspondence should be addressed. \\
 
 \noindent Contact: \url{florian.prive.21@gmail.com}
 
@@ -176,8 +180,19 @@ As for $h^2$, we still estimate it by $h^2 = \boldsymbol{\beta}^T \boldsymbol{R}
 
 
 
-\subsection{Extending the set of HapMap3 variants}
+\subsection{Extending the set of HapMap3 variants used}
 
+The HapMap3 variants generally provide a good coverage of the whole genome.
+We recall that the set of 1,054,330 HapMap3 variants recommended to use for LDpred2 \cite[]{prive2020ldpred2} is a subset of the original set of HapMap3 variants, which does not include duplicated positions (e.g.\ multi-allelic variants), ambiguous variants (e.g.\ both 'A' and 'T' or 'C' and 'G'), and which includes SNPs only (e.g.\ no indel).
+Here we propose to extend the set we have used for LDpred2 until then. 
+This extension aims at making sure many genetic variants are well tagged by the extended set, which we call HapMap3+.
+To design this new set, we first read all variants from the UK Biobank (UKBB) with a minor allele frequency (MAF) larger than 0.005 in the whole data (i.e.\ the one in the MFI files). 
+We then compute all pairwise correlations between variants within a 1 Mb distance, restricting to squared correlations larger than 0.3, and using all unrelated UKBB individuals excluding all White British (Field 22006) to have a diverse set of populations.
+Finally, we design an algorithm which aims at maximizing the tagging of previously read variants. We want to maximize $\sum_j \max_{k \in \text{HapMap3+}} r_{j,k}^2$, where $j$ spans the whole set of variants read, while $k$ spans the variants kept in the new set.
+We start by including all previously used HapMap3 variants.
+For the sake of simplicity, we then use a greedy approach, where we repeatedly include the variant which increases this sum most, until no variant improves it by more than 2. 
+Note that we allow only non-ambiguous SNPs to be included.
+This results in an extended set of 1,444,196 SNPs.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -204,7 +219,7 @@ The other authors have no competing interests to declare.
 The UK Biobank data is available through a procedure described at \url{https://www.ukbiobank.ac.uk/using-the-resource/}. 
 All code used for this paper is available at \url{https://github.com/privefl/paper-infer/tree/master/code}.
 We have extensively used R packages bigstatsr and bigsnpr \cite[]{prive2017efficient} for analyzing large genetic data, packages from the future framework \cite[]{bengtsson2020unifying} for easy scheduling and parallelization of analyses on the HPC cluster, and packages from the tidyverse suite \cite[]{wickham2019welcome} for shaping and visualizing results.
-The latest version of R package bigsnpr can be installed from GitHub, and a recent enough version can be installed from CRAN [TODO: VERIFY].
+The latest version of R package bigsnpr can be installed from GitHub.%, and a recent enough version can be installed from CRAN [TODO: VERIFY].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
