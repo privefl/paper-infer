@@ -175,6 +175,32 @@ To get a set of genetically homogeneous individuals, we compute a robust Mahalan
 This results in 356,409 individuals of Northwestern European ancestry.
 We randomly sample 200,000 individuals to form a training set (to run the GWAS), and use the remaining individuals to form a test set (to evaluate the predictive models).
 
+\subsection*{Data for the UK Biobank analyses}
+
+We use the set of 1,054,330 HapMap3 variants recommended to use for LDpred2 \cite[]{prive2020ldpred2}, and the same 356,409 individuals of Northwestern European ancestry as in the simulations.
+As covariates, we first recompute PCs for this subset of individuals using function \texttt{snp\_autoSVD} from R package bigsnpr and keep four PCs based on visual inspection \cite[]{prive2017efficient,prive2020efficient}. We also use sex (Field 22001), age (Field 21022), birth date (combining Fields 34 and 52) and deprivation index (Field 189) as additional covariates.
+We randomly sample 50,000 individuals to form a test set (to evaluate the predictive models), and use the remaining individuals to form a training set (to run the GWAS).
+
+We use the LD matrix with independent LD blocks computed in \cite{prive2021identifying}.
+We design two other LD matrices: one using a subset of 2000 individuals from the previously selected ones (which we call ``hm3\_small''), and one based on 10,000 individuals from around South Europe by using the ``Italy'' center defined in \cite{prive2021high} (``hm3\_altpop'').
+We apply the optimal algorithm developed in \cite{prive2021optimal} to obtain independent LD blocks, as recommended in \cite{prive2021identifying}.
+We finally define a fourth LD reference by extending the set of HapMap3 variants (see next Methods section) and using 20,000 individuals from the previously selected ones (``hm3\_plus'').
+
+\subsection*{Extending the set of HapMap3 variants used}
+
+The HapMap3 variants generally provide a good coverage of the whole genome.
+We recall that the set of 1,054,330 HapMap3 variants recommended to use for LDpred2 \cite[]{prive2020ldpred2} is a subset of the original set of HapMap3 variants, which does not include duplicated positions (e.g.\ multi-allelic variants), ambiguous variants (e.g.\ both 'A' and 'T' or 'C' and 'G'), and which includes SNPs only (e.g.\ no indel).
+Here we propose to extend the set we have used for LDpred2 until then. 
+This extension aims at making sure many genetic variants are well tagged by the extended set, which we call HapMap3+.
+To design this new set, we first read all variants from the UK Biobank (UKBB) with a minor allele frequency (MAF) larger than 0.005 in the whole data (i.e.\ the one in the MFI files). 
+We then compute all pairwise correlations between variants within a 1 Mb distance, restricting to squared correlations larger than 0.3, and using all unrelated UKBB individuals excluding all White British (Field 22006) to have a diverse set of populations.
+Finally, we design an algorithm which aims at maximizing the tagging of previously read variants. We want to maximize $\sum_j \max_{k \in \text{HapMap3+}} r_{j,k}^2$, where $j$ spans the whole set of variants read, while $k$ spans the variants kept in the new set.
+We start by including all previously used HapMap3 variants.
+For the sake of simplicity, we then use a greedy approach, where we repeatedly include the variant which increases this sum most, until no variant improves it by more than 2. 
+Note that we only allow non-ambiguous SNPs to be included.
+This results in an extended set of 1,444,196 SNPs, of which we compute the correlation between variants and apply the optimal algorithm developed in \cite{prive2021optimal} to obtain 431 independent LD blocks.
+
+
 \subsection*{New model and inference with LDpred2-auto}
 
 LDpred2 originally assumed the following model for effect sizes,
@@ -207,22 +233,6 @@ In the new LDpred2-auto, we first sample causal variants with replacement (boots
 This maximum likelihood estimation is implemented using R package roptim \cite[]{pan2020roptim}, and we bound the estimate of $\alpha$ to be within -1.5 and 0.5 (the default, but can be modified), and the estimate of $\sigma_\beta^2$ to be between 0.5 and 2 times the previous estimate.
 We now sample $p$ from $\text{Beta}(1 + M_c / \bar{l^2}, 1 + (M - M_c) / \bar{l^2})$, where $\bar{l^2}$ is the average LD score, to add more sampling in order to account for the reduced effective number of correlated variants.
 As for $h^2$, we still estimate it by $h^2 = \boldsymbol{\beta}^T \boldsymbol{R} \boldsymbol{\beta}$, where $\boldsymbol{R}$ is the correlation matrix between variants. We constrain this estimate to be at least 0.001 to prevent the Gibbs sampler from being trapped in very small heritability estimates.
-
-
-
-\subsection*{Extending the set of HapMap3 variants used}
-
-The HapMap3 variants generally provide a good coverage of the whole genome.
-We recall that the set of 1,054,330 HapMap3 variants recommended to use for LDpred2 \cite[]{prive2020ldpred2} is a subset of the original set of HapMap3 variants, which does not include duplicated positions (e.g.\ multi-allelic variants), ambiguous variants (e.g.\ both 'A' and 'T' or 'C' and 'G'), and which includes SNPs only (e.g.\ no indel).
-Here we propose to extend the set we have used for LDpred2 until then. 
-This extension aims at making sure many genetic variants are well tagged by the extended set, which we call HapMap3+.
-To design this new set, we first read all variants from the UK Biobank (UKBB) with a minor allele frequency (MAF) larger than 0.005 in the whole data (i.e.\ the one in the MFI files). 
-We then compute all pairwise correlations between variants within a 1 Mb distance, restricting to squared correlations larger than 0.3, and using all unrelated UKBB individuals excluding all White British (Field 22006) to have a diverse set of populations.
-Finally, we design an algorithm which aims at maximizing the tagging of previously read variants. We want to maximize $\sum_j \max_{k \in \text{HapMap3+}} r_{j,k}^2$, where $j$ spans the whole set of variants read, while $k$ spans the variants kept in the new set.
-We start by including all previously used HapMap3 variants.
-For the sake of simplicity, we then use a greedy approach, where we repeatedly include the variant which increases this sum most, until no variant improves it by more than 2. 
-Note that we allow only non-ambiguous SNPs to be included.
-This results in an extended set of 1,444,196 SNPs.
 
 
 [TODO: EXPLAIN HOW TO INFER R2]
