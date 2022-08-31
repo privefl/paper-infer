@@ -105,7 +105,7 @@
 
 \FloatBarrier
 
-[ ADD THE SAME, BUT AVERAGING OVER 10 SIMUS -> CI OF THE MEAN ]
+%[ ADD THE SAME, BUT AVERAGING OVER 10 SIMUS -> CI OF THE MEAN ]
 
 \FloatBarrier
 
@@ -142,47 +142,47 @@
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=0.9\textwidth]{ukbb_h2}}
-	\caption{ \label{}}
+	\caption{SNP heritability estimates from either LDpred2-auto or LD Score regression for all 248 phenotypes defined from the UK Biobank. These are stratified by estimated polygenicity (from LDpred2-auto). The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for the LD Score regression estimate is obtained from $\pm$1.96 times its standard error. \label{fig:ukbb_h2}}
 \end{figure}
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{ukbb_h2_p}}
-	\caption{ \label{}}
+	\caption{Estimates from LDpred2-auto for either the SNP heritability $h^2$ or the polygenicity $p$ for all 248 phenotypes defined from the UK Biobank. The 95\% confidence intervals for the LDpred2-auto estimates are obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. \label{fig:ukbb_h2_p}}
 \end{figure}
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{ukbb_h2_alpha}}
-	\caption{ \label{}}
+	\caption{Estimates from LDpred2-auto for either the SNP heritability $h^2$ or $\alpha$ for all 248 phenotypes defined from the UK Biobank. The 95\% confidence intervals for the LDpred2-auto estimates are obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. We only show phenotypes for which there are more than 25 chains kept, because simulations have shown that $\alpha$ estimates are unreliable when a small number of chains is kept (Figure \ref{fig:simu_alpha}). \label{fig:ukbb_h2_alpha}}
 \end{figure}
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{ukbb_r2}}
-	\caption{Height has estimated h2 of 0.555 and 0.626 -> probably too large, and why estimated r2 is too large as well. The other outliers is 695.4 (Lupus), with a very small number of cases -> should probably stop using 16 PCs \label{}}
+	\caption{Inferred predictive performance $r^2$ from the Gibbs sampler of LDpred2-auto versus the ones obtained in the test set, for all 248 phenotypes defined from the UK Biobank. These are stratified by estimated heritability (from LDpred2-auto). The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $r^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. \label{fig:ukbb_r2}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{ukbb_compare_hm3_small}}
-\caption{ \label{}}
+\caption{TODO: CHANGE LABELS \label{fig:small_LD}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{ukbb_compare_hm3_altpop}}
-\caption{ \label{}}
+\caption{TODO: CHANGE LABELS \label{fig:alt_LD}}
 \end{figure}
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{ukbb_compare_hm3_plus}}
-	\caption{ \label{}}
+	\caption{TODO: CHANGE LABELS \label{fig:hm3_plus}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{ukbb_chains}}
-\caption{ \label{}}
+\caption{ \label{fig:ukbb_chains}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{ukbb_runtimes}}
-\caption{ \label{}}
+\caption{TODO: START AT 0 \label{fig:ukbb_runtimes}}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -203,6 +203,31 @@
 \FloatBarrier
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=\textwidth]{mean-local-h2}}
+	\caption{ \label{}}
+\end{figure}
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=\textwidth]{mean-local-h2-perc}}
+	\caption{ \label{}}
+\end{figure}
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=\textwidth]{local-h2-p}}
+	\caption{ \label{}}
+\end{figure}
+
+\begin{figure}[p]
+\centerline{\includegraphics[width=\textwidth]{ukbb_compare-transfo}}
+\caption{ \label{}}
+\end{figure}
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=\textwidth]{height_enrichment}}
+	\caption{ \label{}}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
