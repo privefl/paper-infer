@@ -156,14 +156,14 @@ Most phenotypes have an estimated $\alpha$ between -1.0 and -0.4 with a mode at 
 As for the inferred predictive performance, they are highly consistent with the ones derived from the test; only for standing height and sitting height are they slightly overestimated (Figure \ref{fig:ukbb_r2}). Heritability estimates for these two traits are probably slightly overestimated as well since we use similar formulas for estimating $h^2$ and $r^2$, and these are higher than values reported in the literature. 
 
 We then investigate previous estimates using two alternative LD references (Methods).
-Using a smaller number of individuals for computing the LD results in a slightly overestimated $p$ and $h^2$ (and $r^2$), while the $\alpha$ estimate remains consistent, and the predictive performance in the test set remains mostly similar (Figure \ref{fig:small_LD}).
-When using an LD reference from an alternative population (South Europe instead of North-West Europe), $p$, $h^2$, and $r^2$ are slightly overestimated as well, and a few phenotypes have lower predictive performance (Figure \ref{fig:alt_LD}).
+Using a smaller number of individuals for computing the LD results in a slightly overestimated $p$ and $h^2$ (and $r^2$), while the $\alpha$ estimate remains consistent, and the predictive performance in the test set remains mostly similar, except for three phenotypes for which none of the LDpred2-auto chains is usable (Figure \ref{fig:small_LD}).
+When using an LD reference from an alternative population (South Europe instead of North-West Europe), $p$, $h^2$, and $r^2$ are slightly overestimated as well, and a few phenotypes have lower predictive performance while there are four phenotypes for which none of the LDpred2-auto chains is usable (Figure \ref{fig:alt_LD}).
 
-We then investigate previous estimates using the extended set of HapMap3 variants proposed here (Methods). As expected, compared to HapMap3, higher $h^2$ (average increase of 12.3\% [10.8-13.7]) and lower $p$ (decrease of 11.5\% [10.6-12.3]) estimates are obtained with this extended set HapMap3+ (Figure \ref{fig:hm3_plus}). 
+We then investigate previous estimates using the extended set of HapMap3 variants proposed here (Methods). As expected, compared to HapMap3, higher $h^2$ (average increase of 12.3\% [10.8-13.7]) and lower $p$ (decrease of 11.5\% [10.7-12.3]) estimates are obtained with this extended set HapMap3+ (Figure \ref{fig:hm3_plus}). 
 This is consistent with higher predictive performance $r^2$ in the test set (increase of 6.1\% [4.1-8.2]).
 A particularly much larger $h^2$ estimate is obtained for lipoprotein(a) concentration (0.508 [0.502-0.514] instead of 0.324 [0.320-0.329]), which is also reflected in a larger predictive performance ($r^2$ in test set of 0.516 [0.508-0.524] instead of 0.344 [0.335-0.353]).
-Interestingly, when using this extended set of variants, more chains are kept on average, which is a sign of better convergence of the models (Figure \ref{fig:ukbb_chains}). 
-However, fitting with this extended set of variants is more computationally demanding [TODO RATIO]; yet, we recall that LDpred2 has been made much faster in \cite{prive2021identifying}, and now run in less than one hour for 50 chains parallelized over 13 cores (Figure \ref{fig:ukbb_runtimes}).
+Interestingly, when using this extended set of HapMap3 variants, more chains are kept on average, which is a sign of better convergence of the models (Figure \ref{fig:ukbb_chains}). 
+However, fitting with this extended set of variants takes around 50\% more time; yet, we recall that LDpred2 has been made much faster in \cite{prive2021identifying}, and now run in less than one hour for 50 chains parallelized over 13 cores (Figure \ref{fig:ukbb_runtimes}).
 
 Finally, we investigate different transformations to apply to some continuous phenotypes used here.
 Indeed, 49 of such phenotypes seems log-normally distributed or heavy-tailed (when visualizing their histogram); we therefore log-transform them.
@@ -179,7 +179,16 @@ Except for bilirubin and lipoprotein(a) concentration, generally higher $h^2$ es
 
 In this section, we use the new HapMap3+ set of variants constructed here. 
 We recall that we have defined 431 independent LD blocks for this set (Methods).
-We compute a per-block (local) $h^2$ estimate, and report the UKBB phenotypes for which one block contributes to at least 10\% of the total heritability of all blocks.
+We compute a per-block (local) $h^2$ estimate, and report the UKBB phenotypes for which one block contributes to at least 10\% of the total heritability of all blocks in Figure \ref{fig:ukbb_local_h2}.
+For lipoprotein(a) concentration, ``red hair'' and ``disorders of iron metabolism'' (phecode 275.1), almost all heritability comes from one block only.
+We also perform the same analysis with external GWAS summary statistics for 90 cardiovascular proteins \cite[]{folkersen2020genomic}; 22 of them have at least 50\% of their heritability explained by one block, and at least 80\% for 8 of them (Figure \ref{fig:protein_local_h2}). 
+
+Across 169 UKBB phenotypes with more than 25 chains kept, we compute the median heritability per block, and compare it to the number of variants in these blocks in Figure \ref{fig:median_local_h2}. The median heritability explained by a block of variants is largely proportional to the number of variants in this block.
+Unsurprisingly, the outlier block explaining a much larger heritability contains the HLA region (Figure \ref{fig:median_local_h2}).
+Across the same phenotypes, we then compute per-variant median probabilities of being causal, and report them in a Manhattan-like plot in Figure \ref{median_postp}.
+Some variants in multiple small regions across the genome seem to have a much larger probability of being causal; these are mapped to genes that are known to be associated with many different traits (up to more than 300) in the GWAS Catalog \cite[]{buniello2019nhgri}.
+
+[TODO: HEIGHT ENRICHMENT]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -244,8 +253,6 @@ We start by including all previously used HapMap3 variants.
 Then, for the sake of simplicity, we use a greedy approach, where we repeatedly include the variant which increases this sum most, until no variant improves it by more than 2. 
 Note that we only allow non-ambiguous SNPs to be included.
 This results in an extended set of 1,444,196 SNPs, of which we compute the correlation between variants (within a 3 cM window) and apply the optimal algorithm developed in \cite{prive2021optimal} to obtain 431 independent LD blocks.
-
-[FURTHER RESTRICT VARIANTS THAT CAN ENTER THIS NEW SET?]
 
 \subsection*{New model and inference with LDpred2-auto}
 
