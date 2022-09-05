@@ -124,7 +124,7 @@
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{est_binary_alpha_one}}
-	\caption{Inferred $\alpha$ in simulations with continuous outcomes. Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the estimates. {\NEFF} \label{fig:simu_alpha_bin}}
+	\caption{Inferred $\alpha$ in simulations with binary outcomes. Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the estimates. {\NEFF} \label{fig:simu_alpha_bin}}
 \end{figure}
 
 \begin{figure}[p]
@@ -143,41 +143,41 @@
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{ukbb_h2_p}}
-	\caption{Estimates from LDpred2-auto for either the SNP heritability $h^2$ or the polygenicity $p$ for all 248 phenotypes defined from the UK Biobank. The 95\% confidence intervals for the LDpred2-auto estimates are obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. \label{fig:ukbb_h2_p}}
+	\caption{Estimates from LDpred2-auto for either the SNP heritability $h^2$ or the polygenicity $p$ for all 248 phenotypes defined from the UK Biobank. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. \label{fig:ukbb_h2_p}}
 \end{figure}
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{ukbb_h2_alpha}}
-	\caption{Estimates from LDpred2-auto for either the SNP heritability $h^2$ or $\alpha$ for all 248 phenotypes defined from the UK Biobank. The 95\% confidence intervals for the LDpred2-auto estimates are obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. We only show phenotypes for which there are more than 25 chains kept, because simulations have shown that $\alpha$ estimates are unreliable when a small number of chains is kept (Figure \ref{fig:simu_alpha}). \label{fig:ukbb_h2_alpha}}
+	\caption{Estimates from LDpred2-auto for either the SNP heritability $h^2$ or $\alpha$ for all 248 phenotypes defined from the UK Biobank. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. We only show phenotypes for which there are more than 25 chains kept, because simulations have shown that $\alpha$ estimates are unreliable when a small number of chains is kept (Figure \ref{fig:simu_alpha}). \label{fig:ukbb_h2_alpha}}
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=\textwidth]{ukbb_r2}}
+	\centerline{\includegraphics[width=0.9\textwidth]{ukbb_r2}}
 	\caption{Inferred predictive performance $r^2$ from the Gibbs sampler of LDpred2-auto versus the ones obtained in the test set, for all 248 phenotypes defined from the UK Biobank. These are stratified by the polygenicity estimated from LDpred2-auto. Green dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $r^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. \label{fig:ukbb_r2}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{ukbb_compare_hm3_small}}
-\caption{ \label{fig:small_LD}}
+\caption{LDpred2-auto estimates for UKBB phenotypes with either a small or a large LD reference. Only 154 phenotypes with more than 25 chains kept when using the large LD reference are represented here. Red dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate (in green) is obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. \label{fig:small_LD}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{ukbb_compare_hm3_altpop}}
-\caption{ \label{fig:alt_LD}}
+\caption{LDpred2-auto estimates for UKBB phenotypes with either a N.W. European or a S. European (``altpop'') LD reference. Only 154 phenotypes with more than 25 chains kept when using the N.W. European LD reference are represented here. Red dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate (in green) is obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. \label{fig:alt_LD}}
 \end{figure}
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{ukbb_compare_hm3_plus}}
-	\caption{ \label{fig:hm3_plus}}
+	\caption{LDpred2-auto estimates for UKBB phenotypes using either the HapMap3 or HapMap3+ sets of variants. Only 154 phenotypes with more than 25 chains kept when using the HapMap3 variants are represented here. Red dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate (in green) is obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. \label{fig:hm3_plus}}
 \end{figure}
 
 \begin{figure}[p]
-\centerline{\includegraphics[width=\textwidth]{ukbb_chains}}
+\centerline{\includegraphics[width=0.9\textwidth]{ukbb_chains}}
 \caption{Distribution of the number of LDpred2-auto chains kept across 248 UKBB phenotypes. \label{fig:ukbb_chains}}
 \end{figure}
 
 \begin{figure}[p]
-\centerline{\includegraphics[width=\textwidth]{ukbb_runtimes}}
+\centerline{\includegraphics[width=0.9\textwidth]{ukbb_runtimes}}
 \caption{Distribution of LDpred2-auto runtimes across 248 UKBB phenotypes. For each phenotype, 50 chains were used, parallelized over 13 cores. \label{fig:ukbb_runtimes}}
 \end{figure}
 
@@ -186,13 +186,13 @@
 \FloatBarrier
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=\textwidth]{ukbb_compare_notransfo}}
-	\caption{ \label{fig:notransfo}}
+	\centerline{\includegraphics[width=0.85\textwidth]{ukbb_compare_notransfo}}
+	\caption{LDpred2-auto estimates for 49 log-transformed UKBB phenotypes, versus for their raw versions. Red dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate (in green) is obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. \label{fig:notransfo}}
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=\textwidth]{ukbb_compare_transfo}}
-	\caption{ \label{fig:RINT}}
+	\centerline{\includegraphics[width=0.85\textwidth]{ukbb_compare_transfo}}
+	\caption{LDpred2-auto estimates for 49 log-transformed UKBB phenotypes, versus for their rank-based inverse normal (RIN) transformed versions. Red dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate (in green) is obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. \label{fig:RINT}}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -201,17 +201,17 @@
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{ukbb_local_h2}}
-	\caption{ \label{fig:ukbb_local_h2}}
+	\caption{Genome-wide and per-block heritability estimates from LDpred2-auto for UKBB phenotypes. The HapMap3+ variants are used here. The maximum local $h^2$ is the maximum heritability estimate across all 431 independent LD blocks defined for this set of variants. Only phenotypes for which this represents at least 10\% of the total heritability are represented. \label{fig:ukbb_local_h2}}
 \end{figure}
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{protein_local_h2}}
-	\caption{ \label{fig:protein_local_h2}}
+	\caption{Genome-wide and per-block heritability estimates from LDpred2-auto for 90 protein concentrations \cite[]{folkersen2020genomic}. The HapMap3+ variants are used here. The maximum local $h^2$ is the maximum heritability estimate across all 431 independent LD blocks defined for this set of variants. \label{fig:protein_local_h2}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{height_enrichment}}
-\caption{Heritability enrichment from LDpred2-auto for height across 50 functional annotations. $N$ is the GWAS sample size. \label{fig:enrichment}}
+\caption{Heritability enrichment from LDpred2-auto for height across 50 functional annotations. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. \label{fig:enrichment}}
 \end{figure}
 
 \begin{figure}[p]
