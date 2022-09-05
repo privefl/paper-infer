@@ -132,15 +132,16 @@ Then, a GWAS is run to obtain summary statistics using $N$ (either the 200,000 d
 Finally, we run the new LDpred2-auto model (Methods) with and without the option \texttt{allow\_jump\_sign}, which was proposed in \cite{prive2021identifying} for robustness (when disabled). 
 LDpred2-auto is run with 50 Gibbs sampler chains with different starting values for $p$.
 
-LDpred2-auto generally reliably infers the three parameters from its model, i.e.\ the SNP heritability $h^2$, polygenicity $p$, and $\alpha$ (Figures \ref{fig:simu_h2},\ref{fig:simu_p} and \ref{fig:simu_alpha}).
-Moreover, LDpred2-auto can also infer per-variant probabilities of being causal and per-block (local) heritability estimates that are well calibrated (Figures \ref{fig:simu_postp_calib} and \ref{fig:simu_h2_calib}).
-Finally, LDpred2-auto can be used to infer the predictive performance $r^2$ of its resulting polygenic score, directly from within the Gibbs sampler (Figure \ref{fig:simu_h2}).
-[TODO: TALK ABOUT WHERE IT FAILED AND LIMITATIONS]
-[TODO: RUN AND REPORT THE MEAN]
+LDpred2-auto generally reliably infers the three parameters from its model, i.e.\ the SNP heritability $h^2$, polygenicity $p$, and $\alpha$ (Figures \ref{fig:simu_h2}--\ref{fig:simu_alpha}).
+Compared to LD Score regression, heritability estimates are as precise when power is low, and much more precise when power is large, especially for small polygenicity values (Figure \ref{fig:simu_h2}).
+When power is low, the polygenicity can be overestimated when the true value is very small (e.g.\ $p=0.0005$), and underestimated when the polygenicity is large (e.g.\ $p=0.1$, Figure \ref{fig:simu_p}).
+The $\alpha$ estimate becomes unreliable when power is too low, which can be detected by a small number of chains kept from LDpred2-auto (Figure \ref{fig:simu_alpha}).
+Moreover, LDpred2-auto can also infer per-variant probabilities of being causal and per-block (local) heritability estimates, which are well calibrated (Figures \ref{fig:simu_postp_calib} and \ref{fig:simu_h2_calib}).
+Finally, LDpred2-auto can be used to reliably infer the predictive performance $r^2$ of its resulting polygenic score, directly from within the Gibbs sampler, even when power is low (Figure \ref{fig:simu_r2}).
 
-We also run simulations with binary outcomes where the simulated continuous liabilities are transformed to binary outcomes using a thresholding corresponding to the prevalence [TODO: MAYBE REWORD].
-Results are very similar as with the continuous phenotypes above, and are similar whether we use either a linear regression GWAS and the total sample size $N$, or a logistic regression GWAS and the effective sample size (i.e.\ $N_\text{eff} = 4 / (1 / N_\text{case} + 1 / N_\text{control})$). The only difference is the transformation to the liability scale that needs to be applied to the $h^2$ and $r^2$ estimates from LDpred2-auto, where $K_\text{GWAS}=0.5$ should be used when using $N_\text{eff}$ \cite[]{grotzinger2021pervasive}.
- [TO FINISH]
+We also run simulations with binary outcomes where the simulated continuous liabilities are transformed to binary outcomes using a thresholding corresponding to the prevalence.
+Results are very similar as with the continuous phenotypes above (Figures \ref{fig:simu_h2_bin}--\ref{fig:simu_r2_bin}), and are similar whether we use either a linear regression GWAS and the total sample size $N$, or a logistic regression GWAS and the effective sample size (i.e.\ $N_\text{eff} = 4 / (1 / N_\text{case} + 1 / N_\text{control})$). The only difference is the transformation to the liability scale that needs to be applied to the $h^2$ and $r^2$ estimates from LDpred2-auto, where $K_\text{GWAS}=0.5$ should be used when using $N_\text{eff}$ \cite[]{grotzinger2021pervasive}.
+
  
 
 \subsection*{Genetic architectures of 248 phenotypes from the UK Biobank}
@@ -182,13 +183,13 @@ We recall that we have defined 431 independent LD blocks for this set (Methods).
 We compute a per-block (local) $h^2$ estimate, and report the UKBB phenotypes for which one block contributes to at least 10\% of the total heritability of all blocks in Figure \ref{fig:ukbb_local_h2}.
 For lipoprotein(a) concentration, ``red hair'' and ``disorders of iron metabolism'' (phecode 275.1), almost all heritability comes from one block only.
 We also perform the same analysis with external GWAS summary statistics for 90 cardiovascular proteins \cite[]{folkersen2020genomic}; 22 of them have at least 50\% of their heritability explained by one block, and at least 80\% for 8 of them (Figure \ref{fig:protein_local_h2}). 
+Back to the UKBB data, instead of computing per-block heritability estimates, we compute per-annotation ones, to investigate functional enrichment. We perform this analysis for height using 50 non-flanking binary annotations from the baselineLD v2.2 model \cite[]{finucane2018heritability}.
+Heritability enrichments are rather modest, ranging from 0.7 to 2.5 with a GWAS sample size of N=305K, and of slightly smaller magnitude with N=100K (Figure \ref{fig:enrichment}).
 
 Across 169 UKBB phenotypes with more than 25 chains kept, we compute the median heritability per block, and compare it to the number of variants in these blocks in Figure \ref{fig:median_local_h2}. The median heritability explained by a block of variants is largely proportional to the number of variants in this block.
 Unsurprisingly, the outlier block explaining a much larger heritability contains the HLA region (Figure \ref{fig:median_local_h2}).
 Across the same phenotypes, we then compute per-variant median probabilities of being causal, and report them in a Manhattan-like plot in Figure \ref{median_postp}.
 Some variants in multiple small regions across the genome seem to have a much larger probability of being causal; these are mapped to genes that are known to be associated with many different traits (up to more than 300) in the GWAS Catalog \cite[]{buniello2019nhgri}.
-
-[TODO: HEIGHT ENRICHMENT]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -210,6 +211,8 @@ Some variants in multiple small regions across the genome seem to have a much la
 [VERY POLYGENIC, BUT NOT INFINITESIMAL -> THEREFORE LDPRED2-INF NEVER RECOMMENDED (LDPRED2 + MISSPEC)]
 
 [HM3\_PLUS AND MISSING HERITABILITY]
+
+[MENTION YI'S PAPER]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

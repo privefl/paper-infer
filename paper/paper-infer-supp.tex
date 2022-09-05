@@ -58,6 +58,7 @@
 \usepackage{babel}
 \makeatother
 
+\newcommand{\NEFF}{Option \texttt{Neff} controls whether a logistic regression is used for the GWAS with the effective sample in LDpred2, or a linear regression and then the total sample size.}
 
 \begin{document}
 
@@ -72,32 +73,32 @@
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{est_h2_one}}
-\caption{Inferred SNP heritability $h^2$ in simulations with continuous outcomes. Horizontal lines represent the true simulated values. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for the LD Score regression estimate is obtained from $\pm$1.96 times its standard error. \label{fig:simu_h2}}
+\caption{Inferred SNP heritability $h^2$ in simulations with continuous outcomes. Horizontal dashed lines represent the true simulated values. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for the LD Score regression estimate is obtained from $\pm$1.96 times its standard error. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. \label{fig:simu_h2}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{est_p_one}}
-\caption{Inferred polygenicity $p$ in simulations with continuous outcomes. \label{fig:simu_p}}
+\caption{Inferred polygenicity $p$ in simulations with continuous outcomes. Horizontal dashed lines represent the true simulated values. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. \label{fig:simu_p}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{est_alpha_one}}
-\caption{Inferred $\alpha$ in simulations with continuous outcomes. \label{fig:simu_alpha}}
+\caption{Inferred $\alpha$ in simulations with continuous outcomes. Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the estimates. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. \label{fig:simu_alpha}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{postp_calib}}
-\caption{Calibration of per-variant posterior probabilities of being causal in simulations with continuous outcomes. \label{fig:simu_postp_calib}}
+\caption{Calibration of per-variant posterior probabilities of being causal in simulations with continuous outcomes. Green dashed lines represent the 1:1 line. Only results for $\alpha = -0.5$ and \texttt{allow\_jump\_sign = FALSE} are represented. \label{fig:simu_postp_calib}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{local_h2_calib}}
-\caption{Calibration of per-block heritability estimates in simulations with continuous outcomes. \label{fig:simu_h2_calib}}
+\caption{Calibration of per-block heritability estimates in simulations with continuous outcomes. Green dashed lines represent the 1:1 line. Only results for $\alpha = -0.5$ and \texttt{allow\_jump\_sign = FALSE} are represented. \label{fig:simu_h2_calib}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{est_r2_one}}
-\caption{Inferred predictive performance $r^2$ in simulations with continuous outcomes. \label{fig:simu_r2}}
+\caption{Inferred predictive performance $r^2$ in simulations with continuous outcomes. Green segments represent $r^2$ in the test set. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. \label{fig:simu_r2}}
 \end{figure}
 
 
@@ -113,27 +114,22 @@
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{est_binary_h2_one}}
-	\caption{All h2 estimates were transformed to the liability scale with K\_pop=K and K\_GWAS either K or 0.5 (when using Neff) \label{}}
+	\caption{Inferred SNP heritability $h^2$ in simulations with binary outcomes. Horizontal dashed lines represent the true simulated values. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for the LD Score regression estimate is obtained from $\pm$1.96 times its standard error. {\NEFF} All $h^2$ estimates are transformed to the liability scale with K\_pop=K and K\_GWAS either K (the simulated prevalence) or 0.5 (when using Neff) using function \texttt{coef\_to\_liab} from R package bigsnpr \cite{lee2012better,prive2017efficient}. \label{fig:simu_h2_bin}}
 \end{figure}
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{est_binary_p_one}}
-	\caption{ \label{}}
+	\caption{Inferred polygenicity $p$ in simulations with binary outcomes. Horizontal dashed lines represent the true simulated values. {\NEFF} \label{fig:simu_p_bin}}
 \end{figure}
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{est_binary_alpha_one}}
-	\caption{ \label{}}
+	\caption{Inferred $\alpha$ in simulations with continuous outcomes. Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the estimates. {\NEFF} \label{fig:simu_alpha_bin}}
 \end{figure}
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{est_binary_r2_one}}
-	\caption{Transformed both r2 to the liability scale, where the inferred one using Neff used K\_GWAS=0.5  \label{}}
-\end{figure}
-
-\begin{figure}[p]
-	\centerline{\includegraphics[width=\textwidth]{binary_postp_calib}}
-	\caption{ \label{}}
+	\caption{Inferred predictive performance $r^2$ in simulations with binary outcomes. Green segments represent $r^2$ in the test set. {\NEFF} All $r^2$ estimates are transformed to the liability scale with K\_pop=K and K\_GWAS either K (the simulated prevalence) or 0.5 (when using Neff) using function \texttt{coef\_to\_liab} from R package bigsnpr \cite{lee2012better,prive2017efficient}; the ones from the test set are transformed with K and K. \label{fig:simu_r2_bin}}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -142,7 +138,7 @@
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=0.9\textwidth]{ukbb_h2}}
-	\caption{SNP heritability estimates from either LDpred2-auto or LD Score regression for all 248 phenotypes defined from the UK Biobank. These are stratified by estimated polygenicity (from LDpred2-auto). The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for the LD Score regression estimate is obtained from $\pm$1.96 times its standard error. \label{fig:ukbb_h2}}
+	\caption{SNP heritability estimates from either LDpred2-auto or LD Score regression for all 248 phenotypes defined from the UK Biobank. These are stratified by the polygenicity estimated from LDpred2-auto. Green dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for the LD Score regression estimate is obtained from $\pm$1.96 times its standard error. \label{fig:ukbb_h2}}
 \end{figure}
 
 \begin{figure}[p]
@@ -157,7 +153,7 @@
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{ukbb_r2}}
-	\caption{Inferred predictive performance $r^2$ from the Gibbs sampler of LDpred2-auto versus the ones obtained in the test set, for all 248 phenotypes defined from the UK Biobank. These are stratified by estimated heritability (from LDpred2-auto). The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $r^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. \label{fig:ukbb_r2}}
+	\caption{Inferred predictive performance $r^2$ from the Gibbs sampler of LDpred2-auto versus the ones obtained in the test set, for all 248 phenotypes defined from the UK Biobank. These are stratified by the polygenicity estimated from LDpred2-auto. Green dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $r^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. \label{fig:ukbb_r2}}
 \end{figure}
 
 \begin{figure}[p]
@@ -214,6 +210,11 @@
 \end{figure}
 
 \begin{figure}[p]
+\centerline{\includegraphics[width=\textwidth]{height_enrichment}}
+\caption{Heritability enrichment from LDpred2-auto for height across 50 functional annotations. $N$ is the GWAS sample size. \label{fig:enrichment}}
+\end{figure}
+
+\begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{median_local_h2}}
 	\caption{Per-block median heritability across 169 UKBB phenotypes. The HapMap3+ set of variants is used, with 431 independent LD blocks. Only phenotypes with more than 25 chains kept are used here. The top block is on chromosome 6 [22.1-41.4 Mb], which contains the HLA region. \label{fig:median_local_h2}}
 \end{figure}
@@ -221,11 +222,6 @@
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{median_postp}}
 \caption{Per-variant median probabilities of being causal across 169 UKBB phenotypes. The HapMap3+ set of variants is used. Only phenotypes with more than 25 chains kept are used here. \label{median_postp}}
-\end{figure}
-
-\begin{figure}[p]
-	\centerline{\includegraphics[width=\textwidth]{height_enrichment}}
-	\caption{Heritability enrichment from LDpred2-auto for height across 50 functional annotations. $N$ is the GWAS sample size. \label{fig:enrichment}}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
