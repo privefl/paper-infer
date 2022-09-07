@@ -119,7 +119,11 @@ We call this new preferred set of 1,444,196 SNPs HapMap3+.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[OVERVIEW TABLE OF WHAT LDPRED2 CAN PROVIDE?]
+\begin{figure}[!h]
+	\centerline{\includegraphics[width=0.6\textwidth]{overview}}
+	\caption{[OVERVIEW FIGURE OF WHAT LDPRED2 CAN PROVIDE?] \label{fig:overview}}
+\end{figure}
+
 
 
 \section*{Results}
@@ -186,13 +190,30 @@ We recall that we have defined 431 independent LD blocks for this set (Methods).
 We compute a per-block (local) $h^2$ estimate, and report the UKBB phenotypes for which one block contributes to at least 10\% of the total heritability of all blocks in Figure \ref{fig:ukbb_local_h2}.
 For lipoprotein(a) concentration, ``red hair'' and ``disorders of iron metabolism'' (phecode 275.1), almost all heritability comes from one block only.
 We also perform the same analysis with external GWAS summary statistics for 90 cardiovascular proteins \cite[]{folkersen2020genomic}; 22 of them have at least 50\% of their heritability explained by one block, and at least 80\% for 8 of them (Figure \ref{fig:protein_local_h2}). 
-Back to the UKBB data, instead of computing per-block heritability estimates, we compute per-annotation ones, to investigate functional enrichment. We perform this analysis for height using 50 non-flanking binary annotations from the baselineLD v2.2 model \cite[]{finucane2018heritability}.
-Heritability enrichments are rather modest, ranging from 0.7 to 2.5 with a GWAS sample size of N=305K, and of slightly smaller magnitude with N=100K (Figure \ref{fig:enrichment}).
 
 Across 169 UKBB phenotypes with more than 25 chains kept, we compute the median heritability per block, and compare it to the number of variants in these blocks; the median heritability explained by a block of variants is largely proportional to the number of variants in this block (Figure \ref{fig:median_local_h2}).
 The outlier block explaining a much larger heritability contains the HLA region.
 Across the same phenotypes, we then compute per-variant median probabilities of being causal, and report them in a Manhattan-like plot in Figure \ref{median_postp}.
 Some variants in multiple small regions across the genome have a larger probability of being causal across many phenotypes; these are mapped to genes that are known to be associated with many different traits (up to more than 300) in the GWAS Catalog \cite[]{buniello2019nhgri}.
+
+\subsection*{Application to height}
+
+Here we run three LDpred2-auto models for height, one based on 100K UKBB individuals (as a subset of the 305K used before), one from the same 305K UKBB individuals as before, and one from a large GWAS meta-analysis of 1.6M European individuals \cite[]{yengo2022saturated}.
+Using the method developed in \cite{prive2021using}, we first infer the ancestry proportions of individuals included in the meta-analysis as 81.9\% from N.W. Europe, 9.5\% from E. Europe, 6.5\% from Finland, 1.5\% of Ashkenazi ancestry, 0.3\% from S.W. Europe, and 0.2\% from W. Africa. 
+We can therefore use the same N.W. European LD with these GWAS summary statistics. 
+Note that we use the HapMap3+ set of 1,444,196 SNPs here, but that we use only 1,013,499 SNPs for the GWAS meta-analysis (those overlapping and passing quality control).
+
+Intercepts from LD Score regression are increasing with sample size: 1.01 (SE: 0.007) with N=100K, 1.11 (0.015) with N=305K, and 2.31 (0.068) with N=1.6M, as expected \cite[]{loh2018mixed}.
+SNP heritability estimates are of 65.5\% (SE: 2.8), 59.7\% (2.2), and 39.2\% (1.7) with LD Score regression, respectively. And of 60.2\% [95\% CI: 57.4, 63.1], 62.9\% [61.7, 64.0], and 54.1\% [53.8, 54.4] with LDpred2-auto, respectively.
+The reduced heritability estimation from the meta-analysis can be partly explained by three reasons: a reduced number of overlapping SNPs, more heterogeneity in the individuals from the meta-analysis compared to within the UK Biobank only, and less effect of assortative mating (which is strong in the UK Biobank due to the presence of many spouses, and probably contributes to overestimating the heritability of height there).
+As expected, predictive performance $r^2$ are increasing with sample size, with 30.0\% [29.2, 30.8], 42.7\% [42.2, 43.1], and 46.9\% [46.8, 47.1], respectively.
+Note that the first two estimates (from UKBB) are slightly overestimated, and that the last one is based on a smaller number of overlapping SNPs.
+We emphasize that, even though there are 1.6M individuals in the meta-analysis, the predictive performance corresponds to around 87\% of the SNP heritability only (46.9\% versus 54.1\%).
+Polygenicity estimates from LDpred2-auto are increasing with sample size with 1.1\% [1.0, 1.4], 2.2\% [2.0, 2.4], and 5.7\% [5.4, 6.0], consistent with results of simulations with a large polygenicity (p=10\%). Therefore, we estimate that height has at least 50,000 causal variants.
+We also identify 1744 SNPs with a probability of being causal larger than 95\%.
+As for $\alpha$ estimates from LDpred2-auto, they remain highly consistent, with -0.72 [-0.76, -0.68], -0.74 [-0.76, -0.71], and -0.78 [-0.81, -0.75], respectively.
+Finally, we compute per-annotation heritability estimates, to investigate functional enrichment. We perform this analysis using 50 non-flanking binary annotations from the baselineLD v2.2 model \cite[]{finucane2018heritability}.
+Heritability enrichments are rather modest, ranging from 0.7 to 2.5 with a GWAS sample size of N=305K, and of slightly smaller magnitude with N=100K and larger magnitude with N=1.6M (Figure \ref{fig:enrichment}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -216,6 +237,8 @@ Some variants in multiple small regions across the genome have a larger probabil
 [HM3\_PLUS AND MISSING HERITABILITY]
 
 [MENTION YI'S PAPER]
+
+[COMPARE FA ENRICHMENT TO YENGO2022]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
