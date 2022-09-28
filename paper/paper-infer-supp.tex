@@ -143,7 +143,7 @@
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{ukbb_h2_p}}
-	\caption{Estimates from LDpred2-auto for either the SNP heritability $h^2$ or the polygenicity $p$ for all 248 phenotypes defined from the UK Biobank. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. \label{fig:ukbb_h2_p}}
+	\caption{Estimates from LDpred2-auto for either the SNP heritability $h^2$ or the polygenicity $p$ for all 248 phenotypes defined from the UK Biobank. Estimates of $h^2$ are constrained to be at least 0.001, and at least $10^{-5}$ for $p$. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. \label{fig:ukbb_h2_p}}
 \end{figure}
 
 \begin{figure}[p]
@@ -216,7 +216,7 @@
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{median_postp}}
-\caption{Per-variant median probabilities of being causal across 169 UKBB phenotypes. The HapMap3+ set of variants is used. Only phenotypes with more than 25 chains kept are used here. \label{median_postp}}
+\caption{Per-variant median probabilities of being causal across 169 UKBB phenotypes. Variants with a median probability larger than 0.01 were mapped to genes using R package rsnps (only the largest per peak). The HapMap3+ set of variants is used. Only phenotypes with more than 25 chains kept are used here. \label{median_postp}}
 \end{figure}
 
 
