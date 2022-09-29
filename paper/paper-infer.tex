@@ -112,7 +112,7 @@ Such genetic predictors are called polygenic scores (PGS), and are getting close
 LDpred2 is a widely used polygenic score method that can directly build PGS using summary statistics results from genome-wide associations studies (GWAS), making it highly applicable \cite[]{prive2020ldpred2,pain2021evaluation,kulm2021systematic}.
 LDpred2 is a Bayesian approach that uses the SNP heritability $h^2$ and polygenicity $p$ as parameters of its model. In LDpred2-auto, it can directly estimate these parameters from the data, making it applicable even when no validation data is available for tuning these two model hyper-parameters \cite[]{prive2020ldpred2}.
 
-Here we extend LDpred2-auto to make it a highly reliable method for estimating $h^2$ (global and local), $p$ (also per-variant probability for fine-mapping purposes), and $\alpha$.
+Here we extend LDpred2-auto to make it a highly reliable method for estimating $h^2$ (global and local), $p$ (also per-variant probabilities for fine-mapping purposes), and $\alpha$.
 So, on top of providing competitive PGS, LDpred2-auto can now provide all these estimates of genetic architecture. 
 Moreover, we show how it can now also reliably estimate the predictive ability $r^2$ of PGS it derives, allowing for directly assessing the usefulness of the derived PGS, without needing an independent test set.
 An overview of what LDpred2-auto can provide is presented in Figure \ref{fig:overview}.
@@ -207,8 +207,7 @@ To verify that this does not correspond to regions of low LD, we compute LD scor
 \subsection*{Application to height}
 
 Here we run three LDpred2-auto models for height, one based on 100K UKBB individuals (as a subset of the 305K used before), one from the same 305K UKBB individuals used before, and one from a large GWAS meta-analysis of 1.6M individuals of European genetic ancestries [TODO: ADD NUMBER OF VARIANTS] \cite[]{yengo2022saturated}.
-We first infer the genetic ancestry proportions of individuals included in the meta-analysis using the method proposed in
-\cite{prive2021using}, and find that 81.9\% are from N.W. Europe, 9.5\% from E. Europe, 6.5\% from Finland, 1.5\% of Ashkenazi genetic ancestry, 0.3\% from S.W. Europe, and 0.2\% from W. Africa. 
+We first infer the genetic ancestry proportions of individuals included in the meta-analysis using the method proposed in \cite{prive2021using}, and find that 81.9\% are from N.W. Europe, 9.5\% from E. Europe, 6.5\% from Finland, 1.5\% of Ashkenazi genetic ancestry, 0.3\% from S.W. Europe, and 0.2\% from W. Africa. 
 We therefore use the same N.W. European LD matrix with these GWAS summary statistics. 
 Note that we use the HapMap3+ set of 1,444,196 SNPs here, but that we use only 1,013,499 SNPs for the GWAS meta-analysis (those overlapping and passing quality control).
 
@@ -225,7 +224,6 @@ We also identify 1744 SNPs with a probability of being causal larger than 95\% (
 As for $\alpha$ estimates from LDpred2-auto, they remain highly consistent, with -0.72 [-0.76, -0.68], -0.74 [-0.76, -0.71], and -0.78 [-0.81, -0.75], respectively.
 Finally, we compute per-annotation heritability estimates to investigate functional enrichment. We perform this analysis using 50 non-flanking binary annotations from the baselineLD v2.2 model \cite[]{finucane2018heritability}.
 Heritability enrichments are rather modest, ranging from 0.7 to 2.5 with a GWAS sample size of N=305K, and of slightly smaller magnitude with N=100K and slightly larger magnitude with N=1.6M (Figure \ref{fig:enrichment}).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
