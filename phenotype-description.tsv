@@ -1,0 +1,251 @@
+phenotype	description	group
+153	Colorectal cancer	neoplasms
+165	Cancer within the respiratory system	neoplasms
+172	Skin cancer	neoplasms
+174.1	Breast cancer [female]	neoplasms
+180	Cervical cancer and dysplasia	neoplasms
+185	Cancer of prostate	neoplasms
+187.2	Malignant neoplasm of testis	neoplasms
+189.2	Cancer of bladder	neoplasms
+191.11	Cancer of brain	neoplasms
+193	Thyroid cancer	neoplasms
+200.1	Polycythemia vera	neoplasms
+208	Benign neoplasm of colon	neoplasms
+211	Benign neoplasm of other parts of digestive system	neoplasms
+218	Benign neoplasm of uterus	neoplasms
+241.2	Nontoxic multinodular goiter	endocrine/metabolic
+242	Thyrotoxicosis with or without goiter	endocrine/metabolic
+244	Hypothyroidism	endocrine/metabolic
+250.1	Type 1 diabetes	endocrine/metabolic
+250.2	Type 2 diabetes	endocrine/metabolic
+250.7	Diabetic retinopathy	endocrine/metabolic
+251.1	Hypoglycemia	endocrine/metabolic
+252.1	Hyperparathyroidism	endocrine/metabolic
+272	Disorders of lipoid metabolism	endocrine/metabolic
+274.1	Gout	endocrine/metabolic
+275.1	Disorders of iron metabolism	hematopoietic
+277.4	Disorders of bilirubin excretion	endocrine/metabolic
+278	Overweight, obesity and other hyperalimentation	endocrine/metabolic
+280	Iron deficiency anemias	hematopoietic
+285	Other anemias	hematopoietic
+286.12	Congenital deficiency of other clotting factors (including factor VII)	hematopoietic
+290.1	Dementias	psychiatric disorders
+290.11	Alzheimer's disease	psychiatric disorders
+296.2	Depression	psychiatric disorders
+318	Tobacco use disorder	psychiatric disorders
+332	Parkinson's disease	neurological
+335	Multiple sclerosis	neurological
+351	Other peripheral nerve disorders	neurological
+361	Retinal detachments and defects	sense organs
+362.29	Macular degeneration (senile) of retina NOS	sense organs
+364.5	Corneal dystrophy	sense organs
+365	Glaucoma	sense organs
+366	Cataract	sense organs
+371	Inflammation of the eye	sense organs
+371.1	Uveitis, noninfectious or NOS	sense organs
+379.3	Aphakia and other disorders of lens	sense organs
+383	Otosclerosis	sense organs
+401	Hypertension	circulatory system
+411.4	Coronary atherosclerosis	circulatory system
+415	Pulmonary heart disease	circulatory system
+427.2	Atrial fibrillation and flutter	circulatory system
+428	Congestive heart failure; nonhypertensive	circulatory system
+433	Cerebrovascular disease	circulatory system
+433.1	Occlusion and stenosis of precerebral arteries	circulatory system
+442.11	Abdominal aortic aneurysm	circulatory system
+443.9	Peripheral vascular disease, unspecified	circulatory system
+451	Phlebitis and thrombophlebitis	circulatory system
+454	Varicose veins	circulatory system
+455	Hemorrhoids	circulatory system
+459.9	Circulatory disease NEC	circulatory system
+471	Nasal polyps	respiratory
+495	Asthma	respiratory
+496	Chronic airway obstruction	respiratory
+530.1	Esophagitis, GERD and related diseases	digestive
+531.3	Duodenal ulcer	digestive
+535.6	Duodenitis	digestive
+540	Appendiceal conditions	digestive
+550.1	Inguinal hernia	digestive
+555.1	Regional enteritis	digestive
+555.2	Ulcerative colitis	digestive
+557.1	Celiac disease	digestive
+562.1	Diverticulosis	digestive
+564	Functional digestive disorders	digestive
+565.1	Anal and rectal polyp	digestive
+571.5	Other chronic nonalcoholic liver disease	digestive
+574	Cholelithiasis and cholecystitis	digestive
+575	Other biliary tract disease	digestive
+593	Hematuria	genitourinary
+594	Urinary calculus	genitourinary
+596.1	Bladder neck obstruction	genitourinary
+600	Hyperplasia of prostate	genitourinary
+615	Endometriosis	genitourinary
+618	Genital prolapse	genitourinary
+626.1	Irregular menstrual cycle/bleeding	genitourinary
+654.2	Rhesus isoimmunization in pregnancy	hematopoietic
+681	Superficial cellulitis and abscess	dermatologic
+695.4	Lupus (localized and systemic)	dermatologic
+696.4	Psoriasis	dermatologic
+697	Sarcoidosis	dermatologic
+702.1	Actinic keratosis	dermatologic
+702.2	Seborrheic keratosis	dermatologic
+704	Diseases of hair and hair follicles	dermatologic
+706.2	Sebaceous cyst	dermatologic
+709.2	Sicca syndrome	dermatologic
+709.7	Unspecified diffuse connective tissue disease	dermatologic
+714.1	Rheumatoid arthritis	musculoskeletal
+715.2	Ankylosing spondylitis	musculoskeletal
+716	Other arthropathies	musculoskeletal
+717	Polymyalgia Rheumatica	musculoskeletal
+727.4	Ganglion and cyst of synovium, tendon, and bursa	musculoskeletal
+728.71	Contracture of palmar fascia [Dupuytren's disease]	musculoskeletal
+735.3	Hallux valgus (Bunion)	musculoskeletal
+740	Osteoarthrosis	musculoskeletal
+743.1	Osteoporosis	musculoskeletal
+785	Abdominal pain	symptoms
+790.6	Other abnormal blood chemistry	symptoms
+960.2	Allergy/adverse effect of penicillin	injuries & poisonings
+abnormal_appetite	Recent poor appetite or overeating	symptoms
+albumin	Albumin	biological measures
+ankle_spacing	Ankle spacing width	physical measures
+apoA	Apolipoprotein A	biological measures
+apoB	Apolipoprotein B	biological measures
+avMSE	avMSE	physical measures
+bad_hearing	Hearing difficulty/problems	physical measures
+birth_weight	Birth weight	physical measures
+calcium	Calcium	biological measures
+celiac_gluten	Diagnosed with coeliac disease or gluten sensitivity	digestive
+cholesterol	Cholesterol	biological measures
+darker_hair	Hair colour (natural, before greying)	physical measures
+darker_skin	Skin colour	physical measures
+depressed_for_1w	Ever depressed for a whole week	psychiatric disorders
+depression_feelings	Recent feelings of depression	psychiatric disorders
+depression_stress_trauma	Depression possibly related to stressful or traumatic event	psychiatric disorders
+diastolic_BP	Diastolic blood pressure, automated reading	physical measures
+drink_alcohol	Alcohol drinker status	lifestyle and environment
+ECG_P_duration	P duration	physical measures
+ECG_PP_interval	PP interval	physical measures
+ECG_PQ_interval	PQ interval	physical measures
+ECG_QT_interval	QT interval	physical measures
+ECG_QTC_interval	QTC interval	physical measures
+ECG_RR_interval	RR interval	physical measures
+erythrocyte	Red blood cell (erythrocyte) count	biological measures
+erythrocyte_width	Red blood cell (erythrocyte) distribution width	biological measures
+ever_addicted	Ever addicted to any substance or behaviour	lifestyle and environment
+ever_cannabis	Ever taken cannabis	lifestyle and environment
+ever_smoked	Ever smoked	lifestyle and environment
+F_age_first_birth	Age at first live birth	sex-specific factors
+F_height	Standing height (females only)	physical measures
+F_irregular_menstrual_cycle	Length of menstrual cycle	sex-specific factors
+F_length_menstrual_cycle	Length of menstrual cycle	sex-specific factors
+F_log_oestradiol	Oestradiol (female only)	biological measures
+F_log_testosterone	Testosterone (female only)	biological measures
+F_menarche	Age when periods started (menarche)	sex-specific factors
+fall_1y	Falls in the last year	injuries & poisonings
+fat_perc	Body fat percentage	physical measures
+FEV1	Forced expiratory volume in 1-second (FEV1), Best measure	physical measures
+fluid_intelligence	Fluid intelligence score	physical measures
+foreboding_feelings	Recent feelings of foreboding	psychiatric disorders
+fracture_5y	Fractured/broken bones in last 5 years	injuries & poisonings
+FVC	Forced vital capacity (FVC), Best measure	physical measures
+geek_time	Time spent watching television (TV) or using computer	lifestyle and environment
+glasses	Wears glasses or contact lenses	physical measures
+haematocrit_perc	Haematocrit percentage	biological measures
+haemoglobin	Haemoglobin concentration	biological measures
+hand_grip_strength	Hand grip strength (mean of both)	physical measures
+hard_falling_asleep	Trouble falling asleep	symptoms
+headaches_for_3m	Headaches for 3+ months	symptoms
+height	Standing height	physical measures
+immature_reticulocyte_frac	Immature reticulocyte fraction	biological measures
+income	Average total household income before tax	lifestyle and environment
+insomnia	Sleeplessness / insomnia	lifestyle and environment
+LDL	LDL direct	biological measures
+left_handed	Handedness (chirality/laterality)	physical measures
+less_alcohol	Alcohol intake frequency	lifestyle and environment
+less_happy	General happiness	lifestyle and environment
+less_happy_with_health	General happiness with own health	lifestyle and environment
+less_tanned	Ease of skin tanning	physical measures
+log_age_first_sex	Age first had sexual intercourse	lifestyle and environment
+log_ALP	Alkaline phosphatase	biological measures
+log_ALT	Alanine aminotransferase	biological measures
+log_AST	Aspartate aminotransferase	biological measures
+log_basophil_perc	Basophil percentage	biological measures
+log_bilirubin	Total bilirubin	biological measures
+log_BMI	Body mass index (BMI)	physical measures
+log_creatinine	Creatinine	biological measures
+log_creatinine_urine	Creatinine (enzymatic) in urine	biological measures
+log_CRP	C-reactive protein	biological measures
+log_cystatinC	Cystatin C	biological measures
+log_ECG_QRS_duration	QRS duration	physical measures
+log_eosinophil_perc	Eosinophil percentage	biological measures
+log_fat_free_mass	Whole body fat-free mass	physical measures
+log_fat_mass	Whole body fat mass	physical measures
+log_glucose	Glucose	biological measures
+log_HbA1c	Glycated haemoglobin (HbA1c)	biological measures
+log_HDL	HDL cholesterol	biological measures
+log_heel_BMD	Heel bone mineral density (BMD)	physical measures
+log_heel_BUA	Heel Broadband ultrasound attenuation, direct entry	physical measures
+log_heel_SoS	Speed of sound through heel	physical measures
+log_hip_circ	Hip circumference	physical measures
+log_HLR_reticulocyte	High light scatter reticulocyte count	biological measures
+log_IGF1	IGF-1	biological measures
+log_impedance	Impedance of whole body	physical measures
+log_leukocyte	White blood cell (leukocyte) count	biological measures
+log_lipoA	Lipoprotein A	biological measures
+log_log_gammaGT	Gamma glutamyltransferase	biological measures
+log_lymphocyte	Lymphocyte count	biological measures
+log_mean_carotid_IMT	Mean carotid IMT (intima-medial thickness) at 120/150/210/240 degrees	physical measures
+log_microalbumin_urine	Microalbumin in urine	biological measures
+log_monocyte	Monocyte count	biological measures
+log_neutrophil	Neutrophil count	biological measures
+log_platelet	Platelet count	biological measures
+log_platelet_crit	Platelet crit	biological measures
+log_platelet_volume	Mean platelet (thrombocyte) volume	biological measures
+log_platelet_width	Platelet distribution width	biological measures
+log_potassium_urine	Potassium in urine	biological measures
+log_pulse_rate	Pulse rate, automated reading	physical measures
+log_reticulocyte	Reticulocyte count	biological measures
+log_rheumatoid_factor	Rheumatoid factor	biological measures
+log_SHBG	Sex hormone binding globulin (SHBG)	biological measures
+log_sleep	Sleep duration	lifestyle and environment
+log_triglycerides	Triglycerides	biological measures
+log_urea	Urea	biological measures
+log_ventricular_rate	Ventricular rate	physical measures
+log_vitaminD	Vitamin D	biological measures
+log_waist_circ	Waist circumference	physical measures
+log_water_mass	Whole body water mass	physical measures
+logMAR	logMAR in round (left/right)	physical measures
+lymphocyte_perc	Lymphocyte percentage	biological measures
+M_height	Standing height (males only)	physical measures
+M_less_hair	Hair/balding pattern	sex-specific factors
+M_log_oestradiol	Oestradiol (male only)	biological measures
+M_log_testosterone	Testosterone (male only)	biological measures
+MCH	Mean corpuscular haemoglobin	biological measures
+MCV	Mean corpuscular volume	biological measures
+monocyte_perc	Monocyte percentage	biological measures
+more_evening	Morning/evening person (chronotype)	lifestyle and environment
+more_sunscreen	Use of sun/uv protection	lifestyle and environment
+myopia	Myopia diagnosis	physical measures
+narcolepsy	Daytime dozing / sleeping (narcolepsy)	physical measures
+neuroticism	Neuroticism score	psychiatric disorders
+neutrophil_perc	Neutrophil percentage	biological measures
+no_sex	Age first had sexual intercourse	lifestyle and environment
+phosphate	Phosphate	biological measures
+play_computer	Plays computer games	lifestyle and environment
+poorer_health	Overall health rating	lifestyle and environment
+postpartum_depression	Postpartum depression	psychiatric disorders
+protein	Total protein	biological measures
+red_hair	Hair colour (natural, before greying)	physical measures
+reticulocyte_volume	Mean reticulocyte volume	biological measures
+self_harm_thoughts	Ever contemplated self-harm / Recent thoughts of suicide or self-harm	psychiatric disorders
+sensitive_stomach	Sensitive stomach	digestive
+sitting_height	Sitting height	physical measures
+sleeping_too_much	Sleeping too much	lifestyle and environment
+snoring	Snoring	physical measures
+sodium_urine	Sodium in urine	biological measures
+sphered_cell_volume	Mean sphered cell volume	biological measures
+systolic_BP	Systolic blood pressure, automated reading	physical measures
+urate	Urate	biological measures
+waking_too_early	Waking too early	lifestyle and environment
+water_intake	Water intake	lifestyle and environment
+years_of_edu	Qualifications (years of education)	lifestyle and environment

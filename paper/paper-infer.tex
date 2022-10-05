@@ -130,8 +130,6 @@ We call this new preferred set of 1,444,196 SNPs HapMap3+.
 
 \section*{Results}
 
-[TODO: CHOOSE FIGURES TO HAVE IN MAIN TEXT]
-
 \subsection*{Validating the inference with simulations}
 
 For simulations, we use the UK Biobank imputed data \cite[]{bycroft2018uk}. We use 356,409 individuals of Northwestern European ancestry and 322,805 SNPs across seven chromosomes (Methods).
@@ -242,7 +240,7 @@ Polygenicity estimates from LDpred2-auto are increasing with sample size with 1.
 These results are similar independent of whether ``allow\_jump\_sign'' is used or not.
 Therefore, we estimate that height has at least 50,000 causal variants.
 We also identify 1753 SNPs with a probability of being causal larger than 95\% (fine-mapping), which are spread over the entire genome (Figure \ref{fig:postp_height}).
-As for $\alpha$ estimates from LDpred2-auto, they remain highly consistent, with -0.71 [-0.75, -0.67], -0.74 [-0.76, -0.72], and -0.78 [-0.82, -0.76], respectively.
+As for $\alpha$ estimates from LDpred2-auto, they remain consistent, with -0.71 [-0.75, -0.67], -0.74 [-0.76, -0.72], and -0.78 [-0.82, -0.76], respectively.
 Finally, we compute per-annotation heritability estimates to investigate functional enrichment. We perform this analysis using 50 non-flanking binary annotations from the baselineLD v2.2 model \cite[]{finucane2018heritability}.
 Heritability enrichments are rather modest, ranging from 0.7 to 2.5 with a GWAS sample size of N=305K, and of slightly smaller magnitude with N=100K and slightly larger magnitude with N=1.6M (Figure \ref{fig:enrichment}).
 
@@ -292,7 +290,7 @@ We randomly sample 200,000 individuals to form a training set (to run the GWAS),
 We use the set of 1,054,330 HapMap3 variants recommended to use for LDpred2 \cite[]{prive2020ldpred2}, and the same 356,409 individuals of Northwestern European ancestry as in the simulations.
 We randomly sample 50,000 individuals to form a test set (to evaluate the predictive models), and use the remaining individuals to form a training set (to run the GWAS).
 
-We construct and use the same phenotypes as in \cite{prive2021high}. [TODO: PROVIDE THE LIST SOMEWHERE]
+We construct and use the same phenotypes as in \cite{prive2021high}.
 About half of these consists of phecodes mapped from ICD10 and ICD9 codes using R package PheWAS \cite[]{carroll2014r,wu2019mapping}.
 The other half consists of phenotypes defined in UKBB fields based on manual curation \cite[]{prive2021high}.
 As covariates, for the subset of individuals previously defined, we first recompute PCs using function \texttt{snp\_autoSVD} from R package bigsnpr and keep four PCs based on visual inspection \cite[]{prive2017efficient,prive2020efficient}. We also use sex (field 22001), age (field 21022), birth date (combining fields 34 and 52) and deprivation index (field 189) as additional covariates.
@@ -382,10 +380,11 @@ The other authors have no competing interests to declare.
 
 The UK Biobank data is available through a procedure described at \url{https://www.ukbiobank.ac.uk/using-the-resource/}. 
 All code used for this paper is available at \url{https://github.com/privefl/paper-infer/tree/master/code}.
+Description of phenotypes is available at \url{https://github.com/privefl/paper-infer/tree/master/phenotype_description.xlsx} (also available in TSV format).
 We have extensively used R packages bigstatsr and bigsnpr \cite[]{prive2017efficient} for analyzing large genetic data, packages from the future framework \cite[]{bengtsson2020unifying} for easy scheduling and parallelization of analyses on the HPC cluster, and packages from the tidyverse suite \cite[]{wickham2019welcome} for shaping and visualizing results.
 The latest version of R package bigsnpr can be installed from GitHub.%, and a recent enough version can be installed from CRAN [TODO: VERIFY].
 
-\noindent[TODO: TABLE EXPORTING RESULTS (ESTIMATES)]
+%\noindent[TODO: TABLE EXPORTING RESULTS (ESTIMATES)]
 
 \noindent[TODO: EXPORT LDREF FOR NEW HAPMAP3+]
 
