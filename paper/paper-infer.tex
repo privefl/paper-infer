@@ -255,6 +255,7 @@ Results across 248 phenotypes demonstrate that most of these phenotypes are very
 We also obtain widespread signatures of negative selection with most $\alpha$ estimates between -1.0 and -0.4, consistent with previous findings \cite[]{zeng2021widespread}.
 However, when looking at the heritability enrichment of several functional annotations for height, we obtain much smaller magnitudes than stratified LD Score regression (S-LDSC, \cite{finucane2018heritability}). For example, \cite{yengo2022saturated} report fold enrichments of more than 10x for e.g.\ coding and conserved variants, while we get less than 2x. 
 This is partly due to LDpred2-auto estimates being more conservative as they are shrunk towards no enrichment (the prior), however we do use a very large sample size here so that the prior should not matter much.
+Another possible reason comes from using variants that capture the causal effects by LD, while these tagging variants may be annotated differently from the causal variants, which could cause functional enrichments to be diluted \cite[]{zheng2022leveraging}.
 We also note that this heritability partitioning is performed after running LDpred2-auto for each annotation independently, therefore, unlike S-LDSC, the LDpred2-auto heritability partitioning does not depend on the set of annotations used. 
 
 Here we have also extended the set of HapMap3 variants recommended to use with LDpred2, making it 37\% larger to offer a better coverage of the genome.
@@ -269,7 +270,7 @@ Moreover, the $h^2$ from LDpred2-auto is also slightly overestimated when using 
 Future work could focus on correcting these issues.
 
 Nevertheless, LDpred2-auto users can now get much from running a single method. The reliable estimates provided by LDpred2-auto are very encouraging to further extend LDpred2-auto in multiple directions. 
-As future research directions, we are interested in using LDpred2-auto for GWAS summary statistics imputation \cite[]{rueger2018evaluation,julienne2019raiss}, for genetic correlation estimation \cite[]{bulik2015atlas,shi2017local,speed2019sumher,frei2019bivariate,werme2022integrated}, multi-ancestry prediction and inference \cite[]{brown2016transethnic,shi2020localizing,ruan2022improving,lu2022multi}, as well as extending it to learn from functional annotations \cite[]{zhang2021improved,marquez2021incorporating}.
+As future research directions, we are interested in using LDpred2-auto for GWAS summary statistics imputation \cite[]{rueger2018evaluation,julienne2019raiss}, for genetic correlation estimation \cite[]{bulik2015atlas,shi2017local,speed2019sumher,frei2019bivariate,werme2022integrated}, multi-ancestry prediction and inference \cite[]{brown2016transethnic,shi2020localizing,ruan2022improving,lu2022multi}, as well as extending it to use more variants and learn from functional annotations \cite[]{zhang2021improved,marquez2021incorporating,zheng2022leveraging}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
