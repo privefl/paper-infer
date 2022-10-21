@@ -29,3 +29,5 @@
 - `LPA-targeted`: predicting lipoprotein(a) concentration used a targeted region of the genome and penalized regression (individual-level data)
 
 - `export-ldred.R`: Export precomputed LD matrices for HapMap3+
+
+- `example-with-provided-LD.R`: Example script on how to use the provided LD
