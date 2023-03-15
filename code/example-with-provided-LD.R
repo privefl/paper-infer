@@ -14,6 +14,7 @@ tgz <- runonce::download_file(
   "http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST004001-GCST005000/GCST004988/oncoarray_bcac_public_release_oct17%20(1).txt.gz",
   dir = "tmp-data", fname = "sumstats_BRCA.txt.gz")
 R.utils::gunzip(tgz, overwrite = FALSE, remove = FALSE)
+
 sumstats <- fread2("tmp-data/sumstats_BRCA.txt", na.strings = "NULL",
                    select = c("chr", "position_b37", "a0", "a1",
                               "bcac_onco_icogs_gwas_beta",

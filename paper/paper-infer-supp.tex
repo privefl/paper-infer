@@ -72,13 +72,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{figure}[p]
-\centerline{\includegraphics[width=\textwidth]{est_p_one}}
-\caption{Inferred polygenicity $p$ in simulations with continuous outcomes. Horizontal dashed lines represent the true simulated values. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. \label{fig:simu_p}}
+\centerline{\includegraphics[width=0.9\textwidth]{est_p_one}}
+\caption{Inferred polygenicity $p$ in simulations with continuous outcomes. Horizontal dashed lines represent the true simulated values. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
+``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. \label{fig:simu_p}}
 \end{figure}
 
 \begin{figure}[p]
-\centerline{\includegraphics[width=\textwidth]{est_alpha_one}}
-\caption{Inferred $\alpha$ in simulations with continuous outcomes. Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the estimates. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. \label{fig:simu_alpha}}
+\centerline{\includegraphics[width=0.8\textwidth]{est_alpha_one}}
+\caption{Inferred $\alpha$ in simulations with continuous outcomes. Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the LDpred2-auto estimates. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}). Note that ``LDpred2\_noMLE'' (\texttt{use\_MLE = FALSE}) does not infer $\alpha$. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. \label{fig:simu_alpha}}
 \end{figure}
 
 \begin{figure}[p]
@@ -92,8 +93,25 @@
 \end{figure}
 
 \begin{figure}[p]
-\centerline{\includegraphics[width=\textwidth]{est_r2_one}}
-\caption{Inferred predictive performance $r^2$ in simulations with continuous outcomes. Green segments represent $r^2$ in the test set. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. \label{fig:simu_r2}}
+	\centering
+	\begin{subfigure}[b]{0.7\textwidth}
+		\includegraphics[width=\textwidth]{susie_002}
+		\caption{With $p=0.002$.}
+		\vspace*{1em}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.8\textwidth}
+		\includegraphics[width=\textwidth]{susie_02}
+		\vspace*{-2.6em}
+		\caption{With $p=0.02$.}
+		\vspace*{1em}		
+	\end{subfigure}
+	\caption{Calibration of per-variant posterior probabilities of being causal in two simulations with continuous outcomes, assuming $h^2=0.1$, $\alpha=-0.5$, and $N=10^5$.\label{fig:susie}}
+\end{figure}
+
+\begin{figure}[p]
+\centerline{\includegraphics[width=0.9\textwidth]{est_r2_one}}
+\caption{Inferred predictive performance $r^2$ in simulations with continuous outcomes. Green segments represent $r^2$ in the test set. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
+``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. \label{fig:simu_r2}}
 \end{figure}
 
 
@@ -108,22 +126,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=\textwidth]{est_binary_h2_one}}
+	\centerline{\includegraphics[width=0.82\textwidth]{est_binary_h2_one}}
 	\caption{Inferred SNP heritability $h^2$ in simulations with binary outcomes. Horizontal dashed lines represent the true simulated values. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for the LD Score regression estimate is obtained from $\pm$1.96 times its standard error. {\NEFF} All $h^2$ estimates are transformed to the liability scale with K\_pop=K and K\_GWAS either K (the simulated prevalence) or 0.5 (when using Neff) using function \texttt{coef\_to\_liab} from R package bigsnpr \cite{lee2012better,prive2017efficient}. \label{fig:simu_h2_bin}}
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=\textwidth]{est_binary_p_one}}
+	\centerline{\includegraphics[width=0.85\textwidth]{est_binary_p_one}}
 	\caption{Inferred polygenicity $p$ in simulations with binary outcomes. Horizontal dashed lines represent the true simulated values. {\NEFF} \label{fig:simu_p_bin}}
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=\textwidth]{est_binary_alpha_one}}
+	\centerline{\includegraphics[width=0.82\textwidth]{est_binary_alpha_one}}
 	\caption{Inferred $\alpha$ in simulations with binary outcomes. Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the estimates. {\NEFF} \label{fig:simu_alpha_bin}}
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=\textwidth]{est_binary_r2_one}}
+	\centerline{\includegraphics[width=0.85\textwidth]{est_binary_r2_one}}
 	\caption{Inferred predictive performance $r^2$ in simulations with binary outcomes. Green segments represent $r^2$ in the test set. {\NEFF} All $r^2$ estimates are transformed to the liability scale with K\_pop=K and K\_GWAS either K (the simulated prevalence) or 0.5 (when using Neff) using function \texttt{coef\_to\_liab} from R package bigsnpr \cite{lee2012better,prive2017efficient}; the ones from the test set are transformed with K and K. \label{fig:simu_r2_bin}}
 \end{figure}
 
@@ -132,12 +150,12 @@
 \FloatBarrier
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=0.9\textwidth]{ukbb_chains}}
+	\centerline{\includegraphics[width=0.95\textwidth]{ukbb_chains}}
 	\caption{Distribution of the number of LDpred2-auto chains kept across 248 UKBB phenotypes. \label{fig:ukbb_chains}}
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=0.9\textwidth]{ukbb_runtimes}}
+	\centerline{\includegraphics[width=0.95\textwidth]{ukbb_runtimes}}
 	\caption{Distribution of LDpred2-auto runtimes across 248 UKBB phenotypes. For each phenotype, 50 chains were used, parallelized over 13 cores. \label{fig:ukbb_runtimes}}
 \end{figure}
 

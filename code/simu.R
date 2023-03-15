@@ -2,7 +2,7 @@ library(bigsnpr)
 
 #### Prepare LD matrix ####
 
-dim(runonce::save_run({
+dim(corr <- runonce::save_run({
 
   for (chr in seq(3, 22, by = 3)) {
 
@@ -21,6 +21,42 @@ dim(runonce::save_run({
 }, file = "data/corr_simu.rds"))
 # 322805 x 322805
 
+# Same data, but format for GCTB
+binfile <- "tmp-data/corr_simu.ldm.sparse.bin"
+infofile <- sub("\\.bin$", ".info", binfile)
+runonce::skip_run_if(files = c(binfile, infofile), {
+
+  con <- file(binfile, open = "wb")
+  system.time(
+    info <- sapply(1:ncol(corr), function(j) {
+      if (j %% 1000 == 0) print(j)
+      one_col <- corr[, j]
+      I <- one_col@i
+      X <- one_col@x
+      L <- length(I)
+      writeBin(as.integer(I), con, size = 4)
+      writeBin(as.double(X),  con, size = 4)
+      c(I[1], I[L], L, sum(X))
+    })
+  ) # 35 min (for 322,805 variants)
+  close(con)
+
+  map <- subset(readRDS("../misspec/ldref/map.rds"), chr %in% seq(3, 22, by = 3))
+  stopifnot(nrow(map) == ncol(corr))
+  info2 <- dplyr::transmute(map, Chrom = chr, ID = rsid, GenPos = 0, PhysPos = pos,
+                            A1 = a1, A2 = a0, A2Freq = af_UKBB,
+                            Index = 0:(ncol(info) - 1),
+                            WindStart = info[1, ],
+                            WindEnd = info[2, ],
+                            WindSize = info[3, ],
+                            WindWidth = -1,
+                            N = 360e3,
+                            SamplVar = -1,
+                            LDsum = info[4, ])
+
+  bigreadr::fwrite2(info2, infofile, sep = " ", scipen = 50)
+})
+
 
 #### Run simulations ####
 
@@ -29,101 +65,68 @@ grid <- tidyr::expand_grid(
   h2    = c(1, 3, 10, 30) / 100,
   alpha = c(0, -0.5, -1),
   N     = c(20, 200) * 1000,
-  num   = 1,
-  jump_sign = c(FALSE, TRUE)
+  num   = 1
 )
 
-library(future.batchtools)
 NCORES <- 13
+library(future.batchtools)
 plan(workers = print(nrow(grid)) + 10, batchtools_slurm(resources = list(
   t = "12:00:00", c = NCORES + 2, mem = "60g",
   name = basename(rstudioapi::getSourceEditorContext()$path))))
+# future::plan("multisession", workers = 14)
 
 bigassertr::assert_dir("results_simu")
 
-grid$res <- furrr::future_pmap(grid, function(p, h2, alpha, N, num, jump_sign) {
+grid$res <- furrr::future_pmap(grid[1:5], function(p, h2, alpha, N, num) {
 
-  print(params <- paste(c(p, h2, alpha, N, num, jump_sign), collapse = "_"))
-  runonce::save_run(file = paste0("results_simu/res_", params, ".rds"), {
+  # p <- 0.1
+  # h2 <- 0.01
+  # alpha <- -0.5
+  # N <- 20e3
+  # num <- 1
+  print(params <- paste(c(p, h2, alpha, N, num), collapse = "_"))
 
-    corr <- readRDS("data/corr_simu.rds")
+  simu <- snp_attach("data/ukbb4simu.rds")
+  G <- simu$genotypes
 
-    simu <- snp_attach("data/ukbb4simu.rds")
-    G <- simu$genotypes
+  load("data/ukbb4simu_ind.RData")
+  ind.gwas0 <- ind.gwas
 
-    load("data/ukbb4simu_ind.RData")
-    ind.gwas0 <- ind.gwas
+  # simu quantitative pheno
+  simu_pheno <- runonce::save_run(file = paste0("results_simu/simu_", params, ".rds"), {
+    snp_simuPheno(G, h2 = h2, M = round(ncol(G) * p), alpha = alpha, ncores = NCORES)
+  })
 
-    # simu quantitative pheno
-    simu_pheno <- snp_simuPheno(G, h2 = h2, M = round(ncol(G) * p), alpha = alpha, ncores = NCORES)
-
-    # GWAS to get sumstats
+  # GWAS to get sumstats
+  df_beta <- runonce::save_run(file = paste0("results_simu/gwas_", params, ".rds"), {
     ind.gwas <- sort(sample(ind.gwas0, N))
     gwas <- big_univLinReg(G, simu_pheno$pheno[ind.gwas], ind.train = ind.gwas, ncores = NCORES)
-    df_beta <- dplyr::transmute(gwas, beta = estim, beta_se = std.err, n_eff = length(ind.gwas))
-
-    # ldsc estimate
-    (ldsc <- snp_ldsc2(corr, df_beta, blocks = 100, intercept = NULL, ncores = NCORES))
-
-    # LDpred2-auto
-    coef_shrink <- 0.95
-    multi_auto <- snp_ldpred2_auto(corr, df_beta, h2_init = pmax(ldsc[["h2"]], 0.001),
-                                   vec_p_init = seq_log(1e-4, 0.2, length.out = 50),
-                                   burn_in = 500, num_iter = 500, report_step = 20,
-                                   allow_jump_sign = jump_sign, shrink_corr = coef_shrink,
-                                   ncores = NCORES)
-
-    # derive other results
-    (range <- sapply(multi_auto, function(auto) diff(range(auto$corr_est))))
-    (keep <- (range > (0.95 * quantile(range, 0.95))))
-
-    hist(all_h2    <- sapply(multi_auto[keep], function(auto) tail(auto$path_h2_est,    500)))
-    hist(all_p     <- sapply(multi_auto[keep], function(auto) tail(auto$path_p_est,     500)))
-    hist(all_alpha <- sapply(multi_auto[keep], function(auto) tail(auto$path_alpha_est, 500)))
-
-    # inferred r2
-    bsamp <- lapply(multi_auto[keep], function(auto) auto$sample_beta)
-    all_r2 <- do.call("cbind", lapply(seq_along(bsamp), function(ic) {
-      # print(ic)
-      b1 <- bsamp[[ic]]
-      Rb1 <- apply(b1, 2, function(x)
-        coef_shrink * bigsparser::sp_prodVec(corr, x) + (1 - coef_shrink) * x)
-      b2 <- do.call("cbind", bsamp[-ic])
-      b2Rb1 <- as.matrix(Matrix::crossprod(b2, Rb1))
-    }))
-    hist(all_r2)
-
-    # r2 in test set
-    beta <- rowMeans(sapply(multi_auto[keep], function(auto) auto$beta_est))
-    pred <- big_prodVec(G, beta, ind.row = ind.test, ncores = NCORES)
-    cor <- pcor(pred, simu_pheno$pheno[ind.test], z = NULL)
-    r2 <- sign(cor) * cor^2
-
-    # local h2 (per-block)
-    blocks <- subset(readRDS("../misspec/ldref/map.rds"), chr %% 3 == 0)$group_id
-    list_ind <- split(seq_along(blocks), blocks)
-    bsamp <- do.call("cbind", bsamp)
-    all_local_h2 <- sapply(list_ind, function(ind) {
-      corr_sub <- corr[ind, ind]
-      bsamp_sub <- bsamp[ind, ]
-      Rb <- coef_shrink * corr_sub %*% bsamp_sub + (1 - coef_shrink) * bsamp_sub
-      Matrix::colSums(bsamp_sub * Rb)
-    }) # 32 sec
-
-    all_true_h2 <- sapply(list_ind, function(ind) {
-      ind2 <- which(simu_pheno$set %in% ind)
-      b <- simu_pheno$effects[ind2]
-      ind3 <- simu_pheno$set[ind2]
-      crossprod(b, corr[ind3, ind3] %*% b)[1]
-    })
-
-    # posterior probabilities of being causal (per-variant)
-    postp <- rowMeans(sapply(multi_auto[keep], function(auto) auto$postp_est))
-
-    list2 <- function(...) setNames(list(...), sapply(substitute(list(...))[-1], deparse))
-    list2(simu_pheno, ldsc, postp, all_h2, all_p, all_alpha, all_r2, r2,
-          all_local_h2, all_true_h2)
+    dplyr::transmute(gwas, beta = estim, beta_se = std.err, n_eff = length(ind.gwas))
   })
+
+  # ldsc estimate
+  ldsc <- runonce::save_run(file = paste0("results_simu/ldsc_", params, ".rds"), {
+    snp_ldsc2(corr, df_beta, blocks = 100, intercept = NULL, ncores = NCORES)
+  })
+
+
+  # Run methods
+  source('code/simu-methods.R', local = TRUE)
+  list(
+    LDpred2_noMLE = runonce::save_run(
+      run_ldpred2(jump_sign = FALSE, use_mle = FALSE, coef_shrink = 0.95),
+      file = paste0("results_simu/LDpred2_noMLE_", params, ".rds")),
+    LDpred2_nojump = runonce::save_run(
+      run_ldpred2(jump_sign = FALSE, use_mle = TRUE,  coef_shrink = 0.95),
+      file = paste0("results_simu/LDpred2_nojump_", params, ".rds")),
+    LDpred2_jump = runonce::save_run(
+      run_ldpred2(jump_sign = TRUE,  use_mle = TRUE,  coef_shrink = 0.95),
+      file = paste0("results_simu/LDpred2_", params, ".rds")),
+    SBayesS = runonce::save_run(
+      run_sbayess(),
+      file = paste0("results_simu/SBayesS_", params, ".rds")),
+    LDSc = list(all_h2 = ldsc)
+  )
 })
 
 
@@ -132,108 +135,130 @@ grid$res <- furrr::future_pmap(grid, function(p, h2, alpha, N, num, jump_sign) {
 library(dplyr)
 library(ggplot2)
 
-grid3 <- grid %>%
+grid2 <- grid %>%
   filter(num == 1) %>%
   tidyr::unnest_wider("res") %>%
-  mutate(n_keep = purrr::map_dbl(all_h2, ncol))
+  tidyr::pivot_longer(-(1:5), names_to = "Method") %>%
+  tidyr::unnest_wider("value") %>%
+  mutate(n_keep = purrr::map_dbl(all_h2, ~ `if`(is.null(.), 0, NCOL(.))),
+         Method = factor(Method, levels = Method[1:5]),
+         p = as.factor(p)) %>%
+  relocate(n_keep, .after = Method) %>%
+  print(n = 100)
 
-grid3$r2_est <- purrr::map(grid3$all_r2, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))
-grid3 %>%
-  mutate(p = as.factor(p)) %>%
-  tidyr::unnest_wider("r2", names_sep = "_") %>%
-  tidyr::unnest_wider("r2_est", names_sep = "_") %>%
-  ggplot(aes(p, r2_est_1, color = n_keep, shape = ifelse(jump_sign, "Yes", "No"))) +
-  scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50)) +
-  bigstatsr::theme_bigstatsr(0.65) +
-  ylim(min(unlist(grid3$r2_est)), NA) +
-  geom_point(alpha = 0) +
-  facet_grid(h2 ~ N + alpha, scales = "free_y", labeller = label_both) +
-  geom_point(size = 1.5, position = position_dodge(width = 0.6)) +
-  geom_errorbar(aes(ymin = r2_est_2, ymax = r2_est_3),
-                position = position_dodge(width = 0.6), width = 0.3) +
-  geom_segment(aes(x = as.numeric(p) - ifelse(jump_sign, 0, 0.3),
-                   xend = as.numeric(p) + ifelse(jump_sign, 0.3, 0),
-                   y = r2_1, yend = r2_1), color = "chartreuse3", linetype = 1,
-               position = position_dodge(width = 0.6)) +
-  theme(legend.position = "top", legend.key.width = unit(30, "pt"),
-        legend.margin = margin(0, 1, 0, 1, unit = "cm"),
-        legend.text = element_text(margin = margin(l = -10, r = 5, unit = "pt"))) +
-  guides(shape = guide_legend(override.aes = list(size = 2.5), label.hjust = 1),
-         color = guide_colorbar(title.vjust = 0.9)) +
-  labs(y = "Inferred r2  (+ 95% CI of the estimate)",
-       x = "Simulated polygenicity (p)",
-       color = "# chains", shape = "Can jump sign?")
-# ggsave("figures/est_r2_one.pdf", width = 10.5, height = 7)
 
-grid3$h2_est <- purrr::map(grid3$all_h2, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))
-grid3$h2_ldsc_est <- purrr::map(grid3$ldsc, ~ .[["h2"]] + c(0, -1.96, 1.96) * .[["h2_se"]])
-grid3 %>%
-  tidyr::pivot_longer(c(h2_est, h2_ldsc_est), values_to = "h2_est") %>%
-  mutate(name = c("h2_est" = "LDpred2-auto", "h2_ldsc_est" = "LDSc reg")[name],
-         n_keep = ifelse(name == "LDSc reg", NA, n_keep)) %>%
-  tidyr::unnest_wider("h2_est", names_sep = "_") %>%
-  ggplot(aes(as.factor(p), h2_est_1, shape = name, color = n_keep)) +
+ggplot(filter(grid2, grepl("LDpred2", Method))) +
+  geom_histogram(aes(n_keep, fill = Method), color = "black", size = 0.1,
+                 breaks = seq(0, 50, by = 2)) +
+  bigstatsr::theme_bigstatsr(0.8) +
+  facet_grid(p ~ N + h2, labeller = label_both) +
+  labs(x = "Number of chains kepts") +
+  scale_y_continuous(breaks = 0:10 * 2)
+
+
+grid2_r2 <- grid2 %>%
+  filter(Method != "LDSc") %>%
+  mutate(r2_est = purrr::map(all_r2, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
+  tidyr::unnest_wider("r2",     names_sep = "_") %>%
+  tidyr::unnest_wider("r2_est", names_sep = "_")
+
+grid2_r2 %>%
+  ggplot(aes(Method, r2_est_1, color = ifelse(Method == "SBayesS", NA, n_keep))) +
   scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50),
-                       na.value = "chartreuse3") +
+                       na.value = "black") +
   bigstatsr::theme_bigstatsr(0.65) +
-  geom_hline(aes(yintercept = h2), color = "grey40", linetype = 2) +
-  geom_point(size = 1.5, position = position_dodge(width = 0.5)) +
-  geom_errorbar(aes(ymin = h2_est_2, ymax = h2_est_3),
-                position = position_dodge(width = 0.5), width = 0.5) +
-  facet_grid(N + h2 ~ jump_sign + alpha, scales = "free_y", labeller = label_both) +
-  scale_shape_manual(values = c(1, 4)) +
-  theme(legend.key.height = unit(20, "pt")) +
-  labs(y = "Inferred h2  (+ 95% CI of the estimate)", x = "Simulated polygenicity (p)",
-       shape = "Method", color = "# chains") +
-  guides(shape = guide_legend(override.aes = list(color = c("black", "chartreuse3"))))
-# ggsave("figures/est_h2_one.pdf", width = 12, height = 8)
+  # ylim(min(grid2_r2$r2_est_2), NA) +
+  geom_point(alpha = 0) +
+  facet_grid(h2 + p ~ N + alpha, scales = "free_y", labeller = label_both) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin = r2_est_2, ymax = r2_est_3), width = 0.3) +
+  geom_errorbarh(aes(y = r2_1, xmin = as.numeric(Method) - 0.45,
+                     xmax = as.numeric(Method) + 0.45, height = r2_3 - r2_2),
+                 color = "chartreuse3") +
+  # geom_segment(aes(x = as.numeric(Method) - 0.45, xend = as.numeric(Method) + 0.45,
+  #                  y = r2_1, yend = r2_1), color = "chartreuse3", linetype = 1) +
+  theme(legend.key.height = unit(50, "pt"),
+        axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
+  labs(y = "Inferred r2  (+ 95% CI of the estimate)",
+       x = "Method", color = "# chains")
+# ggsave("figures/est_r2_one.pdf", width = 10, height = 13)
 
-grid3$p_est <- purrr::map(grid3$all_p, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))
-grid3 %>%
-  # filter(!jump_sign) %>%
+
+grid2 %>%
+  mutate(h2_est = purrr::map2(all_h2, Method, ~ {
+    `if`(.y == "LDSc", .x[["h2"]] + c(0, -1.96, 1.96) * .x[["h2_se"]],
+         unname(quantile(.x, probs = c(0.5, 0.025, 0.975))))
+  })) %>%
+  tidyr::unnest_wider("h2_est", names_sep = "_") %>%
+  ggplot(aes(Method, h2_est_1, color = ifelse(grepl("LDpred2", Method), n_keep, NA))) +
+  scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50),
+                       na.value = "black") +
+  bigstatsr::theme_bigstatsr(0.65) +
+  geom_hline(aes(yintercept = h2), color = "chartreuse3", linetype = 2) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin = h2_est_2, ymax = h2_est_3), width = 0.5) +
+  facet_grid(h2 + p ~ N + alpha, scales = "free_y", labeller = label_both) +
+  theme(legend.key.height = unit(50, "pt"),
+        axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
+  labs(y = "Inferred h2  (+ 95% CI of the estimate)",
+       x = "Method", color = "# chains")
+# ggsave("figures/est_h2_one.pdf", width = 10, height = 13)
+
+
+grid2 %>%
+  filter(Method != "LDSc") %>%
+  mutate(p_est = purrr::map(all_p, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("p_est", names_sep = "_") %>%
-  ggplot(aes(as.factor(h2), p_est_1, color = n_keep, shape = ifelse(jump_sign, "Yes", "No"))) +
-  scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50)) +
-  bigstatsr::theme_bigstatsr(0.7) +
-  geom_hline(aes(yintercept = p), color = "grey40", linetype = 2) +
-  geom_point(size = 2, position = position_dodge(width = 0.5)) +
-  geom_errorbar(aes(ymin = p_est_2, ymax = p_est_3),
-                position = position_dodge(width = 0.5), width = 0.5) +
-  facet_grid(p ~ N + alpha, scales = "free_y", labeller = label_both) +
+  ggplot(aes(Method, p_est_1, color = ifelse(grepl("LDpred2", Method), n_keep, NA))) +
+  scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50),
+                       na.value = "black") +
+  bigstatsr::theme_bigstatsr(0.65) +
+  geom_hline(aes(yintercept = as.double(as.character(p))),
+             color = "chartreuse3", linetype = 2) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin = p_est_2, ymax = p_est_3), width = 0.5) +
+  facet_grid(h2 + p ~ N + alpha, scales = "free_y", labeller = label_both) +
   scale_y_log10() +
-  theme(legend.position = "top", legend.key.width = unit(30, "pt"),
-        legend.margin = margin(0, 1, 0, 1, unit = "cm"),
-        legend.text = element_text(margin = margin(l = -10, r = 5, unit = "pt"))) +
-  guides(shape = guide_legend(override.aes = list(size = 2.5), label.hjust = 1),
-         color = guide_colorbar(title.vjust = 0.9)) +
+  theme(legend.key.height = unit(50, "pt"),
+        axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
   labs(y = "Inferred polygenicity  (+ 95% CI of the estimate)",
-       x = "Simulated heritability (h2)",
-       color = "# chains", shape = "Can jump sign?")
-# ggsave("figures/est_p_one.pdf", width = 11, height = 7)
+       x = "Method", color = "# chains")
+# ggsave("figures/est_p_one.pdf", width = 10, height = 13)
 
 
-grid3$alpha_est <- purrr::map(grid3$all_alpha, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))
-grid3 %>%
+grid2 %>%
+  filter(!Method %in% c("LDSc", "LDpred2_noMLE")) %>%
+  mutate(alpha_est = purrr::map(all_alpha, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("alpha_est", names_sep = "_") %>%
-  ggplot(aes(as.factor(h2), alpha_est_1, color = n_keep, shape = ifelse(jump_sign, "Yes", "No"))) +
-  scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50)) +
-  bigstatsr::theme_bigstatsr(0.7) +
-  geom_hline(aes(yintercept = alpha), color = "grey40", linetype = 2) +
+  ggplot(aes(Method, alpha_est_1, color = ifelse(grepl("LDpred2", Method), n_keep, NA))) +
+  scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50),
+                       na.value = "black") +
+  bigstatsr::theme_bigstatsr(0.65) +
+  geom_hline(aes(yintercept = alpha), color = "chartreuse3", linetype = 2) +
   geom_hline(yintercept = c(-1.5, 0.5), color = "black", linetype = 3) +
-  geom_point(size = 2, position = position_dodge(width = 0.5)) +
-  geom_errorbar(aes(ymin = alpha_est_2, ymax = alpha_est_3),
-                position = position_dodge(width = 0.5), width = 0.5) +
-  facet_grid(alpha ~ N + p, labeller = label_both) +
-  theme(legend.position = "top", legend.key.width = unit(30, "pt"),
-        legend.margin = margin(0, 1, 0, 1, unit = "cm"),
-        legend.text = element_text(margin = margin(l = -10, r = 5, unit = "pt"))) +
-  guides(shape = guide_legend(override.aes = list(size = 2.5), label.hjust = 1),
-         color = guide_colorbar(title.vjust = 0.9)) +
+  geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin = alpha_est_2, ymax = alpha_est_3), width = 0.5) +
+  facet_grid(h2 + alpha ~ N + p, scales = "free_y", labeller = label_both) +
+  theme(legend.key.height = unit(50, "pt"),
+        axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
   labs(y = "Inferred alpha  (+ 95% CI of the estimate)",
-       x = "Simulated heritability (h2)",
-       color = "# chains", shape = "Can jump sign?")
-# ggsave("figures/est_alpha_one.pdf", width = 12, height = 7)
+       x = "Method", color = "# chains")
+# ggsave("figures/est_alpha_one.pdf", width = 9, height = 13)
 
+
+grid$res2 <- purrr::pmap(grid[1:5], function(p, h2, alpha, N, num) {
+  print(params <- paste(c(p, h2, alpha, N, num), collapse = "_"))
+  list(
+    simu_pheno = readRDS(paste0("results_simu/simu_", params, ".rds")),
+    LDpred2_nojump = readRDS(paste0("results_simu/LDpred2_nojump_", params, ".rds"))
+  )
+})
+
+grid3 <- grid %>%
+  select(-res) %>%
+  tidyr::unnest_wider(res2) %>%
+  tidyr::unnest_wider(LDpred2_nojump) %>%
+  mutate(n_keep = purrr::map_dbl(all_h2, ~ `if`(is.null(.), 0, NCOL(.))))
 
 grid3$prop <- purrr::pmap(grid3[c("simu_pheno", "postp")], function(simu_pheno, postp) {
 
@@ -250,8 +275,8 @@ grid3$prop <- purrr::pmap(grid3[c("simu_pheno", "postp")], function(simu_pheno, 
 })
 
 grid3 %>%
-  select(p:jump_sign, n_keep:prop) %>%
-  filter(alpha == -0.5, !jump_sign) %>%
+  select(p:N, n_keep:prop) %>%
+  filter(alpha == -0.5) %>%
   tidyr::unnest_longer("prop", indices_to = "mid", transform = list(mid = as.double)) %>%
   tidyr::unnest_wider("prop", names_sep = "_") %>%
   ggplot(aes(mid, prop_1, color = n_keep)) +
@@ -264,29 +289,30 @@ grid3 %>%
   geom_abline(lty = 2, lwd = 1, color = "chartreuse2") +
   geom_errorbar(aes(ymin = prop_2, ymax = prop_3), width = 0.2) +
   facet_grid(h2 ~ N + p, labeller = label_both) +
-  theme(legend.position = "top", legend.key.width = unit(30, "pt")) +
+  theme(legend.position = "top", legend.key.width = unit(40, "pt")) +
   guides(color = guide_colorbar(title.vjust = 0.9)) +
-  labs(x = "Mean of posterior probabilities (in bin)",
+  labs(x = "Mean of posterior inclusion probabilities (in bin)",
        y = "Proportion of causal variants (in bin)", color = "# chains")
-# ggsave("figures/postp_calib.pdf", width = 9.5, height = 7)
+# ggsave("figures/postp_calib.pdf", width = 10, height = 7)
 
 grid3 %>%
-  select(p:jump_sign, n_keep, all_local_h2, all_true_h2) %>%
-  filter(alpha == -0.5, !jump_sign) %>%
+  select(p:N, n_keep, all_local_h2, all_true_h2) %>%
+  filter(alpha == -0.5) %>%
   mutate(across(all_local_h2, ~ lapply(., colMeans))) %>%
   tidyr::unnest(c(all_local_h2, all_true_h2)) %>%
   ggplot(aes(all_local_h2 / h2, all_true_h2 / h2, color = n_keep)) +
   scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50)) +
-  # coord_equal() +
+  coord_equal() +
   bigstatsr::theme_bigstatsr(0.7) +
   geom_point() +
   geom_abline(lty = 2, lwd = 1, color = "chartreuse2") +
-  facet_grid(N + p ~ h2, labeller = label_both, scales = "free") +
-  theme(legend.key.height = unit(25, "pt")) +
+  facet_grid(h2 ~ N + p, labeller = label_both) +
+  theme(legend.position = "top", legend.key.width = unit(40, "pt")) +
   guides(color = guide_colorbar(title.vjust = 0.9)) +
-  scale_x_continuous(breaks = seq(0, 1, by = 0.02)) +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.04),
+                     minor_breaks = seq(0, 1, by = 0.01)) +
   scale_y_continuous(breaks = seq(0, 1, by = 0.02)) +
   labs(x = "Estimated per-block heritability  (as percentage of h2)",
        y = "Simulated per-block heritability  (as percentage of h2)",
        color = "# chains")
-# ggsave("figures/local_h2_calib.pdf", width = 11, height = 9)
+# ggsave("figures/local_h2_calib.pdf", width = 10, height = 7)
