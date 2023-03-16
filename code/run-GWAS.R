@@ -1,7 +1,7 @@
 bigassertr::assert_dir("GWAS")
 
-pheno_files0 <- c(list.files("data/ukbb-quant-pheno", full.names = TRUE),
-                  list.files("data/ukbb-binary-pheno", full.names = TRUE))
+pheno_files <- c(list.files("data/ukbb-quant-pheno", full.names = TRUE),
+                 list.files("data/ukbb-binary-pheno", full.names = TRUE))
 
 grid <- tidyr::expand_grid(
   set = c("hm3", "hm3_plus"),
@@ -26,15 +26,6 @@ furrr::future_pwalk(grid, function(set, block) {
 
   intervals <- bigparallelr::split_len(ncol(G), nb_split = 30)
   ind <- seq(intervals[block, "lower"], intervals[block, "upper"])
-
-  pheno_files <- if (set == "hm3_plus") {
-    pheno_files0
-  } else {
-    # investigate RINT and raw pheno for HM3+ only
-    pheno_files0 %>%
-      grep(pattern = "rint_", value = TRUE, invert = TRUE) %>%
-      grep(pattern = "raw_", value = TRUE, invert = TRUE)
-  }
 
   lapply(pheno_files, function(pheno_file) {
 

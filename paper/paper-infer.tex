@@ -163,27 +163,13 @@ We then run simulations with binary outcomes where the simulated continuous liab
 Results are very similar as with the continuous phenotypes above (Figures \ref{fig:simu_h2_bin}--\ref{fig:simu_r2_bin}), and are similar whether we use either a linear regression GWAS and the total sample size $N$, or a logistic regression GWAS and the effective sample size (i.e.\ $N_\text{eff} = 4 / (1 / N_\text{case} + 1 / N_\text{control})$). The main difference is that the $h^2$ and $r^2$ estimates need to be transformed to the liability scale \cite[]{lee2011estimating}, where $K_\text{GWAS}=0.5$ should be used for transforming estimates of $h^2$ and $r^2$ when using $N_\text{eff}$ in inference methods \cite[]{grotzinger2021pervasive}.
 
 
-\subsection*{More heritability and predictive accuracy with new set of variants}
+\subsection*{Genetic architectures of 248 phenotypes from the UK Biobank}
 
 We use the same 356,409 unrelated individuals of Northwestern European ancestry as in the simulations. 
 To form the test set, we randomly select 50,000 of these, while the other 306,409 are used to run a GWAS using linear regression (with function \texttt{big\_univLinReg} from R package bigstatsr) for each of all 248 phenotypes and using 8 covariates (Methods).
-Then the new implementation of LDpred2-auto is used (Methods).
+We first use the set of 1,054,330 HapMap3 variants recommended to use for LDpred2 \cite[]{prive2020ldpred2}.
+Here, if not otherwise specified, we use options \texttt{use\_MLE = TRUE} and \texttt{allow\_jump\_sign = FALSE}.
 
-We investigate using the extended set of HapMap3 variants proposed here, HapMap3+, which includes \textasciitilde37\% more variants on top of HapMap3 variants recommended to use for LDpred2 (i.e.\ 1,054,330 + 389,866 variants), to improve the coverage of this set (Methods). As expected, compared to HapMap3, higher $h^2$ (average increase of 12.3\% [95\% CI: 10.8, 13.7]) and lower $p$ (decrease of 11.5\% [10.7, 12.3]) estimates are obtained with this extended set HapMap3+ (Figure \ref{fig:hm3_plus}). 
-This is consistent with higher predictive performance $r^2$ in the test set (increase of 6.1\% [4.1, 8.2]).
-In particular, a much larger $h^2$ estimate is obtained for lipoprotein(a) concentration (0.508 [0.502, 0.514] instead of 0.324 [0.320, 0.329]), which is also reflected in a larger predictive performance ($r^2$ in the test set of 0.516 [0.508, 0.524] instead of 0.344 [0.335, 0.353]).
-Interestingly, when using this extended set of HapMap3 variants, more chains are kept on average, which is a sign of better convergence of the models (Figure \ref{fig:ukbb_chains}). 
-However, running LDpred2 with this extended set of variants takes around 50\% more time; yet, we recall that LDpred2 has been made much faster in \cite{prive2021identifying}, and now runs in less than one hour for 50 chains parallelized over 13 cores (Figure \ref{fig:ukbb_runtimes}), instead of 4--12 hours before.
-
-\begin{figure}[!htb]
-	\centerline{\includegraphics[width=\textwidth]{ukbb_compare_hm3_plus}}
-	\caption{LDpred2-auto estimates for UKBB phenotypes using either the HapMap3 or HapMap3+ sets of variants. Only 154 phenotypes with more than 25 chains kept when using the HapMap3 variants are represented here. Red dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate (in green) is obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. \label{fig:hm3_plus}}
-\end{figure}
-
-
-\subsection*{Genetic architectures of 248 phenotypes from the UK Biobank}
-
-Here we use the same individuals as in the previous section. We first use the set of 1,054,330 HapMap3 variants recommended to use for LDpred2 \cite[]{prive2020ldpred2}.
 Consistent with simulations, inferred SNP heritability $h^2$ estimates from LDpred2-auto closely match with those from LD Score regression, while generally being more precise, especially for phenotypes with a smaller polygenicity (Figure \ref{fig:ukbb_h2}).
 Note that these $h^2$ estimates (and later the $r^2$ estimates) have not been transformed to the liability scale (i.e.\ are on the observed scale).
 Most phenotypes have an estimated polygenicity $p$ between 0.001 and 0.04; these have therefore a very polygenic architecture, but not an infinitesimal one (Figure \ref{fig:ukbb_h2_p}).
@@ -195,23 +181,36 @@ As for the inferred predictive performance $r^2$, they are highly consistent wit
 	\caption{Inferred predictive performance $r^2$ from the Gibbs sampler of LDpred2-auto versus the ones obtained in the test set, for all 248 phenotypes defined from the UK Biobank. These are stratified by the polygenicity estimated from LDpred2-auto. Green dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $r^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. ``F\_height'' and ``M\_height'' use females and males only, respectively. \label{fig:ukbb_r2}}
 \end{figure}
 
-Then, to investigate whether estimates from LDpred2-auto are robust to misspecifications, we test using two alternative LD references (Methods).
+To investigate whether estimates from LDpred2-auto are robust to misspecifications, we test using two alternative LD references (Methods).
 Using a smaller number of individuals for computing the LD results in a slightly overestimated $p$ and $h^2$ (and $r^2$), while the $\alpha$ estimate remains consistent, and the predictive performance in the test set remains mostly similar, except for three phenotypes for which none of the LDpred2-auto chains is usable (Figure \ref{fig:small_LD}).
 When using an LD reference from an alternative population (South Europe instead of North-West Europe), $p$, $h^2$, and $r^2$ are slightly overestimated as well, and a few phenotypes have lower predictive performance while there are four phenotypes for which none of the LDpred2-auto chains is usable (distinct from the previous three, Figure \ref{fig:alt_LD}).
+Interestingly, using the previous approach (\texttt{use\_MLE = FALSE}) seems to provide more robust results, where we can get chains to converge (and therefore non-zero predictive performance) for the 7 (3 + 4) phenotypes before when using the previous alternative LD references (Figure \ref{fig:compare_MLE}).
 
 Then, we investigate the effect of disabling ``allow\_jump\_sign'' (for extra robustness as shown in \cite{prive2021identifying}) on the estimates from LDpred2-auto.
-Note that we now use the HapMap3+ set of variants here.
 Consistent with simulations, $p$ estimates from LDpred2-auto are conservatively lower than when allowing effects to ``jump'' sign (i.e.\ normal sampling, Figure \ref{fig:jumpsign}). $h^2$ estimates can also be slightly lower, while $\alpha$ estimates are broadly consistent.
-As for predictive performance $r^2$ (on the test set), they are similar, suggesting there is no problem of robustness here and normal sampling can be used (Figure \ref{fig:jumpsign}).
+As for predictive performance $r^2$ (on the test set), they are similar, suggesting there is no problem of robustness here (when using the normal LD reference) and normal sampling can be used in this case (Figure \ref{fig:jumpsign}).
 
 Finally, we investigate different transformations to apply to some continuous phenotypes used here.
 Indeed, 49 of the phenotypes used here seem log-normally distributed or heavy-tailed (when visualizing their histogram); we therefore log-transform them.
 However, we do investigate alternative transformations here to decide which one should be preferred and to check how this impacts the inference from LDpred2-auto.
-Note that we use the HapMap3+ set of variants here.
 We first compare to using raw (untransformed) phenotypes in Figure \ref{fig:notransfo}; estimates of $p$ and $\alpha$ are highly consistent.
-However, $h^2$ estimates and predictive performance $r^2$ (in the test set) are generally larger with the log-transformation, hinting that it probably makes sense to transform these phenotypes.
+However, $h^2$ estimates and predictive performance $r^2$ (in the test set) are generally larger with the log-transformation; it probably makes sense to transform these phenotypes.
 We then compare to using the rank-based inverse normal (RIN) transformation in Figure \ref{fig:RINT}; estimates for $p$ and $\alpha$ are also highly consistent.
 Except for bilirubin and lipoprotein(a) concentration, generally higher $h^2$ estimates and predictive performance $r^2$ are obtained with the RIN-transformation than the log-transformation.
+
+
+\subsection*{More heritability and predictive accuracy with new set of variants}
+
+Here we use the same individuals as in the previous section. We investigate using the extended set of HapMap3 variants proposed here, HapMap3+, which includes \textasciitilde37\% more variants on top of HapMap3 variants recommended to use for LDpred2 (i.e.\ 1,054,330 + 389,866 variants), to improve the coverage of this set (Methods). As expected, compared to HapMap3, higher $h^2$ (average increase of 12.3\% [95\% CI: 10.8, 13.7]) and lower $p$ (decrease of 11.5\% [10.7, 12.3]) estimates are obtained with this extended set HapMap3+ (Figure \ref{fig:hm3_plus}). 
+This is consistent with higher predictive performance $r^2$ in the test set (increase of 6.1\% [4.1, 8.2]).
+In particular, a much larger $h^2$ estimate is obtained for lipoprotein(a) concentration (0.508 [0.502, 0.514] instead of 0.324 [0.320, 0.329]), which is also reflected in a larger predictive performance ($r^2$ in the test set of 0.516 [0.508, 0.524] instead of 0.344 [0.335, 0.353]).
+Interestingly, when using this extended set of HapMap3 variants, more chains are kept on average, which is a sign of better convergence of the models (Figure \ref{fig:ukbb_chains}). 
+However, running LDpred2 with this extended set of variants takes around 50\% more time; yet, we remind the reader that LDpred2 has been made much faster in \cite{prive2021identifying}, and now runs in less than one hour for 50 chains parallelized over 13 cores (Figure \ref{fig:ukbb_runtimes}), instead of 4--12 hours before.
+
+\begin{figure}[!htb]
+	\centerline{\includegraphics[width=\textwidth]{ukbb_compare_hm3_plus}}
+	\caption{LDpred2-auto estimates for UKBB phenotypes using either the HapMap3 or HapMap3+ sets of variants. Only 154 phenotypes with more than 25 chains kept when using the HapMap3 variants are represented here. Red dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate (in green) is obtained from the 2.5\% and 97.5\% quantiles of all the estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. \label{fig:hm3_plus}}
+\end{figure}
 
 
 \subsection*{Local heritability and polygenicity}
@@ -248,6 +247,31 @@ We also identify 1753 SNPs with a probability of being causal larger than 95\% (
 As for $\alpha$ estimates from LDpred2-auto, they remain consistent, with -0.71 [-0.75, -0.67], -0.74 [-0.76, -0.72], and -0.78 [-0.82, -0.76], respectively.
 Finally, we compute per-annotation heritability estimates to investigate functional enrichment. We perform this analysis using 50 non-flanking binary annotations from the baselineLD v2.2 model \cite[]{finucane2018heritability}.
 Heritability enrichments are rather modest, ranging from 0.7 to 2.5 with a GWAS sample size of N=305K, and of slightly smaller magnitude with N=100K and slightly larger magnitude with N=1.6M (Figure \ref{fig:enrichment}).
+
+
+\subsection*{Application to other external GWAS summary statistics}
+
+A description of external (to UKBB) GWAS summary statistics used is provided in Table \ref{tab:sumstats}.
+Quality control of these summary statistics is performed as described in \cite{prive2021identifying}.
+
+\begin{table}[htb]
+	\centering
+	\begin{tabular}{|l||c|c|c||c|c|}
+		\hline
+		Trait & GWAS citation & \begin{tabular}{@{}c@{}}Effective GWAS\\sample size\end{tabular} & \# GWAS variants & \begin{tabular}{@{}c@{}}\# matched variants\\with HapMap3+\end{tabular} \\
+		\hline
+		Asthma & \citet{demenais2018multiancestry} & ~~67,341.2 & ~~2,001,280 & ~~~946,092 \\
+		Breast cancer (BRCA) & \citet{michailidou2017association} & 254,862.6 & 11,792,542 & 1,411,710 \\
+		Coronary artery disease (CAD) & \citet{nikpay2015comprehensive} & 129,014.3 & ~~9,455,778 & 1,325,052 \\
+		Depression (MDD) [without UKBB] & \citet{wray2018genome} & 168,040.2 & ~~9,874,289 & 1,314,499 \\
+		Prostate cancer (PRCA) & \citet{schumacher2018association} & 135,316.1 & 20,370,946 & 1,411,710  \\
+		Type 1 diabetes (T1D) & \citet{censin2017childhood} & ~~13,497.6  & ~~8,996,866 & 1,127,489  \\
+		Type 2 diabetes (T2D) & \citet{scott2017expanded} & ~~72,143.0  & 12,056,346 & 1,408,283  \\
+		Vitamin D & \citet{jiang2018genome} & ~~79,366~~~ & ~~2,579,296 & 1,028,171 \\
+		\hline
+	\end{tabular}
+	\caption{Summary of external GWAS summary statistics used.  \label{tab:sumstats}}
+\end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -393,7 +417,7 @@ Descriptions of UK Biobank phenotypes used here are available at \url{https://gi
 LD matrices for HapMap3+ variants computed from the N.W. European UKBB data used in this paper are available at \url{https://doi.org/10.6084/m9.figshare.21305061}.
 All code used for this paper is available at \url{https://github.com/privefl/paper-infer/tree/master/code}.
 We have extensively used R packages bigstatsr and bigsnpr \cite[]{prive2017efficient} for analyzing large genetic data, packages from the future framework \cite[]{bengtsson2020unifying} for easy scheduling and parallelization of analyses on the HPC cluster, and packages from the tidyverse suite \cite[]{wickham2019welcome} for shaping and visualizing results.
-The latest version of R package bigsnpr can be installed from GitHub, and recent enough versions can be installed from CRAN.
+The latest version of R package bigsnpr can be installed from GitHub, and recent enough versions can be installed from CRAN [TODO: REUPLOAD].
 
 %\noindent[TODO: TABLE EXPORTING RESULTS (ESTIMATES)]
 

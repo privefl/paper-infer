@@ -45,14 +45,12 @@ pheno_files <- c(list.files("data/ukbb-quant-pheno", full.names = TRUE),
 bigassertr::assert_dir("ldpred2")
 
 grid <- tibble(pheno_file = pheno_files) %>%
-  # slice_sample(n = 20) %>%
-  mutate(is_alt_pheno = grepl("rint_", pheno_file) | grepl("raw_", pheno_file)) %>%
-  tidyr::expand_grid(set = SETS, jump_sign = c(TRUE, FALSE)) %>%
-  filter(ifelse(is_alt_pheno, set == "hm3_plus" & !jump_sign,    TRUE),
-         ifelse(jump_sign,    set == "hm3_plus" & !is_alt_pheno, TRUE)) %>%
-  mutate(res_file = paste0("ldpred2/", set, ifelse(jump_sign, "_jump", ""), "_",
-                           basename(pheno_file)),
-         is_alt_pheno = NULL) %>%
+  # slice_sample(n = 10) %>%
+  tidyr::expand_grid(set = SETS, use_mle = c(TRUE, FALSE), jump_sign = c(TRUE, FALSE)) %>%
+  filter(set == "hm3" | !jump_sign) %>%
+  mutate(res_file = paste0("ldpred2/", set, ifelse(use_mle, "_MLE", "_noMLE"),
+                           ifelse(jump_sign, "_jump", "_nojump"),
+                           "_", basename(pheno_file))) %>%
   # filter(!file.exists(res_file)) %>%
   print(n = Inf)
 
@@ -62,16 +60,15 @@ library(future.batchtools)
 plan(workers = nrow(grid) + 10, batchtools_slurm(resources = list(
   t = "12:00:00", c = NCORES + 2, mem = "100g",
   name = basename(rstudioapi::getSourceEditorContext()$path))))
+# future::plan("multisession", workers = 14, gc = TRUE)
 
-# future::plan("multisession", workers = 14)
-
-grid$res <- furrr::future_pmap(grid, function(pheno_file, set, jump_sign, res_file) {
+res_grid <- furrr::future_pmap_dfr(grid, function(pheno_file, set, use_mle, jump_sign, res_file) {
 
   # pheno_file <- "data/ukbb-quant-pheno/log_lipoA.rds"
   # set <- "hm3_small"
   # res_file <- paste0("ldpred2/", set, "_", basename(pheno_file))
 
-  runonce::save_run(file = res_file, {
+  res <- runonce::save_run(file = res_file, {
 
     # Get GWAS and its sample size
     pheno <- sub("\\.rds$", "", basename(pheno_file))
@@ -101,7 +98,9 @@ grid$res <- furrr::future_pmap(grid, function(pheno_file, set, jump_sign, res_fi
       multi_auto <- snp_ldpred2_auto(corr, df_beta, h2_init = pmax(ldsc[["h2"]], 0.001),
                                      vec_p_init = seq_log(1e-4, 0.2, length.out = 50),
                                      burn_in = 500, num_iter = 500, report_step = 20,
-                                     allow_jump_sign = jump_sign, shrink_corr = coef_shrink,
+                                     use_MLE = use_mle,
+                                     allow_jump_sign = jump_sign,
+                                     shrink_corr = coef_shrink,
                                      ncores = NCORES)
     )
 
@@ -115,9 +114,9 @@ grid$res <- furrr::future_pmap(grid, function(pheno_file, set, jump_sign, res_fi
 
     } else {
 
-      hist(all_h2    <- sapply(multi_auto[keep], function(auto) tail(auto$path_h2_est,    500)))
-      hist(all_p     <- sapply(multi_auto[keep], function(auto) tail(auto$path_p_est,     500)))
-      hist(all_alpha <- sapply(multi_auto[keep], function(auto) tail(auto$path_alpha_est, 500)))
+      (all_h2    <- sapply(multi_auto[keep], function(auto) tail(auto$path_h2_est,    500)))
+      (all_p     <- sapply(multi_auto[keep], function(auto) tail(auto$path_p_est,     500)))
+      (all_alpha <- sapply(multi_auto[keep], function(auto) tail(auto$path_alpha_est, 500)))
 
       # inferred r2
       bsamp <- lapply(multi_auto[keep], function(auto) auto$sample_beta)
@@ -129,7 +128,7 @@ grid$res <- furrr::future_pmap(grid, function(pheno_file, set, jump_sign, res_fi
         b2 <- do.call("cbind", bsamp[-ic])
         b2Rb1 <- as.matrix(Matrix::crossprod(b2, Rb1))
       }))
-      hist(all_r2)
+      # hist(all_r2)
 
       beta <- rowMeans(sapply(multi_auto[keep], function(auto) auto$beta_est))
       ukbb <- snp_attach(`if`(set == "hm3_plus", paste0("data/UKBB_hm3_plus.rds"),
@@ -169,46 +168,62 @@ grid$res <- furrr::future_pmap(grid, function(pheno_file, set, jump_sign, res_fi
 
       list2 <- function(...) setNames(list(...), sapply(substitute(list(...))[-1], deparse))
       list2(ldsc, postp, all_h2, all_p, all_alpha, all_r2, r2, all_local_h2, time)
-
     }
   })
+
+  if (identical(res, list(NULL))) {
+    tibble(n_keep = 0)
+  } else {
+    list(res) %>%
+      tibble(res = .) %>%
+      tidyr::unnest_wider(res) %>%
+      rowwise() %>%
+      mutate(
+        n_keep = ncol(all_h2),
+        local_h2 = list(colMeans(all_local_h2)),
+        h2_ldsc_est = list(ldsc[["h2"]] + c(0, -1.96, 1.96) * ldsc[["h2_se"]]),
+        across(c(h2_est = all_h2, p_est = all_p, alpha_est = all_alpha, r2_est = all_r2),
+               ~ list(unname(quantile(., probs = c(0.5, 0.025, 0.975), na.rm = TRUE))))
+      ) %>%
+      select(-ldsc, -(all_h2:all_r2), -all_local_h2)
+  }
 })
+
+gc(reset = TRUE)
+c(nrow(grid), nrow(res_grid))
 
 
 library(dplyr)
 library(ggplot2)
 theme_set(theme_bw(14))
 
-grid2 <- grid %>%
-  filter(!grepl("rint_", pheno_file), !grepl("raw_", pheno_file), !jump_sign) %>%
-  tidyr::unnest_wider("res") %>%
-  rowwise() %>%
-  mutate(n_keep = `if`(is.null(all_h2), 0, ncol(all_h2)))
+grid2 <- bind_cols(grid, res_grid) %>%
+  filter(!grepl("rint_", pheno_file), !grepl("raw_", pheno_file), !jump_sign)
 
-table(grid2$set)
+with(grid2, table(set, use_mle))
 
-qplot(data = grid2, n_keep, geom = "density", color = set) +
-  labs(x = "# chains kepts", y = "Density", color = "Set of variants") +
-  theme(legend.position = c(0.5, 0.8))
+qplot(data = grid2, n_keep, geom = "density", color = set,
+      linetype = ifelse(use_mle, "Yes", "No")) +
+  labs(x = "# chains kepts", y = "Density",
+       color = "Set of variants", linetype = "Use MLE?") +
+  theme(legend.position = c(0.35, 0.75), legend.box = "horizontal")
 # ggsave("figures/ukbb_chains.pdf", width = 7, height = 5)
 
 qplot(data = filter(grid2, set %in% c("hm3", "hm3_plus")),
-      purrr::map_dbl(time, "elapsed") / 60, geom = "density", color = set) +
+      purrr::map_dbl(time, "elapsed") / 60, geom = "density",
+      color = set, linetype = ifelse(use_mle, "Yes", "No")) +
   xlim(0, NA) +
-  labs(x = "Runtime  (in minutes)", y = "Density", color = "Set of variants") +
-  theme(legend.position = c(0.8, 0.8))
+  labs(x = "Runtime  (in minutes)", y = "Density", color = "Set of variants",
+       linetype = "Use MLE?") +
+  theme(legend.position = c(0.75, 0.7))
 # ggsave("figures/ukbb_runtimes.pdf", width = 7, height = 5)
 
 median(purrr::map_dbl(filter(grid2, set == "hm3_plus")$time, 3)) /
   median(purrr::map_dbl(filter(grid2, set == "hm3")$time, 3))
-# 1.48
+# 1.45
 
 grid3 <- grid2 %>%
   filter(n_keep > 0) %>%
-  mutate(h2_ldsc_est = list(ldsc[["h2"]] + c(0, -1.96, 1.96) * ldsc[["h2_se"]]),
-         across(c(h2_est = all_h2, p_est = all_p, alpha_est = all_alpha, r2_est = all_r2),
-                ~ list(unname(quantile(., probs = c(0.5, 0.025, 0.975)))))) %>%
-  ungroup() %>%
   tidyr::unnest_wider("r2", names_sep = "_") %>%
   tidyr::unnest_wider("r2_est", names_sep = "_") %>%
   tidyr::unnest_wider("h2_ldsc_est", names_sep = "_") %>%
@@ -233,23 +248,28 @@ grid3_hm3 %>%
                             color = "purple", min.segment.length = 0, force = 500, size = 3, seed = 4,
                             data = mutate(filter(grid3_hm3, grepl("height", pheno_file)),
                                           h2 = cut(h2_est_1, c(0, 0.05, 0.1, 0.2, 1)))) +
-  facet_wrap(~ h2, scales = "free", labeller = label_both) +
+  facet_wrap(~ use_mle + h2, scales = "free", labeller = label_both, nrow = 2) +
   geom_point(size = 1.5) +
-  theme(legend.key.height = unit(25, "pt")) +
+  theme(legend.position = "top", legend.key.width = unit(40, "pt")) +
+  guides(color = guide_colorbar(title.vjust = 0.9)) +
   labs(y = "Inferred r2", x = "r2 in test set", color = "# chains")
-# ggsave("figures/ukbb_r2.pdf", width = 8, height = 6.5)
+# ggsave("figures/ukbb_r2.pdf", width = 8.5, height = 6)
 
 grid3_hm3 %>%
   filter(grepl("height", pheno_file) | grepl("/years", pheno_file)) %>%
-  select(res_file, contains("r2_")) %>%
+  select(res_file, starts_with("r2_")) %>%
   print(width = Inf)
-#   res_file                         r2_1   r2_2   r2_3 r2_est_1 r2_est_2 r2_est_3
-# 1 ldpred2/hm3_F_height.rds       0.317  0.308  0.327    0.352    0.345    0.358
-# 2 ldpred2/hm3_height.rds         0.369  0.363  0.376    0.399    0.394    0.404
-# 3 ldpred2/hm3_M_height.rds       0.312  0.303  0.322    0.323    0.315    0.330
-# 4 ldpred2/hm3_sitting_height.rds 0.238  0.230  0.245    0.247    0.243    0.251
-# 5 ldpred2/hm3_years_of_edu.rds   0.0336 0.0304 0.0368   0.0334   0.0312   0.0357
-
+#   res_file                                     r2_1  r2_2  r2_3 r2_est_1 r2_est_2 r2_est_3
+#  1 ldpred2/hm3_MLE_nojump_F_height.rds         0.317  0.308  0.326    0.352    0.345    0.358
+#  2 ldpred2/hm3_noMLE_nojump_F_height.rds       0.314  0.306  0.324    0.360    0.355    0.365
+#  3 ldpred2/hm3_MLE_nojump_height.rds           0.369  0.363  0.377    0.399    0.394    0.404
+#  4 ldpred2/hm3_noMLE_nojump_height.rds         0.367  0.360  0.373    0.406    0.402    0.410
+#  5 ldpred2/hm3_MLE_nojump_M_height.rds         0.313  0.302  0.323    0.322    0.315    0.329
+#  6 ldpred2/hm3_noMLE_nojump_M_height.rds       0.309  0.299  0.319    0.330    0.324    0.336
+#  7 ldpred2/hm3_MLE_nojump_sitting_height.rds   0.238  0.231  0.245    0.247    0.243    0.251
+#  8 ldpred2/hm3_noMLE_nojump_sitting_height.rds 0.236  0.229  0.242    0.253    0.250    0.256
+#  9 ldpred2/hm3_MLE_nojump_years_of_edu.rds     0.0336 0.0305 0.0371   0.0334   0.0313   0.0356
+# 10 ldpred2/hm3_noMLE_nojump_years_of_edu.rds   0.0331 0.0297 0.0365   0.0343   0.0329   0.0356
 
 grid3_hm3 %>%
   mutate(p = cut(p_est_1, c(1e-5, 1e-3, 0.01, 0.04))) %>%
@@ -261,21 +281,18 @@ grid3_hm3 %>%
                 position = position_dodge(width = 0.9), width = 0) +
   geom_errorbar(aes(xmin = h2_ldsc_est_2, xmax = h2_ldsc_est_3),
                 position = position_dodge(width = 0.9), width = 0) +
-  facet_wrap(~ p, labeller = label_both, ncol = 1) +
+  facet_wrap(~ p + use_mle, labeller = label_both, ncol = 2) +
   coord_equal() +
   geom_point(size = 1.5) +
   theme(legend.key.height = unit(25, "pt")) +
   scale_x_continuous(breaks = 0:10 / 10) + scale_y_continuous(breaks = 0:10 / 10) +
   labs(y = "Inferred h2 with LDpred2-auto",
        x = "Inferred h2 with LDSc regression", color = "# chains")
-# ggsave("figures/ukbb_h2.pdf", width = 7, height = 8)
+# ggsave("figures/ukbb_h2.pdf", width = 8, height = 6.5)
 
-grid3_hm3 %>%
-  filter(h2_est_1 > 0.35, p_est_1 > 0.01) %>%
-  print(width = Inf)
-# height and sitting height
 
 p1 <- grid3_hm3 %>%
+  filter(use_mle) %>%
   ggplot(aes(p_est_1, h2_est_1, color = n_keep)) +
   scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50)) +
   bigstatsr::theme_bigstatsr(0.7) +
@@ -296,6 +313,7 @@ p1 <- grid3_hm3 %>%
 # ggsave("figures/ukbb_h2_p.pdf", p1.2, width = 8, height = 6)
 
 p2 <- grid3_hm3 %>%
+  filter(use_mle) %>%
   filter(n_keep > 25) %>%
   ggplot(aes(alpha_est_1, h2_est_1, color = n_keep)) +
   scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50)) +
@@ -319,26 +337,23 @@ p2 <- grid3_hm3 %>%
 #### Comparing hm3 vs hm3_plus and alternative LD ####
 
 grid4 <- grid2 %>%
+  rowwise() %>%
   filter(set != "hm3" | n_keep > 25,
          !sub("\\.rds$", "", basename(pheno_file)) %in% c("F_height", "M_height")) %>%
-  mutate(h2_ldsc_est = list(ldsc[["h2"]] + c(0, -1.96, 1.96) * ldsc[["h2_se"]]),
-         across(c(h2_est = all_h2, p_est = all_p, alpha_est = all_alpha, r2_est = all_r2),
-                ~ list(unname(quantile(., probs = c(0.5, 0.025, 0.975)))))) %>%
   mutate(across(c(r2, r2_est), ~ list(`if`(n_keep == 0, rep(0, 3), .))),
          across(c(alpha_est, p_est, h2_est, h2_ldsc_est),
                 ~ list(`if`(n_keep == 0, rep(NA_real_, 3), .)))) %>%
   ungroup() %>%
   tidyr::pivot_longer(c(r2, r2_est, alpha_est, p_est, h2_est, h2_ldsc_est)) %>%
-  tidyr::pivot_wider(c(pheno_file, name), names_from = set, values_from = value) %>%
+  tidyr::pivot_wider(c(pheno_file, use_mle, name), names_from = set, values_from = value) %>%
   tidyr::unnest_wider("hm3", names_sep = "_") %>%
   tidyr::unnest_wider("hm3_plus", names_sep = "_") %>%
   tidyr::unnest_wider("hm3_small", names_sep = "_") %>%
   tidyr::unnest_wider("hm3_altpop", names_sep = "_")
 
-with(grid4, sum(!is.na(hm3_1) & name == "r2"))  # 154
-
 
 grid4 %>%
+  filter(use_mle) %>%
   ggplot(aes(hm3_1, hm3_plus_1)) +
   bigstatsr::theme_bigstatsr(0.7) +
   geom_errorbar(aes(ymin = hm3_plus_2, ymax = hm3_plus_3), color = "chartreuse3",
@@ -351,22 +366,29 @@ grid4 %>%
   labs(x = "Estimates with HapMap3 variants", y = "Estimates with HapMap3+ variants")
 # ggsave("figures/ukbb_compare_hm3_plus.pdf", width = 9, height = 6)
 
-grid4 %>% filter(grepl("lipoA", pheno_file)) %>% select(1:8)
-#   pheno_file                          name           hm3_1    hm3_2    hm3_3 hm3_plus_1 hm3_plus_2 hm3_plus_3
-# 1 data/ukbb-quant-pheno/log_lipoA.rds r2           3.44e-1  3.35e-1  3.53e-1   0.516      0.508      0.524
-# 2 data/ukbb-quant-pheno/log_lipoA.rds r2_est       3.20e-1  3.16e-1  3.23e-1   0.501      0.497      0.506
-# 3 data/ukbb-quant-pheno/log_lipoA.rds alpha_est   -9.27e-1 -1.23e+0 -5.05e-1  -0.867     -1.18      -0.558
-# 4 data/ukbb-quant-pheno/log_lipoA.rds p_est        2.00e-4  1.00e-4  3.51e-4   0.000190   0.000106   0.000307
-# 5 data/ukbb-quant-pheno/log_lipoA.rds h2_est       3.24e-1  3.20e-1  3.29e-1   0.508      0.502      0.514
-# 6 data/ukbb-quant-pheno/log_lipoA.rds h2_ldsc_est  2.03e-1 -1.31e-1  5.36e-1   0.287     -0.214      0.788
+grid4 %>% filter(grepl("lipoA", pheno_file)) %>% select(2:9) %>% mutate_if(is.numeric, round, digits = 3)
+#    use_mle name         hm3_1  hm3_2  hm3_3 hm3_plus_1 hm3_plus_2 hm3_plus_3
+#  1 TRUE    r2           0.344  0.336  0.352      0.516      0.509      0.524
+#  2 TRUE    r2_est       0.32   0.316  0.323      0.502      0.497      0.506
+#  3 TRUE    alpha_est   -0.931 -1.24  -0.503     -0.868     -1.19      -0.547
+#  4 TRUE    p_est        0      0      0          0          0          0
+#  5 TRUE    h2_est       0.324  0.32   0.329      0.508      0.502      0.514
+#  6 TRUE    h2_ldsc_est  0.203 -0.131  0.536      0.287     -0.214      0.788
+#  7 FALSE   r2           0.344  0.336  0.353      0.516      0.508      0.524
+#  8 FALSE   r2_est       0.319  0.316  0.323      0.501      0.497      0.506
+#  9 FALSE   alpha_est   NA     NA     NA         NA         NA         NA
+# 10 FALSE   p_est        0      0      0          0          0          0
+# 11 FALSE   h2_est       0.324  0.32   0.329      0.508      0.503      0.515
+# 12 FALSE   h2_ldsc_est  0.203 -0.131  0.536      0.287     -0.214      0.788
 
 grid4 %>%
-  filter(name == "r2", !grepl("lipoA", pheno_file)) %>%
+  filter(name == "r2", !grepl("lipoA", pheno_file), use_mle) %>%
   deming::deming(hm3_plus_1 ~ hm3_1 + 0, data = .,
                  xstd = hm3_3 - hm3_2, ystd = hm3_plus_3 - hm3_plus_2)
 # Slope     1.061172 0.01049487   1.040602   1.081741
 
 grid4 %>%
+  filter(use_mle) %>%
   ggplot(aes(hm3_1, hm3_small_1)) +
   bigstatsr::theme_bigstatsr(0.7) +
   geom_errorbar(aes(ymin = hm3_small_2, ymax = hm3_small_3), color = "chartreuse3",
@@ -385,6 +407,7 @@ grid4 %>% filter(name == "r2", hm3_small_1 == 0) %>% pull(pheno_file)
 
 
 grid4 %>%
+  filter(use_mle) %>%
   ggplot(aes(hm3_1, hm3_altpop_1)) +
   bigstatsr::theme_bigstatsr(0.7) +
   geom_errorbar(aes(ymin = hm3_altpop_2, ymax = hm3_altpop_3), color = "chartreuse3",
@@ -405,10 +428,9 @@ grid4 %>% filter(name == "r2", hm3_altpop_1 == 0) %>% pull(pheno_file)
 #### Local h2 in HapMap3+ ####
 
 res_local_h2 <- grid2 %>%
-  filter(set == "hm3_plus") %>%
-  mutate(local_h2 = list(colMeans(all_local_h2)),
-         h2 = sum(local_h2),
-         max_local_h2 = max(local_h2)) %>%
+  filter(set == "hm3", use_mle) %>%
+  rowwise() %>%
+  mutate(h2 = sum(local_h2), max_local_h2 = max(local_h2)) %>%
   ungroup() %>%
   mutate(pheno = sub("\\.rds$", "", basename(pheno_file)),
          pheno = factor(pheno, levels = pheno[order(h2)]),
@@ -422,19 +444,15 @@ ggplot(res_local_h2, aes(pheno, value, fill = name, color = name)) +
   scale_color_manual(values = c("#0072B2FF", "#00000033")) +  # "#E69F0000"
   scale_fill_manual(values = c("#0072B200", "#E69F0099")) +
   geom_col(position = "identity") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
-        legend.position = "top") +
   facet_wrap(~ `h2 > 0.1`, scales = "free") +
-  theme(strip.text.x = element_blank(),
+  theme(legend.position = c(0.15, 0.75), strip.text.x = element_blank(),
         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
   labs(x = "Phenotype", y = NULL, fill = NULL, color = NULL)
 # ggsave("figures/ukbb_local_h2.pdf", width = 11, height = 6)
 
 res_median_local_h2 <- grid2 %>%
-  filter(set == "hm3_plus", n_keep > 25) %>%
+  filter(set == "hm3_plus", n_keep > 25, use_mle) %>%
   print() %>%
-  mutate(local_h2 = list(colMeans(all_local_h2))) %>%
-  ungroup() %>%
   pull(local_h2) %>%
   simplify2array() %>%
   matrixStats::rowMedians() %>%
@@ -535,15 +553,9 @@ pcor(ld, res_median_postp, NULL)  # 11.6%
 
 rint_pheno_files <- grep("rint_", grid$pheno_file, value = TRUE)
 
-grid5 <- grid %>%
-  filter(set == "hm3_plus",
+grid5 <- bind_cols(grid, res_grid) %>%
+  filter(set == "hm3", use_mle, !jump_sign,
          pheno_file %in% c(rint_pheno_files, sub("rint_", "log_", rint_pheno_files))) %>%
-  tidyr::unnest_wider("res") %>%
-  rowwise() %>%
-  mutate(n_keep = ncol(all_h2)) %>%
-  mutate(across(c(h2_est = all_h2, p_est = all_p, alpha_est = all_alpha, r2_est = all_r2),
-                ~ list(unname(quantile(., probs = c(0.5, 0.025, 0.975)))))) %>%
-  ungroup() %>%
   mutate(transfo = ifelse(grepl("rint_", pheno_file), "RIN", "log"),
          pheno = sub("^rint_|log_", "", basename(pheno_file))) %>%
   tidyr::pivot_longer(c(r2, r2_est, alpha_est, p_est, h2_est)) %>%
@@ -575,15 +587,9 @@ grid5 %>%
 
 raw_pheno_files <- grep("raw_", grid$pheno_file, value = TRUE)
 
-grid6 <- grid %>%
-  filter(set == "hm3_plus",
+grid6 <- bind_cols(grid, res_grid) %>%
+  filter(set == "hm3", use_mle, !jump_sign,
          pheno_file %in% c(raw_pheno_files, sub("raw_", "log_", raw_pheno_files))) %>%
-  tidyr::unnest_wider("res") %>%
-  rowwise() %>%
-  mutate(n_keep = ncol(all_h2)) %>%
-  mutate(across(c(h2_est = all_h2, p_est = all_p, alpha_est = all_alpha, r2_est = all_r2),
-                ~ list(unname(quantile(., probs = c(0.5, 0.025, 0.975)))))) %>%
-  ungroup() %>%
   mutate(transfo = ifelse(grepl("raw_", pheno_file), "none", "log"),
          pheno = sub("^raw_|log_", "", basename(pheno_file))) %>%
   tidyr::pivot_longer(c(r2, r2_est, alpha_est, p_est, h2_est)) %>%
@@ -609,14 +615,9 @@ grid6 %>%
 
 #### Option 'jump_sign' ####
 
-grid7 <- grid %>%
-  filter(set == "hm3_plus", !grepl("rint_", pheno_file), !grepl("raw_", pheno_file)) %>%
-  tidyr::unnest_wider("res") %>%
-  rowwise() %>%
-  mutate(n_keep = ncol(all_h2)) %>%
-  mutate(across(c(h2_est = all_h2, p_est = all_p, alpha_est = all_alpha, r2_est = all_r2),
-                ~ list(unname(quantile(., probs = c(0.5, 0.025, 0.975)))))) %>%
-  ungroup() %>%
+grid7 <- bind_cols(grid, res_grid) %>%
+  filter(set == "hm3", use_mle,
+         !grepl("rint_", pheno_file), !grepl("raw_", pheno_file)) %>%
   tidyr::pivot_longer(c(r2, r2_est, alpha_est, p_est, h2_est)) %>%
   tidyr::pivot_wider(c(pheno_file, name), names_from = jump_sign, values_from = value) %>%
   tidyr::unnest_wider("TRUE", names_sep = "_") %>%
@@ -637,3 +638,32 @@ grid7 %>%
   labs(x = "Estimates with normal sampling",
        y = "Estimates with extra robustness (no jump sign)")
 # ggsave("figures/ukbb_compare_jumpsign.pdf", width = 6, height = 6)
+
+
+#### Option 'use_MLE' ####
+
+grid8 <- bind_cols(grid, res_grid) %>%
+  filter(!jump_sign, !grepl("rint_", pheno_file), !grepl("raw_", pheno_file)) %>%
+  rowwise() %>%
+  mutate(across(r2, ~ list(`if`(n_keep == 0, rep(0, 3), .)))) %>%
+  ungroup() %>%
+  tidyr::pivot_longer(c(r2, r2_est, alpha_est, p_est, h2_est)) %>%
+  filter(name == "r2") %>%
+  tidyr::pivot_wider(c(pheno_file, set), names_from = use_mle, values_from = value) %>%
+  tidyr::unnest_wider("TRUE", names_sep = "_") %>%
+  tidyr::unnest_wider("FALSE", names_sep = "_")
+
+anyNA(grid8) # FALSE
+grid8 %>%
+  ggplot(aes(TRUE_1, FALSE_1)) +
+  bigstatsr::theme_bigstatsr(0.7) +
+  geom_errorbar(aes(ymin = FALSE_2, ymax = FALSE_3), color = "chartreuse3",
+                position = position_dodge(width = 0.9), width = 0) +
+  geom_errorbar(aes(xmin = TRUE_2, xmax = TRUE_3), color = "chartreuse3",
+                position = position_dodge(width = 0.9), width = 0) +
+  geom_abline(color = "red", linetype = 2) +
+  geom_point(size = 1.2) +
+  facet_wrap(~ set, scales = "free") +
+  labs(x = "Estimates with new sampling (MLE)",
+       y = "Estimates with previous sampling (no MLE)")
+# ggsave("figures/ukbb_compare_mle.pdf", width = 6, height = 6)
