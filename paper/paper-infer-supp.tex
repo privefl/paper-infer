@@ -84,12 +84,14 @@
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{postp_calib}}
-\caption{Calibration of per-variant posterior probabilities of being causal in simulations with continuous outcomes. Green dashed lines represent the 1:1 line. Only results for $\alpha = -0.5$ and \texttt{allow\_jump\_sign = FALSE} are represented. \label{fig:simu_postp_calib}}
+\caption{Calibration of per-variant posterior probabilities of being causal (also known as posterior inclusion probabilities) in simulations with continuous outcomes. These probabilities are binned on a log-scale, and mean in each bin is compared to the proportion of simulated causal variants in the bin (with 95\% CI). Green dashed lines represent the 1:1 line. Only results for $\alpha = -0.5$ and \texttt{allow\_jump\_sign = FALSE} are represented. \label{fig:simu_postp_calib}}
 \end{figure}
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{local_h2_calib}}
-\caption{Calibration of per-block heritability estimates in simulations with continuous outcomes. Green dashed lines represent the 1:1 line. Only results for $\alpha = -0.5$ and \texttt{allow\_jump\_sign = FALSE} are represented. \label{fig:simu_h2_calib}}
+\caption{Calibration of per-block heritability estimates in simulations with continuous outcomes. 
+Local $h^2$ estimate for each block is compared to the true simulated local heritability in the block.
+Green dashed lines represent the 1:1 line. Only results for $\alpha = -0.5$ and \texttt{allow\_jump\_sign = FALSE} are represented. \label{fig:simu_h2_calib}}
 \end{figure}
 
 \begin{figure}[p]
@@ -126,22 +128,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=0.82\textwidth]{est_binary_h2_one}}
+	\centerline{\includegraphics[width=0.83\textwidth]{est_binary_h2_one}}
 	\caption{Inferred SNP heritability $h^2$ in simulations with binary outcomes. Horizontal dashed lines represent the true simulated values. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for the LD Score regression estimate is obtained from $\pm$1.96 times its standard error. {\NEFF} All $h^2$ estimates are transformed to the liability scale with K\_pop=K and K\_GWAS either K (the simulated prevalence) or 0.5 (when using Neff) using function \texttt{coef\_to\_liab} from R package bigsnpr \cite{lee2012better,prive2017efficient}. \label{fig:simu_h2_bin}}
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=0.85\textwidth]{est_binary_p_one}}
+	\centerline{\includegraphics[width=0.9\textwidth]{est_binary_p_one}}
 	\caption{Inferred polygenicity $p$ in simulations with binary outcomes. Horizontal dashed lines represent the true simulated values. {\NEFF} \label{fig:simu_p_bin}}
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=0.82\textwidth]{est_binary_alpha_one}}
+	\centerline{\includegraphics[width=0.83\textwidth]{est_binary_alpha_one}}
 	\caption{Inferred $\alpha$ in simulations with binary outcomes. Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the estimates. {\NEFF} \label{fig:simu_alpha_bin}}
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=0.85\textwidth]{est_binary_r2_one}}
+	\centerline{\includegraphics[width=0.88\textwidth]{est_binary_r2_one}}
 	\caption{Inferred predictive performance $r^2$ in simulations with binary outcomes. Green segments represent $r^2$ in the test set. {\NEFF} All $r^2$ estimates are transformed to the liability scale with K\_pop=K and K\_GWAS either K (the simulated prevalence) or 0.5 (when using Neff) using function \texttt{coef\_to\_liab} from R package bigsnpr \cite{lee2012better,prive2017efficient}; the ones from the test set are transformed with K and K. \label{fig:simu_r2_bin}}
 \end{figure}
 
@@ -151,7 +153,7 @@
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=\textwidth]{ukbb_h2}}
-	\caption{SNP heritability estimates from either LDpred2-auto or LD Score regression for all 248 phenotypes defined from the UK Biobank. These are stratified by the polygenicity estimated from LDpred2-auto. Green dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for the LD Score regression estimate is obtained from $\pm$1.96 times its standard error. \label{fig:ukbb_h2}}
+	\caption{SNP heritability estimates from either LDpred2-auto or LD Score regression for all 248 phenotypes defined from the UK Biobank. These are stratified by the polygenicity estimated from LDpred2-auto. Green dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for the LD Score regression estimate is obtained from $\pm$1.96 times its standard error.  ``use\_mle: TRUE'' corresponds to using the new 3-parameter model and sampling scheme (Methods). \label{fig:ukbb_h2}}
 \end{figure}
 
 \begin{figure}[p]
@@ -204,12 +206,13 @@
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=0.95\textwidth]{ukbb_chains}}
-	\caption{Distribution of the number of LDpred2-auto chains kept across 248 UKBB phenotypes. \label{fig:ukbb_chains}}
+	\caption{Distribution of the number of LDpred2-auto chains kept across 248 UKBB phenotypes. ``Use MLE'' corresponds to using the new 3-parameter model and sampling scheme (Methods). \label{fig:ukbb_chains}}
 \end{figure}
 
 \begin{figure}[p]
 	\centerline{\includegraphics[width=0.95\textwidth]{ukbb_runtimes}}
-	\caption{Distribution of LDpred2-auto runtimes across 248 UKBB phenotypes. For each phenotype, 50 chains were used, parallelized over 13 cores. \label{fig:ukbb_runtimes}}
+	\caption{Distribution of LDpred2-auto runtimes across 248 UKBB phenotypes.
+	``Use MLE'' corresponds to using the new 3-parameter model and sampling scheme (Methods). For each phenotype, 50 chains are used, parallelized over 13 cores. \label{fig:ukbb_runtimes}}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -294,17 +297,17 @@
 \end{figure}
 \begin{figure}[p]\ContinuedFloat
 	\centering
-	\begin{subfigure}[b]{0.8\textwidth}
+	\begin{subfigure}[b]{0.75\textwidth}
 	\includegraphics[width=\textwidth]{ldpred2_T2D}
 	\caption{Type 2 diabetes}
 	\vspace*{3em}		
 	\end{subfigure}
-	\begin{subfigure}[b]{0.8\textwidth}
+	\begin{subfigure}[b]{0.75\textwidth}
 	\includegraphics[width=\textwidth]{ldpred2_VitaminD}
 	\caption{Vitamin D}
 	\vspace*{1em}		
 	\end{subfigure}
-	\caption{LDpred2-auto results with external GWAS summary statistics. The UK Biobank is used as test set to compute $r^2$.\label{fig:sumstats}}
+	\caption{LDpred2-auto results with external GWAS summary statistics. We run LDpred2-auto using either the HapMap3 or HapMap3+ variants, with either the new  or previous sampling and model (via parameter \texttt{use\_MLE}, where setting to \texttt{TRUE} uses the new model), and explore multiple values for parameter \texttt{coef\_shrink} (multiplicative coefficient for shrinking/regularizing off-diagonal elements of the LD matrix). The UK Biobank is used as test set to compute $r^2$.\label{fig:sumstats}}
 \end{figure}
 
 
