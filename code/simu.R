@@ -113,6 +113,9 @@ grid$res <- furrr::future_pmap(grid[1:5], function(p, h2, alpha, N, num) {
   # Run methods
   source('code/simu-methods.R', local = TRUE)
   list(
+    LDpred2_newfilter = runonce::save_run(
+      run_ldpred2_new(jump_sign = FALSE, use_mle = TRUE, coef_shrink = 0.95),
+      file = paste0("results_simu/LDpred2_newfilter_", params, ".rds")),
     LDpred2_noMLE = runonce::save_run(
       run_ldpred2(jump_sign = FALSE, use_mle = FALSE, coef_shrink = 0.95),
       file = paste0("results_simu/LDpred2_noMLE_", params, ".rds")),
@@ -140,20 +143,23 @@ grid2 <- grid %>%
   tidyr::unnest_wider("res") %>%
   tidyr::pivot_longer(-(1:5), names_to = "Method") %>%
   tidyr::unnest_wider("value") %>%
-  mutate(n_keep = purrr::map_dbl(all_h2, ~ `if`(is.null(.), 0, NCOL(.))),
-         Method = factor(Method, levels = Method[1:5]),
+  mutate(r2 = lapply(r2, unname),
+         n_keep_infer = purrr::map_dbl(all_h2, ~ `if`(is.null(.), 0, NCOL(.))),
+         n_keep_pred  = purrr::map_dbl(all_r2, ~ `if`(is.null(.), 0, NCOL(.) / 500 * 20)),
+         Method = factor(Method, levels = Method[1:6]),
          p = as.factor(p)) %>%
-  relocate(n_keep, .after = Method) %>%
+  relocate(n_keep_infer, n_keep_pred, .after = Method) %>%
   print(n = 100)
 
 
 ggplot(filter(grid2, grepl("LDpred2", Method))) +
-  geom_histogram(aes(n_keep, fill = Method), color = "black", size = 0.1,
+  geom_histogram(aes(n_keep_infer, fill = Method), color = "black", size = 0.1,
                  breaks = seq(0, 50, by = 2)) +
   bigstatsr::theme_bigstatsr(0.8) +
   facet_grid(p ~ N + h2, labeller = label_both) +
   labs(x = "Number of chains kepts") +
-  scale_y_continuous(breaks = 0:10 * 2)
+  scale_y_continuous(breaks = 0:10 * 2) +
+  theme(legend.position = "top")
 
 
 grid2_r2 <- grid2 %>%
@@ -163,7 +169,8 @@ grid2_r2 <- grid2 %>%
   tidyr::unnest_wider("r2_est", names_sep = "_")
 
 grid2_r2 %>%
-  ggplot(aes(Method, r2_est_1, color = ifelse(Method == "SBayesS", NA, n_keep))) +
+  filter(N == 20e3) %>%
+  ggplot(aes(Method, r2_est_1, color = ifelse(Method == "SBayesS", NA, n_keep_pred))) +
   scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50),
                        na.value = "black") +
   bigstatsr::theme_bigstatsr(0.65) +
@@ -181,16 +188,18 @@ grid2_r2 %>%
         axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
   labs(y = "Inferred r2  (+ 95% CI of the estimate)",
        x = "Method", color = "# chains")
-# ggsave("figures/est_r2_one.pdf", width = 10, height = 13)
+# ggsave("figures/est_r2_one_20K.pdf", width = 10, height = 12)
+# ggsave("figures/est_r2_one_200K.pdf", width = 10, height = 12)
 
 
 grid2 %>%
+  filter(N == 200e3) %>%
   mutate(h2_est = purrr::map2(all_h2, Method, ~ {
     `if`(.y == "LDSc", .x[["h2"]] + c(0, -1.96, 1.96) * .x[["h2_se"]],
          unname(quantile(.x, probs = c(0.5, 0.025, 0.975))))
   })) %>%
   tidyr::unnest_wider("h2_est", names_sep = "_") %>%
-  ggplot(aes(Method, h2_est_1, color = ifelse(grepl("LDpred2", Method), n_keep, NA))) +
+  ggplot(aes(Method, h2_est_1, color = ifelse(grepl("LDpred2", Method), n_keep_infer, NA))) +
   scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50),
                        na.value = "black") +
   bigstatsr::theme_bigstatsr(0.65) +
@@ -202,14 +211,15 @@ grid2 %>%
         axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
   labs(y = "Inferred h2  (+ 95% CI of the estimate)",
        x = "Method", color = "# chains")
-# ggsave("figures/est_h2_one.pdf", width = 10, height = 13)
+# ggsave("figures/est_h2_one_20K.pdf", width = 10, height = 12)
+# ggsave("figures/est_h2_one_200K.pdf", width = 10, height = 12)
 
 
 grid2 %>%
-  filter(Method != "LDSc") %>%
+  filter(N == 200e3, Method != "LDSc") %>%
   mutate(p_est = purrr::map(all_p, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("p_est", names_sep = "_") %>%
-  ggplot(aes(Method, p_est_1, color = ifelse(grepl("LDpred2", Method), n_keep, NA))) +
+  ggplot(aes(Method, p_est_1, color = ifelse(grepl("LDpred2", Method), n_keep_infer, NA))) +
   scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50),
                        na.value = "black") +
   bigstatsr::theme_bigstatsr(0.65) +
@@ -223,14 +233,15 @@ grid2 %>%
         axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
   labs(y = "Inferred polygenicity  (+ 95% CI of the estimate)",
        x = "Method", color = "# chains")
-# ggsave("figures/est_p_one.pdf", width = 10, height = 13)
+# ggsave("figures/est_p_one_20K.pdf", width = 10, height = 12)
+# ggsave("figures/est_p_one_200K.pdf", width = 10, height = 12)
 
 
 grid2 %>%
-  filter(!Method %in% c("LDSc", "LDpred2_noMLE")) %>%
+  filter(N == 200e3, !Method %in% c("LDSc", "LDpred2_noMLE")) %>%
   mutate(alpha_est = purrr::map(all_alpha, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("alpha_est", names_sep = "_") %>%
-  ggplot(aes(Method, alpha_est_1, color = ifelse(grepl("LDpred2", Method), n_keep, NA))) +
+  ggplot(aes(Method, alpha_est_1, color = ifelse(grepl("LDpred2", Method), n_keep_infer, NA))) +
   scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50),
                        na.value = "black") +
   bigstatsr::theme_bigstatsr(0.65) +
@@ -243,7 +254,8 @@ grid2 %>%
         axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
   labs(y = "Inferred alpha  (+ 95% CI of the estimate)",
        x = "Method", color = "# chains")
-# ggsave("figures/est_alpha_one.pdf", width = 9, height = 13)
+# ggsave("figures/est_alpha_one_20K.pdf", width = 9, height = 12)
+# ggsave("figures/est_alpha_one_200K.pdf", width = 9, height = 12)
 
 
 grid$res2 <- purrr::pmap(grid[1:5], function(p, h2, alpha, N, num) {

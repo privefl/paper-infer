@@ -1,6 +1,6 @@
 ################################################################################
 
-list2 <- function(...) setNames(list(...), sapply(substitute(list(...))[-1], deparse))
+list2 <- function(...) rlang::dots_list(..., .named = TRUE)
 
 r2_boot <- function(x, y) {
   all_cor <- replicate(1000, {
@@ -9,6 +9,26 @@ r2_boot <- function(x, y) {
   })
   cor <- c(cor(x, y), quantile(all_cor, c(0.025, 0.975)))
   sign(cor) * cor^2
+}
+
+conv_stat <- function(multi_auto, which, Niter) {
+  # Two-Sample Cramer-von Mises Statistic -- Eq (6) of 10.1214/aoms/1177704477
+  sapply(multi_auto, function(auto) {
+    x <- tail(auto[[paste0("path_", which, "_est")]], Niter)
+    if (anyNA(x)) return(NA_real_)
+    r <- rank(x, na.last = "keep", ties.method = "average")
+    N <- floor(length(x) / 2)
+    M <- length(x) - N
+    t <- (N / M * crossprod(sort(r[1:N]) - 1:N * (N + M) / N) +
+            M / N * crossprod(sort(r[1:M + N]) - 1:M * (N + M) / M)) / (N + M)^2
+    t[[1]]
+  })
+}
+
+conv_stat_all <- function(multi_auto, Niter) {
+  rowMeans(
+    sapply(c("h2", "p", "alpha"), conv_stat, multi_auto = multi_auto, Niter = Niter),
+    na.rm = TRUE)
 }
 
 ################################################################################
@@ -74,6 +94,94 @@ run_ldpred2 <- function(jump_sign, use_mle, coef_shrink) {
         all_local_h2, all_true_h2)
 }
 
+run_ldpred2_new <- function(jump_sign, use_mle, coef_shrink) {
+
+  res0 <- list2(jump_sign, use_mle)
+
+  multi_auto <- snp_ldpred2_auto(corr, df_beta, h2_init = pmax(ldsc[["h2"]], 0.001),
+                                 vec_p_init = seq_log(1e-4, 0.2, length.out = 50),
+                                 burn_in = 500, num_iter = 500, report_step = 20,
+                                 use_MLE = use_mle,
+                                 allow_jump_sign = jump_sign,
+                                 shrink_corr = coef_shrink,
+                                 ncores = NCORES)
+
+  ## derive other results
+
+  # inferred r2 per chain, to filter
+  library(magrittr)
+  all_r2_est <- sapply(multi_auto, function(auto) {
+    cat(".")
+    if (anyNA(auto$beta_est)) return(NA_real_)
+    bsamp <- auto$sample_beta
+    apply(bsamp, 2, function(x) bigsparser::sp_prodVec(corr, x)) %>%
+      Matrix::crossprod(bsamp, .) %>%
+      Matrix::tril(k = -5) %>%
+      Matrix::drop0() %>%
+      .@x %>%
+      mean()
+  })
+  (keep_pred <- which(all_r2_est > (0.95 * quantile(all_r2_est, 0.95, na.rm = TRUE))))
+
+  res_pred <- if (length(keep_pred) < 2) NULL else {
+
+    # r2 in test set
+    beta <- rowMeans(sapply(multi_auto[keep_pred], function(auto) auto$beta_est))
+    pred <- big_prodVec(G, beta, ind.row = ind.test, ncores = NCORES)
+    r2 <- r2_boot(pred, simu_pheno$pheno[ind.test])
+
+    # inferred r2
+    bsamp <- lapply(multi_auto[keep_pred], function(auto) auto$sample_beta)
+    all_r2 <- do.call("cbind", lapply(seq_along(bsamp), function(ic) {
+      # print(ic)
+      b1 <- bsamp[[ic]]
+      Rb1 <- apply(b1, 2, function(x)
+        coef_shrink * bigsparser::sp_prodVec(corr, x) + (1 - coef_shrink) * x)
+      b2 <- do.call("cbind", bsamp[-ic])
+      b2Rb1 <- as.matrix(Matrix::crossprod(b2, Rb1))
+    }))
+    # hist(all_r2); abline(v = r2, col = "red")
+
+    list2(r2, all_r2)
+  }
+
+
+  (keep_infer <- which(conv_stat_all(multi_auto, 500) < 4))
+
+  res_infer <- if (length(keep_infer) < 2) NULL else {
+
+    (all_h2    <- sapply(multi_auto[keep_infer], function(auto) tail(auto$path_h2_est,    500)))
+    (all_p     <- sapply(multi_auto[keep_infer], function(auto) tail(auto$path_p_est,     500)))
+    (all_alpha <- sapply(multi_auto[keep_infer], function(auto) tail(auto$path_alpha_est, 500)))
+
+    # local h2 (per-block)
+    blocks <- subset(readRDS("../misspec/ldref/map.rds"), chr %% 3 == 0)$group_id
+    list_ind <- split(seq_along(blocks), blocks)
+    bsamp <- do.call("cbind", bsamp)
+    all_local_h2 <- sapply(list_ind, function(ind) {
+      corr_sub <- corr[ind, ind]
+      bsamp_sub <- bsamp[ind, ]
+      Rb <- coef_shrink * corr_sub %*% bsamp_sub + (1 - coef_shrink) * bsamp_sub
+      Matrix::colSums(bsamp_sub * Rb)
+    }) # 32 sec
+
+    all_true_h2 <- sapply(list_ind, function(ind) {
+      ind2 <- which(simu_pheno$set %in% ind)
+      b <- simu_pheno$effects[ind2]
+      ind3 <- simu_pheno$set[ind2]
+      crossprod(b, corr[ind3, ind3] %*% b)[1]
+    })
+
+    # posterior probabilities of being causal (per-variant)
+    postp <- rowMeans(sapply(multi_auto[keep_infer], function(auto) auto$postp_est))
+
+    list2(all_h2, all_p, all_alpha, all_local_h2, all_true_h2, postp)
+  }
+
+
+  res0 %>% append(res_pred) %>% append(res_infer)
+}
+
 ################################################################################
 
 # unzip(runonce::download_file(
@@ -96,6 +204,7 @@ run_sbayess <- function() {
               p = pchisq((b / se)^2, df = 1, lower.tail = FALSE), N = n_eff) %>%
     bigreadr::fwrite2(paste0(tmp, ".ma"), sep = " ")
 
+  # maybe would need  --constraint="s03|s04|s05"
   system(glue::glue(
     gctb,
     " --ldm {prefix}",
