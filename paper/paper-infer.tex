@@ -162,7 +162,7 @@ Finally, LDpred2-auto can also be used to reliably infer the predictive performa
 	\caption{Inferred SNP heritability $h^2$ in simulations with continuous outcomes and N=20K. Horizontal dashed lines represent the true simulated values. 
 	For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
 	``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}.
-	The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). The 95\% confidence interval for the LD Score (LDSc) regression estimate is obtained as $\pm$1.96 of its standard error. Colors for LDpred2 models represent the number of chains kept (out of 50). \label{fig:simu_h2}}
+	The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). The 95\% confidence interval for the LD Score (LDSc) regression estimate is obtained as $\pm$1.96 of its standard error. Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu_h2}}
 \end{figure}
 
 We then run simulations with binary outcomes where the simulated continuous liabilities are transformed to binary outcomes using a threshold corresponding to the prevalence.
@@ -429,7 +429,7 @@ These are compared to the partial-$r^2$ (on individual-level data from a separat
 
 \subsection*{Post-filtering of chains in LDpred2-auto}
 
-Because running a Gibbs sampler with so many variants and with possible mismatches between e.g.\ the GWAS summary statistics and the LD reference used, we have always recommended to run multiple chains in LDpred2-auto, and post-filter some of them as quality control \cite[]{prive2020ldpred2}.
+Because a Gibbs sampler can be unstable, with so many variants and with possible mismatches between e.g.\ the GWAS summary statistics and the LD reference used, we have always recommended to run multiple chains in LDpred2-auto, and post-filter some of them as quality control \cite[]{prive2020ldpred2}.
 We originally proposed to filter chains by keeping the ones providing PGS with the largest variances. 
 Then we tested an almost equivalent and simpler alternative \cite[]{prive2021identifying}, which is to keep only chains that provide top imputed marginal scaled effect sizes $\check{\beta} = R \bar{\beta}$, where $R$ is the correlation matrix and $\bar{\beta}$ are the PGS scaled effect sizes.
 This is the default post-filtering of LDpred2-auto chains that we use here, for both prediction and inference.
@@ -438,7 +438,7 @@ Moreover, here we test two other filtering criteria in the first simulations bas
 First, for prediction, we test filtering on the average of $\boldsymbol{\beta_1}^T \boldsymbol{R} \boldsymbol{\beta_2}$ within each chain, which is an estimate of $r^2$ (cf.\ previous Methods section).
 Second, for inference, we filter on some convergence criterion. The split-Rhat statistic is a popular metric to test for good mixing and convergence of Markov chains \cite[]{vehtari2021rank}. 
 However, we have found this statistic to perform badly when e.g.\ one parameter gets stuck and is constant; in this case, the chain does not mix well, but a perfect Rhat of 1.0 is obtained. 
-Instead, we have found that a two-sample Cramer-von Mises statistic \cite[]{anderson1962distribution}, by similarly using both parts of the chain after burn-in, is often highly correlated with the split-Rhat while not suffering from the previous issue.
+Instead, we have found that a two-sample Cramer-von Mises statistic \cite[]{anderson1962distribution}, by similarly using both parts of the chain after burn-in, is often highly correlated with the split-Rhat statistic while not suffering from the previous issue.
 We therefore chose to use this statistic, and average the three statistics computed for $h^2$, $p$, and $\alpha$ for each chain. We use a threshold of 4 above which we filter out the chain, because we have found that a value of 4 for this statistic often corresponds to a value close to 1.05 for the split-Rhat.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
