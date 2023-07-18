@@ -121,13 +121,13 @@ So, on top of providing competitive PGS, LDpred2-auto can also provide all these
 Moreover, we show how it can now also reliably estimate the predictive ability $r^2$ of PGS it derives, allowing for directly assessing the usefulness of the derived PGS, without requiring an independent test set.
 An overview of what LDpred2-auto can provide is presented in Figure \ref{fig:overview}.
 Finally, we extend the set of HapMap3 variants recommended to use with LDpred2, which enables us to capture around 12\% more SNP heritability and achieve around 6\% more predictive performance $r^2$, on average, in UK Biobank analyses.
-We call `HapMap3+' this extended set of 1,444,196 SNPs, and recommend to use it when power is sufficient.
+We call `HapMap3+' this extended set of 1,444,196 SNPs, and recommend to use it when power is sufficient (i.e.\ with a large sample size, large $h^2$, and/or small $p$).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{figure}[!htb]
 	\centerline{\includegraphics[width=0.9\textwidth]{overview}}
-	\caption{Overview of what LDpred2-auto can now provide. For individual CIs of polygenic scores, please refer to the work of \cite{ding2022large,ding2022polygenic}. HapMap3+ is the new extended set of 1,444,196 SNPs we introduce here (Methods), and now recommend to use for LDpred2 when power is sufficient. CI means ``confidence interval'' (often called ``credible interval'' in a Bayesian setting). \label{fig:overview}}
+	\caption{Overview of what LDpred2-auto can now provide. For individual CIs of polygenic scores, please refer to the work of \cite{ding2022large,ding2022polygenic}. HapMap3+ is the new extended set of 1,444,196 SNPs we introduce here (Methods), and now recommend to use for LDpred2 when power is sufficient (i.e.\ with a large sample size, large $h^2$, and/or small $p$). CI means ``confidence interval'' (often called ``credible interval'' in a Bayesian setting). \label{fig:overview}}
 \end{figure}
 
 
@@ -309,7 +309,7 @@ Another possible reason comes from using variants that capture the causal effect
 We also note that this heritability partitioning is performed after running LDpred2-auto for each annotation independently, therefore, unlike S-LDSC, the LDpred2-auto heritability partitioning does not depend on the set of annotations used. 
 
 Here we have also extended the set of HapMap3 variants recommended to use with LDpred2, making it 37\% larger to offer a better coverage of the genome.
-Since we used individuals of diverse ancestries for computing the pairwise variant correlations used for constructing this extended set of variants, we expect this new set of variants to be beneficial across diverse ancestries.
+Since we used individuals of diverse ancestries for computing the pairwise variant correlations used for constructing this extended set of variants, this new set of variants is beneficial across diverse ancestries (Methods).
 Increasing the genome coverage enables us to capture more of the heritability of phenotypes and therefore reduce the missing heritability, i.e.\ the difference between the family-based heritability and the SNP-based heritability.
 Using the new HapMap3+ set also improves predictive performance by an average of 6.1\% in UKBB analyses here, and particularly for lipoprotein(a) concentration with an $r^2$ of 0.516 instead of 0.344.
 However, we note that we are able to achieve an $r^2$ of 0.677 [0.671, 0.682] when using the penalized regression implementation of \cite{prive2019efficient} on the UKBB individual-level data while restricting to all variants within a 1Mb window of the \textit{LPA} gene.
@@ -376,6 +376,7 @@ Then, for the sake of simplicity, we use a greedy approach, where we repeatedly 
 Note that we only allow non-ambiguous SNPs to be included.
 This results in an extended set of 1,444,196 SNPs, of which we compute the LD matrix (within a 3 cM window) and apply the optimal algorithm developed in \cite{prive2021optimal} to obtain 431 independent LD blocks.
 Since we use individuals of diverse ancestries for computing the pairwise variant correlations used for constructing this extended set of variants, we expect this new set of variants to be beneficial across diverse ancestries.
+Indeed, from the 11.5M variants we aimed at tagging, 82.1\% (resp.\ 69.1\%), 80.0\% (resp.\ 66.7\%), 79.3\% (resp.\ 66.1\%), 75.4\% (resp.\ 65.3\%), and 66.6\% (resp.\ 48.6\%) are tagged at $r^2 > 50\%$ (resp.\ $r^2 > 80\%$) by at least one HapMap3+ variant, respectively in North-West Europeans, Middle Easterns, South Asians, East Asians, and West Africans (results extrapolated from variants in chromosome 22).
 
 \subsection*{New optional model and inference with LDpred2-auto}
 
