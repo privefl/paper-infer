@@ -107,6 +107,7 @@ What differs is the genetic architecture of each trait that can be parameterized
 Some phenotypes, such as schizophrenia or height, are highly heritable and highly polygenic \cite[]{sullivan2003schizophrenia,yang2010common,oconnor2019extreme,trubetskoy2022mapping}.
 Causal effects are larger when a trait is more heritable, and smaller when it is more polygenic.
 The distribution of causal effects relative to their allele frequencies is often investigated through a single parameter, usually called $\alpha$ or $S$, to model the effect of negative selection on complex traits whereby variants with lower frequencies are expected to have higher causal effect sizes \cite[]{speed2012improved}.
+In this model, the expected variance explained by a genetic variant is proportional to $\big[f(1-f)\big]^\alpha$, where $f$ is the allele frequency of this variant.
 Many methods have been developed to estimate the SNP heritability (referred to as $h^2$ for brevity) and polygenicity ($p$), either globally for the whole genome or locally for specific regions of the genome, as well as $\alpha$. 
 These methods (non-exhaustively) include GCTA ($h^2$, \cite{yang2011gcta}), BOLT-REML ($h^2$ and $p$, \cite{loh2015contrasting}), LD Score regression ($h^2$, \cite{bulik2015ld}), FINEMAP (per-variant $p$, also called posterior inclusion probabilities PIPs, used for fine-mapping, \cite{benner2016finemap}), HESS (local $h^2$, \cite{shi2016contrasting}), LDAK-SumHer ($h^2$, \cite{speed2019sumher}), S-LD4M ($p$, \cite{oconnor2019extreme}), GRM-MAF-LD ($\alpha$, \cite{schoech2019quantification}), SuSiE (PIPs, \cite{wang2020simple}), SBayesS ($h^2$, $p$, and a third parameter $S$, similar to $\alpha$, \cite{zeng2021widespread}), and BEAVR (local $p$, \cite{johnson2021estimation}).
 
@@ -321,7 +322,7 @@ Our proposed method has limitations. First, when power is low (i.e.\ when $N h^2
 Therefore, we recommend to use the 3-parameter model (with $\alpha$, when using \texttt{use\_MLE = TRUE}), but only when power is sufficient.
 We also recommend using option \texttt{allow\_jump\_sign = FALSE} for robustness \cite[]{prive2021identifying}, and for getting accurate or conservative $p$ estimates. When still obtaining a large $p$ estimate ($>1\%$) with this option, we recommend rerunning LDpred2-auto without this option to get a less conservative estimate (cf.\ simulations).
 However, LDpred2-auto estimates of $h^2$ and $r^2$ seem always reliable, except for height for which they are probably overestimated.
-We think this is likely due to assortative mating \cite[]{border2022assortative,yengo2022saturated}. 
+We think this is likely due to assortative mating, which causes GWAS effects to be inflated \cite[]{border2022assortative,herzig2023model}, which causes our estimates to be inflated as well. 
 Second, the $h^2$ from LDpred2-auto is also slightly overestimated when using a small LD reference panel or when the reference panel does not closely match with the ancestry of the GWAS summary statistics.
 Future work could focus on correcting these issues.
 Third, when using external GWAS summary statistics, it is often beneficial to regularize the LD matrix (via parameter \texttt{coef\_shrink}, especially when using the new sampling and model), however it leads to an increased estimation for e.g.\ $r^2$ and $h^2$.
