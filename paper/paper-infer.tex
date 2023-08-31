@@ -250,6 +250,12 @@ Some variants in multiple small regions across the genome have a larger probabil
 To verify that this is not driven by population structure, we compute pcadapt chi-square statistics that quantify whether a variant is associated with population structure \cite[]{prive2020performing}; the log-statistics have a small negative correlation of -5.5\% with the probabilities of being causal.
 To verify that this does not correspond to regions of low LD, we compute LD scores; the median probabilities of being causal have a small correlation of 11.6\% with the LD scores and of -6.8\% with the log of LD scores.
 
+Finally, since the HapMap3+ variants still represent a rather small proportion of common variants, we showcase running LDpred2-auto using a more dense set of variants from a small region, as usually done for fine-mapping.
+We identify the most significant HapMap3+ variant for height, rs2871960 on chromosome 3, and read all the variants within a 500kb distance that have a MAF larger than 0.005 and INFO score larger than 0.5 in the UK Biobank; there are 3881 such variants.
+Then, we perform a GWAS for these variants using the same training individuals as used before (Figure \ref{manhattan_height}).
+Finally, using the resulting GWAS summary statistics and an LD reference from the same set of individuals, we run both SuSiE-RSS and LDpred2-auto (\_nojump). We test two different values for L, the maximum number of causal variants in SuSiE-RSS (10 and 100), and three different values for the maximum value of the estimated $p$ (1, 0.01, and 0.001).
+Per-variant posterior probabilities of being causal (also known as posterior inclusion probabilities, PIPs) are very similar with both methods, especially when restricting $p$ in LDpred2-auto, which is similar to what SuSiE-RSS assumes (more conservative).
+
 
 \subsection*{Application to height}
 
@@ -346,6 +352,7 @@ Future work could focus on correcting these estimates, and also on identifying t
 Fourth, because we use a limited set of variants as input for LDpred2, causal variants identified by LDpred2-auto are probably tagging variants that are highly correlated with unobserved causal variants close by. 
 LDpred2-auto can also totally miss some causal variants when they are poorly tagged by the set of variants used.
 Future work will focus on scaling LDpred2-auto to using more variants to alleviate this limitation; currently, the main issue is the large size of the LD matrix that grows quadratically with the number of variants used.
+For now, one can concentrate on small regions of the genome, where LDpred2-auto can be rerun using a much more dense set of variants, as typically done in fine-mapping analyses (cf.\ Results section ``Local heritability and polygenicity'').
 
 Nevertheless, LDpred2-auto users can now get much from running a single method. The reliable estimates provided by LDpred2-auto are very encouraging to further extend LDpred2-auto in multiple directions. 
 As future research directions, we are interested in using LDpred2-auto for GWAS summary statistics imputation \cite[]{rueger2018evaluation,julienne2019raiss}, for genetic correlation estimation \cite[]{bulik2015atlas,shi2017local,speed2019sumher,frei2019bivariate,werme2022integrated}, multi-ancestry prediction and inference \cite[]{brown2016transethnic,shi2020localizing,ruan2022improving,lu2022multi}, as well as extending it to use more variants and learn from functional annotations \cite[]{zhang2021improved,marquez2021incorporating,zheng2022leveraging}.

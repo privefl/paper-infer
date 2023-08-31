@@ -339,6 +339,19 @@ Green dashed lines represent the 1:1 line. Only results for $\alpha = -0.5$ and 
 \caption{Per-variant median probabilities of being causal across 169 UKBB phenotypes. Variants with a median probability larger than 0.01 were mapped to genes using R package rsnps (only the largest per peak). The HapMap3+ set of variants is used. Only phenotypes with more than 25 chains kept are used here. \label{median_postp}}
 \end{figure}
 
+\begin{figure}[p]
+	\centerline{\includegraphics[width=\textwidth]{manhattan_height_one_region}}
+	\caption{GWAS of height in a restricted region containing the most significant HapMap3+ variant for height. \label{manhattan_height}}
+\end{figure}
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=\textwidth]{pip_height_one_region}}
+	\caption{Posterior inclusion probabilities (PIPs) for the variants in Figure \ref{manhattan_height}. 
+	L is the maximum number of causal variants in SuSiE-RSS, and max(p) is the maximum value of the estimated $p$ in LDpred2-auto.
+	Both panels A and B represent the same data, but colors and facets are changed. \label{pip_height}}
+\end{figure}
+
+
 
 \FloatBarrier
 
