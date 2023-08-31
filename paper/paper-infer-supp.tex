@@ -72,7 +72,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=0.85\textwidth]{est_h2_one_200K}}
+	\centerline{\includegraphics[width=0.8\textwidth]{est_h2_one_20K}}
+	\caption{Inferred SNP heritability $h^2$ in simulations with continuous outcomes and N=20K. Horizontal dashed lines represent the true simulated values. 
+		For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
+		``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}.
+		The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). The 95\% confidence interval for the LD Score (LDSc) regression estimate is obtained as $\pm$1.96 of its standard error. Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu_h2}}
+\end{figure}
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=0.8\textwidth]{est_h2_one_200K}}
 	\caption{Inferred SNP heritability $h^2$ in simulations with continuous outcomes and N=200K. Horizontal dashed lines represent the true simulated values. 
 		For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
 		``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}.
@@ -80,30 +88,76 @@
 \end{figure}
 
 \begin{figure}[p]
-\centerline{\includegraphics[width=0.9\textwidth]{est_p_one_20K}}
+\centerline{\includegraphics[width=0.75\textwidth]{est_p_one_20K}}
 \caption{Inferred polygenicity $p$ in simulations with continuous outcomes and N=20K. Horizontal dashed lines represent the true simulated values. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
 ``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. 
 The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $p$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu_p}}
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=0.9\textwidth]{est_p_one_200K}}
+	\centerline{\includegraphics[width=0.75\textwidth]{est_p_one_200K}}
 	\caption{Inferred polygenicity $p$ in simulations with continuous outcomes and N=200K. Horizontal dashed lines represent the true simulated values. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
 		``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. 
 		The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $p$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu_p_large}}
 \end{figure}
 
 \begin{figure}[p]
-\centerline{\includegraphics[width=0.8\textwidth]{est_alpha_one_20K}}
+\centerline{\includegraphics[width=0.78\textwidth]{est_alpha_one_20K}}
 \caption{Inferred $\alpha$ in simulations with continuous outcomes and N=20K. Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the LDpred2-auto estimates. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that ``LDpred2\_noMLE'' (\texttt{use\_MLE = FALSE}) does not infer $\alpha$. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. 
 The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $\alpha$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu_alpha}}
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=0.8\textwidth]{est_alpha_one_200K}}
+	\centerline{\includegraphics[width=0.78\textwidth]{est_alpha_one_200K}}
 	\caption{Inferred $\alpha$ in simulations with continuous outcomes and N=200K. Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the LDpred2-auto estimates. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that ``LDpred2\_noMLE'' (\texttt{use\_MLE = FALSE}) does not infer $\alpha$. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. 
 		The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $\alpha$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu_alpha_large}}
 \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=0.8\textwidth]{est_h2_ten_20K}}
+	\caption{Inferred SNP heritability $h^2$ in simulations with continuous outcomes and N=20K, in 10 different runs (``num''). Horizontal dashed lines represent the true simulated values. 
+		For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
+		``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}.
+		The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). The 95\% confidence interval for the LD Score (LDSc) regression estimate is obtained as $\pm$1.96 of its standard error. Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu10_h2}}
+\end{figure}
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=0.8\textwidth]{est_h2_ten_200K}}
+	\caption{Inferred SNP heritability $h^2$ in simulations with continuous outcomes and N=200K, in 10 different runs (``num''). Horizontal dashed lines represent the true simulated values. 
+		For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
+		``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}.
+		The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). The 95\% confidence interval for the LD Score (LDSc) regression estimate is obtained as $\pm$1.96 of its standard error. Colors for LDpred2-auto models represent the number of chains kept (out of 50).  \label{fig:simu10_h2_large}}
+\end{figure}
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=0.82\textwidth]{est_p_ten_20K}}
+	\caption{Inferred polygenicity $p$ in simulations with continuous outcomes and N=20K, in 10 different runs (``num''). Horizontal dashed lines represent the true simulated values. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
+		``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. 
+		The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $p$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu10_p}}
+\end{figure}
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=0.82\textwidth]{est_p_ten_200K}}
+	\caption{Inferred polygenicity $p$ in simulations with continuous outcomes and N=200K, in 10 different runs (``num''). Horizontal dashed lines represent the true simulated values. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
+		``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. 
+		The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $p$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu10_p_large}}
+\end{figure}
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=0.73\textwidth]{est_alpha_ten_20K}}
+	\caption{Inferred $\alpha$ in simulations with continuous outcomes and N=20K, in 10 different runs (``num''). Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the LDpred2-auto estimates. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that ``LDpred2\_noMLE'' (\texttt{use\_MLE = FALSE}) does not infer $\alpha$. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. 
+		The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $\alpha$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu10_alpha}}
+\end{figure}
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=0.73\textwidth]{est_alpha_ten_200K}}
+	\caption{Inferred $\alpha$ in simulations with continuous outcomes and N=200K, in 10 different runs (``num''). Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the LDpred2-auto estimates. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that ``LDpred2\_noMLE'' (\texttt{use\_MLE = FALSE}) does not infer $\alpha$. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. 
+		The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $\alpha$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu10_alpha_large}}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{figure}[p]
 \centerline{\includegraphics[width=\textwidth]{postp_calib}}
@@ -133,14 +187,16 @@ Green dashed lines represent the 1:1 line. Only results for $\alpha = -0.5$ and 
 	\caption{Calibration of per-variant posterior probabilities of being causal in two simulations with continuous outcomes, assuming $h^2=0.1$, $\alpha=-0.5$, and $N=10^5$.\label{fig:susie}}
 \end{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{figure}[p]
-\centerline{\includegraphics[width=0.9\textwidth]{est_r2_one_20K}}
+\centerline{\includegraphics[width=0.78\textwidth]{est_r2_one_20K}}
 \caption{Inferred predictive performance $r^2$ in simulations with continuous outcomes and N=20K. Green segments represent $r^2$ in the test set. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
 ``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu_r2}}
 \end{figure}
 
 \begin{figure}[p]
-	\centerline{\includegraphics[width=0.9\textwidth]{est_r2_one_200K}}
+	\centerline{\includegraphics[width=0.78\textwidth]{est_r2_one_200K}}
 	\caption{Inferred predictive performance $r^2$ in simulations with continuous outcomes and N=200K. Green segments represent $r^2$ in the test set. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
 	``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu_r2_large}}
 \end{figure}
@@ -150,7 +206,17 @@ Green dashed lines represent the 1:1 line. Only results for $\alpha = -0.5$ and 
 
 \FloatBarrier
 
-%[ ADD THE SAME, BUT AVERAGING OVER 10 SIMUS -> CI OF THE MEAN ]
+\begin{figure}[p]
+	\centerline{\includegraphics[width=0.88\textwidth]{est_r2_ten_20K}}
+	\caption{Inferred predictive performance $r^2$ in simulations with continuous outcomes and N=20K, in 10 different runs (``num''). Green segments represent $r^2$ in the test set. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
+		``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu10_r2}}
+\end{figure}
+
+\begin{figure}[p]
+	\centerline{\includegraphics[width=0.88\textwidth]{est_r2_ten_200K}}
+	\caption{Inferred predictive performance $r^2$ in simulations with continuous outcomes and N=200K, in 10 different runs (``num''). Green segments represent $r^2$ in the test set. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
+		``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu10_r2_large}}
+\end{figure}
 
 \FloatBarrier
 

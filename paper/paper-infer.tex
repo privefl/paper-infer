@@ -145,26 +145,42 @@ Then, we run a GWAS to obtain summary statistics using $N$ individuals (either t
 Finally, we run LDpred2-auto with and without the option \texttt{allow\_jump\_sign}, which was proposed in \cite{prive2021identifying} for robustness (when disabled, it prevents effect sizes from changing sign without going through 0 first), and with and without the new model including a third parameter $\alpha$  (new option \texttt{use\_MLE}, Methods). 
 LDpred2-auto is run with 50 Gibbs sampler chains with different starting values for $p$ (from 0.0001 to 0.2, equally spaced on a log scale). Then some of these chains are filtered out for quality control (Methods).
 
-First, LDpred2-auto generally reliably infers the three parameters from its model, i.e.\ the SNP heritability $h^2$, polygenicity $p$, and $\alpha$ (Figures \ref{fig:simu_h2} and \ref{fig:simu_h2_large}--\ref{fig:simu_alpha_large}).
-Compared to LD Score regression, heritability estimates are as precise when power is low, and much more precise when power is large, especially for small polygenicity values (Figures \ref{fig:simu_h2} and \ref{fig:simu_h2_large}).
-When power is low (e.g.\ $N=20000$ and $h^2=0.01)$, LDpred2-auto\_noMLE (with only two model parameters, as in previous versions of LDpred2-auto) and SBayesS are both over-confident in their estimate of the heritability (i.e.\ CIs are small, and do not contain the true parameter value), and LDpred2-auto\_jump overestimates the heritability (Figure \ref{fig:simu_h2}). LDpred2-auto\_nojump looks very reliable for estimating $h^2$.
+First, LDpred2-auto generally reliably infers the three parameters from its model, i.e.\ the SNP heritability $h^2$, polygenicity $p$, and $\alpha$ (Figures \ref{fig:simu_h2_main}--\ref{fig:simu_alpha_main} and \ref{fig:simu_h2}--\ref{fig:simu_alpha_large}).
+Compared to LD Score regression, heritability estimates are as precise when power is low, and much more precise when power is large, especially for small polygenicity values (Figures \ref{fig:simu_h2_main}, \ref{fig:simu_h2} and \ref{fig:simu_h2_large}).
+When power is low (e.g.\ $N=20000$ and $h^2=0.01)$, LDpred2-auto\_noMLE (with only two model parameters, as in previous versions of LDpred2-auto) and SBayesS are both over-confident in their estimate of $h^2$ (i.e.\ CIs are small, and do not contain the true parameter value, Figure \ref{fig:simu10_h2}), and LDpred2-auto\_jump overestimates the heritability (Figure \ref{fig:simu_h2}). LDpred2-auto\_nojump looks very reliable for estimating $h^2$.
 When power is low, LDpred2-auto can overestimate the polygenicity when the true value is very small (e.g.\ $p=0.0005$), and underestimate it when the polygenicity is large (e.g.\ $p=0.1$, Figure \ref{fig:simu_p}).
 SBayesS, which uses a similar model with the same three parameters, often overestimates the polygenicity, especially when $p\le0.02$.
-The $\alpha$ estimate of LDpred2-auto (with the new 3-parameter model) can become very unprecise when power is too low, which can be detected by a small number of chains kept from LDpred2-auto, while estimates from SBayesS are often over-confident with small CIs that do not include the true simulated values (Figure \ref{fig:simu_alpha}).
-Finally, we also investigate new ways of post-filtering chains in LDpred2-auto, for both prediction and inference (``LDpred2-auto\_newfilter'', Methods); results remain practically unchanged (Figures \ref{fig:simu_h2} and \ref{fig:simu_h2_large}--\ref{fig:simu_alpha_large}).
+The $\alpha$ estimate of LDpred2-auto (with the new 3-parameter model) can become very unprecise when power is too low, which can be detected by a small number of chains kept from LDpred2-auto.
+Estimates of both $p$ and $\alpha$ from SBayesS are often over-confident with small CIs that do not include the true simulated values (Figures \ref{fig:simu10_p} and \ref{fig:simu10_alpha}).
+Generally, 95\% CIs for all three parameters ($h^2$, $p$ and $\alpha$) obtained from LDpred2-auto\_nojump contain the true simulated value (Figures \ref{fig:simu10_h2}--\ref{fig:simu10_alpha_large}), therefore confirming the validity of these CIs; this is the preferred method we recommend using.
+Finally, we also investigate new ways of post-filtering chains in LDpred2-auto, for both prediction and inference (LDpred2-auto\_newfilter compared to LDpred2-auto\_nojump, Methods); results remain practically unchanged (Figures \ref{fig:simu_h2}--\ref{fig:simu_alpha_large}).
+
+\begin{figure}[!htb]
+	\centerline{\includegraphics[width=\textwidth]{est_h2_one_main}}
+	\caption{Inferred SNP heritability $h^2$ in simulations with continuous outcomes and N=20K. More results can be found in the Supplementary Materials. Horizontal dashed lines represent the true simulated values. 
+		For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
+		``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}.
+		The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). The 95\% confidence interval for the LD Score (LDSc) regression estimate is obtained as $\pm$1.96 of its standard error. Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu_h2_main}}
+\end{figure}
+
+\begin{figure}[!htb]
+	\centerline{\includegraphics[width=\textwidth]{est_p_one_main}}
+	\caption{Inferred polygenicity $p$ in simulations with continuous outcomes and N=20K. More results can be found in the Supplementary Materials. Horizontal dashed lines represent the true simulated values. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
+		``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. 
+		The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $p$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu_p_main}}
+\end{figure}
+
+\begin{figure}[!htb]
+	\centerline{\includegraphics[width=\textwidth]{est_alpha_one_main}}
+	\caption{Inferred $\alpha$ in simulations with continuous outcomes and N=20K. More results can be found in the Supplementary Materials. Horizontal dashed lines represent the true simulated values. Horizontal dotted lines represent boundaries imposed on the LDpred2-auto estimates. For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that ``LDpred2\_noMLE'' (\texttt{use\_MLE = FALSE}) does not infer $\alpha$. Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}. 
+		The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $\alpha$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu_alpha_main}}
+\end{figure}
 
 Then, LDpred2-auto can also infer per-variant probabilities of being causal and local per-block heritability estimates, which are well calibrated (Figures \ref{fig:simu_postp_calib} and \ref{fig:simu_h2_calib}).
 We recall that calibrated per-variant probabilities of being causal (also known as posterior inclusion probabilities, PIPs) can be used for fine-mapping purposes  \cite[]{wang2020simple}.
 LDpred2-auto provides PIPs that are more calibrated than with e.g.\ SuSiE-RSS \cite[]{zou2022fine}, which we run assuming there are 10 causal variants per LD block by default (Figure \ref{fig:susie}).
 Finally, LDpred2-auto can also be used to reliably infer the predictive performance $r^2$ of its resulting polygenic score, directly from within the Gibbs sampler (Methods), even when power is low, and we show it works with results from SBayesS's Gibbs sampler as well (Figures \ref{fig:simu_r2} and \ref{fig:simu_r2_large}).
-
-\begin{figure}[p]
-	\centerline{\includegraphics[width=0.85\textwidth]{est_h2_one_20K}}
-	\caption{Inferred SNP heritability $h^2$ in simulations with continuous outcomes and N=20K. Horizontal dashed lines represent the true simulated values. 
-	For LDpred2-auto, suffix ``nojump''/``jump'' refers to using \texttt{allow\_jump\_sign = FALSE/TRUE} (and \texttt{use\_MLE = TRUE}), and 
-	``noMLE'' refers to using \texttt{use\_MLE = FALSE} (and \texttt{allow\_jump\_sign = FALSE}), and ``newfilter'' is similar to ``nojump'' but uses a different post-filtering of chains (Methods). Note that the recommended option is to use \texttt{allow\_jump\_sign = FALSE} \cite[]{prive2021identifying}.
-	The 95\% confidence intervals for the LDpred2-auto and SBayesS estimates are obtained from the 2.5\% and 97.5\% quantiles of all the $h^2$ estimates from the iterations (after burn-in) of the chains kept (note that only one chain is used and kept in SBayesS). The 95\% confidence interval for the LD Score (LDSc) regression estimate is obtained as $\pm$1.96 of its standard error. Colors for LDpred2-auto models represent the number of chains kept (out of 50). \label{fig:simu_h2}}
-\end{figure}
+CIs for this $r^2$ estimate very often encompass the true simulated value, expect for LDpred2-auto\_jump when $h^2$ and $N$ are small (Figures \ref{fig:simu10_r2} and \ref{fig:simu10_r2_large}).
 
 We then run simulations with binary outcomes where the simulated continuous liabilities are transformed to binary outcomes using a threshold corresponding to the prevalence.
 Results are very similar as with the continuous phenotypes above (Figures \ref{fig:simu_h2_bin}--\ref{fig:simu_r2_bin}), and are similar whether we use either a linear regression GWAS and the total sample size $N$, or a logistic regression GWAS and the effective sample size (i.e.\ $N_\text{eff} = 4 / (1 / N_\text{case} + 1 / N_\text{control})$). The main difference is that the $h^2$ and $r^2$ estimates must be transformed to the liability scale \cite[]{lee2011estimating}, where $K_\text{GWAS}=0.5$ should be used for transforming estimates of $h^2$ and $r^2$ when using $N_\text{eff}$ in inference methods \cite[]{grotzinger2021pervasive}.
@@ -272,7 +288,7 @@ As for estimates of $h^2$ and $r^2$ (inferred from the Gibbs sampler), they tend
 This is also the case for estimates of $p$ when using \texttt{use\_MLE = TRUE}.
 Estimates of $\alpha$ are largely constant but can become very small (capped at -1.5) in the case of robustness issues when using e.g.\ \texttt{use\_MLE = TRUE} and almost no regularization on the LD matrix (i.e.\ \texttt{coef\_shrink} close to 1).
 
-\begin{table}[htb]
+\begin{table}[!htb]
 	\centering
 	\begin{tabular}{|l||c|c|c||c|c|}
 		\hline
@@ -472,9 +488,9 @@ The other authors have no competing interests to declare.
 
 The UK Biobank data is available through a procedure described at \url{https://www.ukbiobank.ac.uk/using-the-resource/}. 
 Descriptions of UK Biobank phenotypes used here are available at \url{https://github.com/privefl/paper-infer/blob/main/phenotype-description.tsv}.
-Simulation and UKBB results are available at \url{https://github.com/privefl/paper-infer/tree/master/results}.
+Simulation and UKBB results are available at \url{https://github.com/privefl/paper-infer/tree/main/results}.
 LD matrices for HapMap3+ variants computed from the N.W. European UKBB data used in this paper are available at \url{https://doi.org/10.6084/m9.figshare.21305061}.
-All code used for this paper is available at \url{https://github.com/privefl/paper-infer/tree/master/code}.
+All code used for this paper is available at \url{https://github.com/privefl/paper-infer/tree/main/code}.
 We have extensively used R packages bigstatsr and bigsnpr \cite[]{prive2017efficient} for analyzing large genetic data, packages from the future framework \cite[]{bengtsson2020unifying} for easy scheduling and parallelization of analyses on the HPC cluster, and packages from the tidyverse suite \cite[]{wickham2019welcome} for shaping and visualizing results.
 The latest version of R package bigsnpr can be installed from GitHub, and a recent enough version can be installed from CRAN.
 
@@ -482,8 +498,8 @@ The latest version of R package bigsnpr can be installed from GitHub, and a rece
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\clearpage
-%\vspace*{3em}
+%\clearpage
+\vspace*{3em}
 
 \bibliographystyle{natbib}
 \bibliography{refs}
