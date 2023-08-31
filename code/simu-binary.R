@@ -97,13 +97,44 @@ grid$res <- furrr::future_pmap(grid, function(p, h2, alpha, K, num) {
   tibble::tibble(logistic = c(FALSE, TRUE), res = list(res_lin, res_log))
 })
 
-vec_to_liab <- function(x, K, logistic) {
-  x * purrr::map2_dbl(K, logistic, ~ coef_to_liab(.x, `if`(.y, 0.5, .x)))
-}
+
+library(dplyr)
+
+grid %>%
+  tidyr::unnest_wider(res) %>%
+  tidyr::unnest(cols = c(logistic, res)) %>%
+  tidyr::unnest_wider(res) %>%
+  tidyr::pivot_longer(-(1:6), names_to = "Method") %>%
+  tidyr::unnest_wider("value") %>%
+  # head(20) %>%
+  rowwise() %>%
+  mutate(
+    r2 = list(unname(r2)),
+    n_keep = `if`(grepl("LDpred2", Method), `if`(is.null(all_h2), 0, NCOL(all_h2)), NA),
+    r2_est = list(`if`(Method == "LDSc", NULL,
+                       unname(quantile(all_r2, probs = c(0.5, 0.025, 0.975))))),
+    h2_est = list(
+      `if`(Method == "LDSc", all_h2[["h2"]] + c(0, -1.96, 1.96) * all_h2[["h2_se"]],
+           unname(quantile(all_h2, probs = c(0.5, 0.025, 0.975))))
+    ),
+    p_est = list(`if`(Method == "LDSc", NULL,
+                      unname(quantile(all_p, probs = c(0.5, 0.025, 0.975))))),
+    alpha_est = list(`if`(Method %in% c("LDSc", "LDpred2_noMLE"), NULL,
+                          unname(quantile(all_alpha, probs = c(0.5, 0.025, 0.975))))),
+  ) %>%
+  relocate(n_keep, .after = use_mle) %>%
+  ungroup() %>%
+  mutate(Method = factor(Method, levels = Method[1:4],
+                         labels = sub("LDpred2_", "LDpred2-auto_", Method[1:4]))) %>%
+  select(-starts_with("all"), -postp) %>%
+  tidyr::unnest_wider(where(is.list), names_sep = "_") %>%
+  mutate(across(r2_1:alpha_est_3, ~ signif(., digits = 4))) %>%
+  print(n = 20) %>%
+  bigreadr::fwrite2("results_infer_simu_binary.csv")
+
 
 #### Just one simulation with CIs of the estimates ####
 
-library(dplyr)
 library(ggplot2)
 
 grid2 <- grid %>%
@@ -114,11 +145,15 @@ grid2 <- grid %>%
   tidyr::pivot_longer(-(1:6), names_to = "Method") %>%
   tidyr::unnest_wider("value") %>%
   mutate(n_keep = purrr::map_dbl(all_h2, ~ `if`(is.null(.), 0, NCOL(.))),
-         Method = factor(Method, levels = Method[1:4]),
+         Method = factor(Method, levels = Method[1:4],
+                         labels = sub("LDpred2_", "LDpred2-auto_", Method[1:4])),
          p = as.factor(p)) %>%
   relocate(n_keep, .after = Method) %>%
   print(n = 100)
 
+vec_to_liab <- function(x, K, logistic) {
+  x * purrr::map2_dbl(K, logistic, ~ coef_to_liab(.x, `if`(.y, 0.5, .x)))
+}
 
 grid2_r2 <- grid2 %>%
   filter(Method != "LDSc") %>%
@@ -211,7 +246,7 @@ grid2 %>%
 
 
 grid2 %>%
-  filter(!Method %in% c("LDSc", "LDpred2_noMLE")) %>%
+  filter(!Method %in% c("LDSc", "LDpred2-auto_noMLE")) %>%
   mutate(alpha_est = purrr::map(all_alpha, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("alpha_est", names_sep = "_") %>%
   ggplot(aes(Method, alpha_est_1, shape = ifelse(logistic, "Yes", "No"),
