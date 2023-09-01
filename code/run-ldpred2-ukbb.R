@@ -222,6 +222,17 @@ median(purrr::map_dbl(filter(grid2, set == "hm3_plus")$time, 3)) /
   median(purrr::map_dbl(filter(grid2, set == "hm3")$time, 3))
 # 1.45
 
+grid2 %>%
+  mutate(pheno = sub("\\.rds$", "", basename(pheno_file))) %>%
+  relocate(pheno, .before = 0) %>%
+  select(-c(pheno_file, postp, res_file, time, local_h2)) %>%
+  relocate(r2, .after = r2_est) %>%
+  tidyr::unnest_wider(h2_ldsc_est:r2, names_sep = "_") %>%
+  mutate(across(h2_ldsc_est_1:r2_3, signif)) %>%
+  print() %>%
+  bigreadr::fwrite2("results_infer_ukbb.csv")
+
+
 grid3 <- grid2 %>%
   filter(n_keep > 0) %>%
   tidyr::unnest_wider("r2", names_sep = "_") %>%
@@ -235,6 +246,7 @@ grid3 <- grid2 %>%
 grid3_hm3 <- filter(grid3, set == "hm3")
 
 grid3_hm3 %>%
+  filter(!use_mle) %>%
   mutate(h2 = cut(h2_est_1, c(0, 0.05, 0.1, 0.2, 1))) %>%
   ggplot(aes(r2_1, r2_est_1, color = n_keep)) +
   scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50)) +
@@ -246,14 +258,31 @@ grid3_hm3 %>%
                 position = position_dodge(width = 0.9), width = 0) +
   ggrepel::geom_label_repel(aes(label = sub("\\.rds$", "", basename(pheno_file))),
                             color = "purple", min.segment.length = 0, force = 500, size = 3, seed = 4,
-                            data = mutate(filter(grid3_hm3, grepl("height", pheno_file)),
+                            data = mutate(filter(grid3_hm3, grepl("height", pheno_file), !use_mle),
                                           h2 = cut(h2_est_1, c(0, 0.05, 0.1, 0.2, 1)))) +
   facet_wrap(~ use_mle + h2, scales = "free", labeller = label_both, nrow = 2) +
   geom_point(size = 1.5) +
-  theme(legend.position = "top", legend.key.width = unit(40, "pt")) +
-  guides(color = guide_colorbar(title.vjust = 0.9)) +
+  theme(legend.key.height = unit(50, "pt")) +
   labs(y = "Inferred r2", x = "r2 in test set", color = "# chains")
-# ggsave("figures/ukbb_r2.pdf", width = 8.5, height = 6)
+# ggsave("figures/ukbb_r2_MLE.pdf", width = 8, height = 7)
+# ggsave("figures/ukbb_r2_noMLE.pdf", width = 8, height = 7)
+
+grid2 %>%
+  filter(set == "hm3", !jump_sign) %>%
+  tidyr::pivot_wider(id_cols = pheno_file, names_from = use_mle, values_from = r2) %>%
+  tidyr::unnest_wider(-pheno_file, names_sep = "_") %>%
+  ggplot(aes(`TRUE_1`, FALSE_1)) +
+  bigstatsr::theme_bigstatsr(0.7) +
+  coord_equal() +
+  geom_abline(color = "red", linetype = 2) +
+  geom_errorbar(aes(ymin = FALSE_2, ymax = FALSE_3), color = "chartreuse3",
+                position = position_dodge(width = 0.9), width = 0) +
+  geom_errorbar(aes(xmin = TRUE_2, xmax = TRUE_3), color = "chartreuse3",,
+                position = position_dodge(width = 0.9), width = 0) +
+  geom_point(size = 1.5) +
+  labs(x = "r2 with 3-param LDpred2-auto", y = "r2 with 2-param LDpred2-auto")
+# ggsave("figures/ukbb_r2_vs.pdf", width = 6, height = 6)
+
 
 grid3_hm3 %>%
   filter(grepl("height", pheno_file) | grepl("/years", pheno_file)) %>%
@@ -385,7 +414,7 @@ grid4 %>%
   filter(name == "r2", !grepl("lipoA", pheno_file), use_mle) %>%
   deming::deming(hm3_plus_1 ~ hm3_1 + 0, data = .,
                  xstd = hm3_3 - hm3_2, ystd = hm3_plus_3 - hm3_plus_2)
-# Slope     1.061172 0.01049487   1.040602   1.081741
+# Slope     1.061557 0.01080281   1.040384    1.08273
 
 grid4 %>%
   filter(use_mle) %>%
