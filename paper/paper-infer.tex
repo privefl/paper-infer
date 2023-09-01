@@ -122,13 +122,13 @@ So, on top of providing competitive PGS, LDpred2-auto can also provide all these
 Moreover, we show how it can now also reliably estimate the predictive ability $r^2$ of PGS it derives, allowing for directly assessing the usefulness of the derived PGS, without requiring an independent test set.
 An overview of what LDpred2-auto can now provide is presented in Figure \ref{fig:overview}.
 Finally, we extend the set of HapMap3 variants recommended to use with LDpred2, which enables us to capture around 12\% more SNP heritability and achieve around 6\% more predictive performance $r^2$, on average, in UK Biobank analyses.
-We call `HapMap3+' this extended set of 1,444,196 SNPs, and recommend to use it when power is sufficient (i.e.\ with a large sample size, large $h^2$, and/or small $p$).
+We call `HapMap3+' this extended set of 1,444,196 SNPs, and recommend using it when power is sufficient (i.e.\ with a large sample size, large $h^2$, and/or small $p$).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{figure}[!htb]
 	\centerline{\includegraphics[width=0.9\textwidth]{overview}}
-	\caption{Overview of what LDpred2-auto can now provide. For individual CIs of polygenic scores, please refer to the work of \cite{ding2022large,ding2022polygenic}. HapMap3+ is the new extended set of 1,444,196 SNPs we introduce here (Methods), and now recommend to use for LDpred2 when power is sufficient (i.e.\ with a large sample size, large $h^2$, and/or small $p$). CI means ``confidence interval'' (often called ``credible interval'' in a Bayesian setting). \label{fig:overview}}
+	\caption{Overview of what LDpred2-auto can now provide. For individual CIs of polygenic scores, please refer to the work of \cite{ding2022large,ding2022polygenic}. HapMap3+ is the new extended set of 1,444,196 SNPs we introduce here (Methods), and now recommend using for LDpred2 when power is sufficient (i.e.\ with a large sample size, large $h^2$, and/or small $p$). CI means ``confidence interval'' (often called ``credible interval'' in a Bayesian setting). \label{fig:overview}}
 \end{figure}
 
 
@@ -342,7 +342,7 @@ When using external GWAS summary statistics, using HapMap3+ instead of HapMap3 v
 Our intuition and conclusion is that using more variants is beneficial when power is sufficient; however, when power is low (e.g.\ small $N$, small $h^2$, and/or large $p$), it may actually be detrimental.
 
 Our proposed method has limitations. First, when power is low (i.e.\ when $N h^2 / p$ is low), estimates of $\alpha$ and $p$ become less reliable.
-Therefore, we recommend to use the 3-parameter model (with $\alpha$, when using \texttt{use\_MLE = TRUE}), but only when power is sufficient and when robustness is not an issue.
+Therefore, we recommend using the 3-parameter model (with $\alpha$, when using \texttt{use\_MLE = TRUE}), but only when power is sufficient and when robustness is not an issue.
 We also recommend using option \texttt{allow\_jump\_sign = FALSE} for robustness \cite[]{prive2021identifying}, and for getting accurate or conservative $p$ estimates. When still obtaining a large $p$ estimate ($>1\%$) with this option, we recommend rerunning LDpred2-auto without this option to get a less conservative estimate (cf.\ simulations).
 However, LDpred2-auto estimates of $h^2$ and $r^2$ seem always reliable, except for height for which they are probably overestimated.
 We think this is likely due to assortative mating, which causes GWAS effects to be inflated \cite[]{border2022assortative,herzig2023model}, which causes our estimates to be inflated as well. 
@@ -351,7 +351,7 @@ Future work could focus on correcting these issues.
 Third, when using external GWAS summary statistics, it is often beneficial to regularize the LD matrix (via parameter \texttt{coef\_shrink}, especially when using the new sampling and model), however it leads to an increased estimation for e.g.\ $r^2$ and $h^2$.
 Future work could focus on correcting these estimates, and also on identifying the best shrinkage regularization coefficient to apply based on e.g.\ some distance metric (mismatch) between GWAS summary statistics and the LD reference used.
 Fourth, because we use a limited set of variants as input for LDpred2, causal variants identified by LDpred2-auto are probably tagging variants that are highly correlated with unobserved causal variants close by. 
-LDpred2-auto can also totally miss some causal variants when they are poorly tagged by the set of variants used.
+LDpred2-auto can also miss some causal variants when they are poorly tagged by the set of variants used.
 Future work will focus on scaling LDpred2-auto to using more variants to alleviate this limitation; currently, the main issue is the large size of the LD matrix that grows quadratically with the number of variants used.
 For now, to identify causal variants, one can concentrate on small regions of the genome, where LDpred2-auto can be rerun using a much more dense set of variants, as typically done in fine-mapping analyses (cf.\ Results section ``Local heritability and polygenicity'').
 
