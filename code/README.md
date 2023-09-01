@@ -19,19 +19,23 @@
 
 ### Analyses and results
 
-- `simu-methods.R` + `simu.R` + `simu-binary.R`: simulations + Figures 2 & S1--S7 & S9--S14
+- `simu-methods.R` + `simu.R` + `simu-binary.R`: simulations + Figures 2--4 & S1--S14 & S16--S23
 
-- `compare-susie.R`: compare calibrations of LDpred2-auto and SuSiE-RSS in some simulations + Figure S8
+- `compare-susie.R`: compare calibrations of LDpred2-auto and SuSiE-RSS in some simulations + Figure S15
 
-- `run-GWAS.R` + `run-ldpred2-ukbb.R`: run LDpred2-auto for 248 phenotypes in the UK Biobank + Figures 3--4 & S15--S26 & S28--S29
+- `run-GWAS.R` + `run-ldpred2-ukbb.R`: run LDpred2-auto for 248 phenotypes in the UK Biobank + Figures 5--6 & S24--S36 & S38--S39 & S45
 
-- `run-ldpred2-cardio-proteins.R`: run LDpred2-auto for 90 external cardiovascular proteins + Figure S27
+- `run-ldpred2-cardio-proteins.R`: run LDpred2-auto for 90 external cardiovascular proteins + Figure S37
 
-- `height-*.R`: (inference and enrichment) analyses for height with different samples sizes + Figure S30--S31
+- `height-*.R`: (inference and enrichment) analyses for height with different samples sizes + Figures S42--S43
 
-- `run-ldpred2-sumstats.R`: run LDpred2-auto with external GWAS summary statistics + Figure S32
+- `run-ldpred2-sumstats.R`: run LDpred2-auto with external GWAS summary statistics + Figure S44
 
-- `LPA-targeted`: predicting lipoprotein(a) concentration used a targeted region of the genome and penalized regression (individual-level data)
+- `LPA-targeted.R`: predicting lipoprotein(a) concentration used a targeted region of the genome and penalized regression (individual-level data)
+
+- `height-one-region.R`: localized fine-mapping analysis + Figures S40--S41
+
+- `validate-hm3-plus.R`: compute tagging statistics for HapMap3+ variants
 
 - `export-ldred.R`: Export precomputed LD matrices for HapMap3+
 
