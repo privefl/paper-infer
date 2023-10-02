@@ -8,6 +8,12 @@ map_ldref <- readRDS(runonce::download_file(
   "https://figshare.com/ndownloader/files/37802721",
   dir = "tmp-data", fname = "map_hm3_plus.rds"))
 
+## The one before is for HapMap3+; if using HapMap3 instead, get
+readRDS(runonce::download_file(
+  "https://figshare.com/ndownloader/files/36360900",
+  dir = "tmp-data", fname = "map_hm3.rds"))
+
+
 ## Breast cancer summary statistics
 
 tgz <- runonce::download_file(
