@@ -162,7 +162,8 @@ grid %>%
   relocate(n_keep_infer, n_keep_pred, .after = use_mle) %>%
   ungroup() %>%
   mutate(Method = factor(Method, levels = Method[1:6],
-                         labels = sub("LDpred2_", "LDpred2-auto_", Method[1:6]))) %>%
+                         labels = sub("LDpred2_", "LDpred2-auto_",
+                                      sub("newfilter", "altfilter", Method[1:6])))) %>%
   select(-starts_with("all"), -postp) %>%
   tidyr::unnest_wider(where(is.list), names_sep = "_") %>%
   mutate(across(r2_1:alpha_est_3, ~ signif(., digits = 4))) %>%
@@ -183,7 +184,8 @@ grid2 <- grid %>%
          n_keep_infer = purrr::map_dbl(all_h2, ~ `if`(is.null(.), 0, NCOL(.))),
          n_keep_pred  = purrr::map_dbl(all_r2, ~ `if`(is.null(.), 0, NCOL(.) / 500 * 20)),
          Method = factor(Method, levels = Method[1:6],
-                         labels = sub("LDpred2_", "LDpred2-auto_", Method[1:6])),
+                         labels = sub("LDpred2_", "LDpred2-auto_",
+                                      sub("newfilter", "altfilter", Method[1:6]))),
          p = as.factor(p)) %>%
   relocate(n_keep_infer, n_keep_pred, .after = Method) %>%
   print(n = 20)
