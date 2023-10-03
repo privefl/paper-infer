@@ -28,8 +28,7 @@
 %\linenumbers
 %\doublespacing
 \onehalfspacing
-\usepackage[authoryear]{natbib}
-%\usepackage[numbers,super]{natbib} %\bibpunct{(}{)}{;}{author-year}{}{,}
+\usepackage[numbers,super]{natbib} %\bibpunct{(}{)}{;}{author-year}{}{,}
 
 %Pour les rajouts
 \usepackage{color}
@@ -109,9 +108,9 @@ Causal effects are larger when a trait is more heritable, and smaller when it is
 As for the distribution of causal effects relative to their allele frequencies, it is often investigated through a single parameter, usually called $\alpha$ or $S$, to model the effect of negative selection on complex traits whereby variants with lower frequencies are expected to have higher causal effect sizes \cite[]{speed2012improved}.
 In this model, the expected phenotypic variance explained by a genetic variant is proportional to $\big[f(1-f)\big]^\alpha$, where $f$ is the allele frequency of this variant.
 Many methods have been developed to estimate the SNP heritability (referred to as $h^2$ for brevity) and polygenicity ($p$), either globally for the whole genome or locally for specific regions of the genome, as well as $\alpha$. 
-These methods (non-exhaustively) include GCTA ($h^2$, \cite{yang2011gcta}), BOLT-REML ($h^2$ and $p$, \cite{loh2015contrasting}), LD Score regression ($h^2$, \cite{bulik2015ld}), FINEMAP (per-variant $p$, also called posterior inclusion probabilities PIPs, used for fine-mapping, \cite{benner2016finemap}), HESS (local $h^2$, \cite{shi2016contrasting}), LDAK-SumHer ($h^2$, \cite{speed2019sumher}), S-LD4M ($p$, \cite{oconnor2019extreme}), GRM-MAF-LD ($\alpha$, \cite{schoech2019quantification}), SuSiE (PIPs, \cite{wang2020simple}), SBayesS ($h^2$, $p$, and a third parameter $S$, similar to $\alpha$, \cite{zeng2021widespread}), and BEAVR (local $p$, \cite{johnson2021estimation}).
+These methods (non-exhaustively) include GCTA\cite{yang2011gcta} ($h^2$), BOLT-REML\cite{loh2015contrasting} ($h^2$ and $p$), LD Score regression\cite{bulik2015ld} ($h^2$), FINEMAP\cite{benner2016finemap} (per-variant $p$, also called posterior inclusion probabilities PIPs, used for fine-mapping), HESS\cite{shi2016contrasting} (local $h^2$), LDAK-SumHer\cite{speed2019sumher} ($h^2$), S-LD4M\cite{oconnor2019extreme} ($p$), GRM-MAF-LD\cite{schoech2019quantification} ($\alpha$), SuSiE\cite{wang2020simple} (PIPs), SBayesS\cite{zeng2021widespread} ($h^2$, $p$, and a third parameter $S$, similar to $\alpha$), and BEAVR\cite{johnson2021estimation} (local $p$).
 
-As previously shown by \cite{daetwyler2008accuracy}, $h^2$ and $p$ can also be used to determine how well we can predict a phenotype from using genetic variants alone, with $r^2_\text{max} = h^2 \cdot r^2_{g\hat{g}} = \dfrac{h^2}{1 + (1 - r^2_\text{max}) \frac{M p}{N h^2}}$, where $r^2_\text{max}$ and $r^2_{g\hat{g}}$ are the maximum achievable squared correlations between the genetic predictor and respectively the phenotype and its genetic component, $N$ is the sample size, $M$ is the number of variants, so $M p$ is the number of causal variants. 
+As previously shown by \citet{daetwyler2008accuracy}, $h^2$ and $p$ can also be used to determine how well we can predict a phenotype from using genetic variants alone, with $r^2_\text{max} = h^2 \cdot r^2_{g\hat{g}} = \dfrac{h^2}{1 + (1 - r^2_\text{max}) \frac{M p}{N h^2}}$, where $r^2_\text{max}$ and $r^2_{g\hat{g}}$ are the maximum achievable squared correlations between the genetic predictor and respectively the phenotype and its genetic component, $N$ is the sample size, $M$ is the number of variants, so $M p$ is the number of causal variants. 
 Such genetic predictors are called polygenic scores (PGS), and are getting closer to being included as part of existing clinical risk models for diseases \cite[]{torkamani2018personal,lambert2019towards,kumuthini2022clinical}.
 LDpred2 is a widely used polygenic score method that can directly build PGS using resulting summary statistics from genome-wide associations studies (GWAS), making it highly applicable \cite[]{prive2020ldpred2,pain2021evaluation,kulm2021systematic}.
 LDpred2 is a Bayesian approach that uses the SNP heritability $h^2$ and polygenicity $p$ as parameters of its model. LDpred2-auto, one variant of LDpred2, can directly estimate these two parameters from GWAS summary statistics, making it applicable even when no validation data is available for tuning these two model parameters \cite[]{prive2020ldpred2}.
@@ -128,7 +127,7 @@ We call `HapMap3+' this extended set of 1,444,196 SNPs, and recommend using it w
 
 \begin{figure}[!htb]
 	\centerline{\includegraphics[width=0.9\textwidth]{overview}}
-	\caption{Overview of what LDpred2-auto can now provide. For individual CIs of polygenic scores, please refer to the work of \cite{ding2022large,ding2022polygenic}. HapMap3+ is the new extended set of 1,444,196 SNPs we introduce here (Methods), and now recommend using for LDpred2 when power is sufficient (i.e.\ with a large sample size, large $h^2$, and/or small $p$). CI means ``confidence interval'' (often called ``credible interval'' in a Bayesian setting). \label{fig:overview}}
+	\caption{Overview of what LDpred2-auto can now provide. For individual CIs of polygenic scores, please refer to the work of \citet{ding2022large,ding2022polygenic}. HapMap3+ is the new extended set of 1,444,196 SNPs we introduce here (Methods), and now recommend using for LDpred2 when power is sufficient (i.e.\ with a large sample size, large $h^2$, and/or small $p$). CI means ``confidence interval'' (often called ``credible interval'' in a Bayesian setting). \label{fig:overview}}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -141,7 +140,7 @@ We call `HapMap3+' this extended set of 1,444,196 SNPs, and recommend using it w
 For simulations, we use the UK Biobank imputed (BGEN) data, read as allele dosages with function \texttt{snp\_readBGEN} from R package bigsnpr \cite[]{bycroft2018uk,prive2017efficient}. 
 We use the set of 1,054,330 HapMap3 variants recommended to use for LDpred2 \cite[]{prive2020ldpred2}.
 Since we run lots of different models, we restrict the simulations to chromosomes 3, 6, 9, 12, 15, 18 and 21, resulting in a set of 322,805 SNPs.
-We restrict individuals to the ones used for computing the principal components (PCs) in the UK Biobank (field 22020). These individuals are unrelated and have passed some quality control such as removing samples with a missing rate on autosomes larger than 0.02, having a mismatch between inferred sex and self-reported sex, and outliers based on heterozygosity (more details can be found in section S3 of \citet{bycroft2018uk}).
+We restrict individuals to the ones used for computing the principal components (PCs) in the UK Biobank (field 22020). These individuals are unrelated and have passed some quality control such as removing samples with a missing rate on autosomes larger than 0.02, having a mismatch between inferred sex and self-reported sex, and outliers based on heterozygosity (more details can be found in \citet{bycroft2018uk}).
 To get a set of genetically homogeneous individuals, we compute a robust Mahalanobis distance based on the first 16 PCs (field 22009) and further restrict individuals to those within a log-distance of 4.5 \cite[]{prive2020efficient}.  
 This results in 356,409 individuals of Northwestern European ancestry.
 We randomly sample 200,000 individuals to form a training set (to run the GWAS), and use the remaining individuals to form a test set (to evaluate the predictive models).
@@ -151,14 +150,14 @@ We randomly sample 200,000 individuals to form a training set (to run the GWAS),
 We use the set of 1,054,330 HapMap3 variants recommended to use for LDpred2 \cite[]{prive2020ldpred2}, and the same 356,409 individuals of Northwestern European ancestry as in the simulations.
 We randomly sample 50,000 individuals to form a test set (to evaluate the predictive models), and use the remaining individuals to form a training set (to run the GWAS).
 
-We construct and use the same phenotypes as in \cite{prive2021high}.
+We construct and use the same phenotypes as in \citet{prive2021high}.
 About half of these consists of phecodes mapped from ICD10 and ICD9 codes using R package PheWAS \cite[]{carroll2014r,wu2019mapping}.
 The other half consists of phenotypes defined in UKBB fields based on manual curation \cite[]{prive2021high}.
 As covariates, we first recompute PCs for the homogeneous subset of individuals previously defined using function \texttt{snp\_autoSVD} from R package bigsnpr and keep four PCs based on visual inspection \cite[]{prive2017efficient,prive2020efficient}. We also use sex (field 22001), age (field 21022), birth date (combining fields 34 and 52) and deprivation index (field 189) as additional covariates (to a total of eight).
 
-We use the LD matrix with independent LD blocks computed in \cite{prive2021identifying}.
-We design two other LD matrices: one using a smaller random subset of 2000 individuals from the previously selected ones (which we call ``hm3\_small''), and one based on 10,000 individuals from around South Europe by using the ``Italy'' center defined in \cite{prive2021high} (``hm3\_altpop'').
-We apply the optimal algorithm developed in \cite{prive2021optimal} to obtain independent LD blocks, as recommended in \cite{prive2021identifying}.
+We use the LD matrix with independent LD blocks computed in \citet{prive2021identifying}.
+We design two other LD matrices: one using a smaller random subset of 2000 individuals from the previously selected ones (which we call ``hm3\_small''), and one based on 10,000 individuals from around South Europe by using the ``Italy'' center defined in \citet{prive2021high} (``hm3\_altpop'').
+We apply the optimal algorithm developed in \citet{prive2021optimal} to obtain independent LD blocks, as recommended in \citet{prive2021identifying}.
 We finally define a fourth LD reference by extending the set of HapMap3 variants (see next Methods section) and using 20,000 individuals from the previously selected ones (``hm3\_plus'').
 
 \subsection*{Extending the set of HapMap3 variants used}
@@ -173,7 +172,7 @@ Finally, we design an algorithm which aims at maximizing the tagging of all thes
 We start by including all previously used HapMap3 variants.
 Then, for the sake of simplicity, we use a greedy approach, where we repeatedly include the variant which increases this sum most, until no variant improves it by more than 2. 
 Note that we only allow non-ambiguous SNPs to be included.
-This results in an extended set of 1,444,196 SNPs, of which we compute the LD matrix (within a 3 cM window) and apply the optimal algorithm developed in \cite{prive2021optimal} to obtain 431 independent LD blocks.
+This results in an extended set of 1,444,196 SNPs, of which we compute the LD matrix (within a 3 cM window) and apply the optimal algorithm developed in \citet{prive2021optimal} to obtain 431 independent LD blocks.
 Since we use individuals of diverse ancestries for computing the pairwise variant correlations used for constructing this extended set of variants, we expect this new set of variants to be beneficial across diverse ancestries.
 Indeed, from the 11.5M variants we aimed at tagging, 82.1\% (resp.\ 69.1\%), 80.0\% (resp.\ 66.7\%), 79.3\% (resp.\ 66.1\%), 75.4\% (resp.\ 65.3\%), and 66.6\% (resp.\ 48.6\%) are tagged at $r^2 > 50\%$ (resp.\ $r^2 > 80\%$) by at least one HapMap3+ variant, respectively in North-West Europeans, Middle Easterns, South Asians, East Asians, and West Africans (results extrapolated from variants in chromosome 22).
 
@@ -225,7 +224,7 @@ Note that $E[\boldsymbol{\beta_1}] = \boldsymbol{\bar{\beta}}$, $E[\boldsymbol{\
 Therefore, we propose to use $\boldsymbol{\beta_1}^T \boldsymbol{R} \boldsymbol{\beta_2}$ as a sample of $r^2$.
 This can also be computed for a specific chain by taking two samples $\boldsymbol{\beta_1}$ and $\boldsymbol{\beta_2}$ that are far enough on the same chain to remove the possible autocorrelation. 
 This is what we use for SBayesS here, and also as an alternative means for post-filtering chains for prediction (cf.\ next Methods section).
-Note that \cite{ding2022large} investigated autocorrelation in LDpred2(-grid) and showed that it decays very quickly. Therefore picking two LDpred2-auto samples that are 100 iterations apart should be more than enough to ensure quasi-independence of these samples.
+Note that \citet{ding2022large} investigated autocorrelation in LDpred2(-grid) and showed that it decays very quickly. Therefore picking two LDpred2-auto samples that are 100 iterations apart should be more than enough to ensure quasi-independence of these samples.
 
 In this paper, we check this new $r^2$ approximation using extensive simulations (across many genetic architectures) and real data analyses (across 248 different phenotypes).
 These are compared to the partial-$r^2$ (on individual-level data from a separate test set). The partial correlation is computed with function \texttt{pcor} from R package bigstatsr, adjusting for the same eight covariates as in the GWAS, then squared (while keeping the sign). Corresponding 95\% confidence intervals are estimated through bootstrapping individual indices.
@@ -256,7 +255,7 @@ For simulations, we use the UK Biobank imputed data \cite[]{bycroft2018uk}. We u
 We first simulate continuous phenotypes using function \texttt{snp\_simuPheno} from R package bigsnpr \cite[]{prive2017efficient}, varying three parameters: the SNP heritability $h^2$, the polygenicity $p$ (i.e.\ the proportion of causal variants), and the parameter $\alpha$ in equation \eqref{eq:new_model} that controls the relationship between minor allele frequencies and expected effect sizes.
 This function first picks a proportion $p$ of causal variants at random, samples effect sizes $\gamma$ using the variance component parameterized by $\alpha$ and then scales the effect sizes so that the genetic component $G \gamma$ has a variance $h^2$, where $G$ is the genotype matrix. Finally, some Gaussian noise is added so that the final phenotype has a variance of 1. 
 Then, we run a GWAS to obtain summary statistics using $N$ individuals (either the 200,000 dedicated to this, or a random subset of 20,000), using fast linear regressions implemented in \texttt{big\_univLinReg} from R package bigstatsr \cite[]{prive2017efficient}.
-Finally, we run LDpred2-auto with and without the option \texttt{allow\_jump\_sign}, which was proposed in \cite{prive2021identifying} for robustness (when disabled, it prevents effect sizes from changing sign without going through 0 first), and with and without the extended model including a third parameter $\alpha$ (using option \texttt{use\_MLE}, Methods). 
+Finally, we run LDpred2-auto with and without the option \texttt{allow\_jump\_sign}, which was proposed in \citet{prive2021identifying} for robustness (when disabled, it prevents effect sizes from changing sign without going through 0 first), and with and without the extended model including a third parameter $\alpha$ (using option \texttt{use\_MLE}, Methods). 
 LDpred2-auto is run with 50 Gibbs sampler chains with different starting values for $p$ (from 0.0001 to 0.2, equally spaced on a log scale). Then some of these chains are filtered out for quality control (Methods).
 
 First, LDpred2-auto generally reliably infers the three parameters from its model, i.e.\ the SNP heritability $h^2$, polygenicity $p$, and $\alpha$ (Figures \ref{fig:simu_h2_main}--\ref{fig:simu_alpha_main} and S1--S6).
@@ -305,7 +304,7 @@ Results are very similar as with the continuous phenotypes above (Figures S20--S
 We use the same 356,409 unrelated individuals of Northwestern European ancestry as in the simulations. 
 To form the test set, we randomly select 50,000 of these, while the other 306,409 are used to run a GWAS using linear regression (with function \texttt{big\_univLinReg} from R package bigstatsr) for each of all 248 phenotypes and using eight covariates (Methods).
 We first use the set of 1,054,330 HapMap3 variants recommended to use for LDpred2 \cite[]{prive2020ldpred2}.
-Here, if not otherwise specified, we use options \texttt{use\_MLE = TRUE} (i.e.\ the extended 3-parameter model and sampling scheme) and \texttt{allow\_jump\_sign = FALSE} (when disabled, this prevents effect sizes from changing sign without going through 0 first and has been proposed for extra robustness in \cite{prive2021identifying}).
+Here, if not otherwise specified, we use options \texttt{use\_MLE = TRUE} (i.e.\ the extended 3-parameter model and sampling scheme) and \texttt{allow\_jump\_sign = FALSE} (when disabled, this prevents effect sizes from changing sign without going through 0 first and has been proposed for extra robustness in \citet{prive2021identifying}).
 
 Consistent with simulations, inferred SNP heritability $h^2$ estimates from LDpred2-auto closely match with those from LD Score regression, while generally being more precise, especially for phenotypes with a small polygenicity (Figure S24).
 Note that these $h^2$ estimates (and later the $r^2$ estimates) have not been transformed to the liability scale (i.e.\ are on the observed scale).
@@ -323,7 +322,7 @@ Using a smaller number of individuals for computing the LD matrix results in a s
 When using an LD reference from an alternative population (South Europe instead of North-West Europe), $p$, $h^2$, and $r^2$ are slightly overestimated as well, and a few phenotypes have lower predictive performance while there are four phenotypes for which none of the LDpred2-auto chains is usable (distinct from the previous three, Figure S29).
 Interestingly, using the previous approach (\texttt{use\_MLE = FALSE}) seems to provide more robust results, where we can always get some chains not to diverge (and therefore get non-zero predictive performance) for the seven (three and four) phenotypes mentioned before when using the previous alternative LD references (Figure S30).
 
-Then, we investigate the effect of disabling the LDpred2-auto parameter \texttt{allow\_jump\_sign} on the estimates from LDpred2-auto; when disabled, this prevents effect sizes from changing sign without going through 0 first and has been proposed for extra robustness in \cite{prive2021identifying}.
+Then, we investigate the effect of disabling the LDpred2-auto parameter \texttt{allow\_jump\_sign} on the estimates from LDpred2-auto; when disabled, this prevents effect sizes from changing sign without going through 0 first and has been proposed for extra robustness in \citet{prive2021identifying}.
 Consistent with simulations, $p$ estimates from LDpred2-auto are conservatively lower than when allowing effects to ``jump'' sign (i.e.\ using a standard sampling, Figure S31). $h^2$ estimates can also be slightly lower, while $\alpha$ estimates are broadly consistent.
 As for predictive performance $r^2$ (on the test set), they are similar, suggesting there is no problem of robustness here (when using the N.W. European LD reference) and a standard sampling can be used in this case (Figure S31).
 
@@ -342,7 +341,7 @@ Here we use the same individuals as in the previous section. We investigate usin
 This is consistent with higher predictive performance $r^2$ in the test set (increase of 6.1\% [4.1, 8.2]).
 In particular, a much larger $h^2$ estimate is obtained for lipoprotein(a) concentration (0.508 [0.502, 0.514] instead of 0.324 [0.320, 0.329]), which is also reflected in a larger predictive performance ($r^2$ in the test set of 0.516 [0.508, 0.524] instead of 0.344 [0.335, 0.353]).
 Interestingly, when using this extended set of HapMap3 variants, more chains are kept on average, which is a sign of better convergence of the models (Figure S34). 
-However, running LDpred2 with this extended set of variants takes around 50\% more time; yet, we remind the reader that LDpred2 has been made much faster in \cite{prive2021identifying}, and now runs in less than one hour for 50 chains parallelized over 13 cores (Figure S35), instead of 4--12 hours before.
+However, running LDpred2 with this extended set of variants takes around 50\% more time; yet, we remind the reader that LDpred2 has been made much faster in \citet{prive2021identifying}, and now runs in less than one hour for 50 chains parallelized over 13 cores (Figure S35), instead of 4--12 hours before.
 
 \begin{figure}[!htb]
 	\centerline{\includegraphics[width=0.9\textwidth]{ukbb_compare_hm3_plus}}
@@ -374,7 +373,7 @@ Per-variant posterior probabilities of being causal (also known as posterior inc
 \subsection*{Application to height}
 
 Here we run three LDpred2-auto models for height, one from the same 305K training UKBB individuals used before (with available height, out of 306K), one based on 100K UKBB individuals (as a random subset of the previous 305K), and one from a large GWAS meta-analysis of 1.6M individuals of European genetic ancestries \cite[]{yengo2022saturated}.
-We first infer the genetic ancestry proportions of individuals included in the meta-analysis using the method proposed in \cite{prive2021using}, and find that 81.9\% are from N.W. Europe, 9.5\% from E. Europe, 6.5\% from Finland, 1.5\% of Ashkenazi genetic ancestry, 0.3\% from S.W. Europe, and 0.2\% from W. Africa. 
+We first infer the genetic ancestry proportions of individuals included in the meta-analysis using the method proposed in \citet{prive2021using}, and find that 81.9\% are from N.W. Europe, 9.5\% from E. Europe, 6.5\% from Finland, 1.5\% of Ashkenazi genetic ancestry, 0.3\% from S.W. Europe, and 0.2\% from W. Africa. 
 For this set of external GWAS summary statistics, we therefore use the same N.W. European LD matrix as used in UKBB analyses. 
 Note that we use the HapMap3+ set of 1,444,196 SNPs here, however, for the GWAS meta-analysis, only 1,013,499 SNPs (out of 1,373,020) are overlapping with HapMap3+ and passing quality control.
 
@@ -395,16 +394,16 @@ Heritability enrichments that we obtain from LDpred2-auto results are rather mod
 \subsection*{Application to other external GWAS summary statistics}
 
 A description of the eight external GWAS summary statistics used is provided in Table \ref{tab:sumstats}; these do not include UKBB individuals.
-Quality control of these summary statistics is performed as described in \cite{prive2021identifying}.
+Quality control of these summary statistics is performed as described in \citet{prive2021identifying}.
 We run LDpred2-auto using either the HapMap3 or HapMap3+ variants, with either the extended or previous model and sampling (via parameter \texttt{use\_MLE}).
 Because of the increased mismatch between external GWAS summary statistics and the LD reference we use here (compared to in simulations and UKBB analyses), we also explore multiple values for parameter \texttt{coef\_shrink}, which is a multiplicative coefficient for shrinking/regularizing off-diagonal elements of the LD matrix in LDpred2-auto.
-Note that, to transform $r^2$ and $h^2$ estimates to the liability scale (except for vitamin D, which is a continuous trait), we use the prevalence in the UK Biobank as the population prevalence, which may be slightly biased \cite{fry2017comparison,van2022reweighting}.
+Note that, to transform $r^2$ and $h^2$ estimates to the liability scale (except for vitamin D, which is a continuous trait), we use the prevalence in the UK Biobank as the population prevalence, which may be slightly biased \cite[]{fry2017comparison,van2022reweighting}.
 Results are presented in Figure S44.
 In terms of predictive performance, using the HapMap3+ variants provides equal or better predictive performance compared to using the HapMap3 variants, except for type 1 diabetes (T1D); therefore it seems more useful to use this new set of variants for larger sample sizes.
 Using the extended model and sampling scheme (with option \texttt{use\_MLE}) provides equal or better predictive performance except for vitaminD, but proves to be less robust, especially when using \texttt{coef\_shrink} close to 1 (low or no regularization of the LD matrix). 
 The 3-parameter model also generally provides better predictive performance in the UK Biobank analyses, where power and robustness is often not an issue (Figure S45).
 Maximum $r^2$ are achieved at different LD regularization coefficients \texttt{coef\_shrink} across phenotypes, reflecting possible substantial mismatches between the GWAS summary statistics and LD reference used.
-However, results are virtually unchanged when regularizing the LD matrix (``hm3\_plus\_regul'') by multiplying correlations between variants $i$ and $j$ by $\exp(-0.5 \cdot d_{i,j})$, where $d_{i,j}$ is the distance in cM between the two variants (similarly to as proposed in \cite{wen2010using}), which is surprising to us.
+However, results are virtually unchanged when regularizing the LD matrix (``hm3\_plus\_regul'') by multiplying correlations between variants $i$ and $j$ by $\exp(-0.5 \cdot d_{i,j})$, where $d_{i,j}$ is the distance in cM between the two variants (similarly to as proposed in \citet{wen2010using}), which is surprising to us.
 As for estimates of $h^2$ and $r^2$ (inferred from the Gibbs sampler), they tend to increase with smaller values of \texttt{coef\_shrink}. 
 This is also the case for estimates of $p$ when using \texttt{use\_MLE = TRUE}.
 Estimates of $\alpha$ are largely constant but can become very small (capped at -1.5) in the case of robustness issues when using e.g.\ \texttt{use\_MLE = TRUE} and almost no regularization on the LD matrix (i.e.\ \texttt{coef\_shrink} close to 1).
@@ -439,9 +438,9 @@ Here we have extended the LDpred2-auto model and shown that it can be used to re
 We remind readers that LDpred2 can also be used to infer the uncertainty of individual polygenic scores \cite[]{ding2022large,ding2022polygenic}.
 We also present a new way to infer the out-of-sample predictive performance $r^2$ of the resulting PGS, assuming the target sample has the same genetic ancestry as the GWAS used for training.
 Others have proposed to estimate $r^2$ from a reference genotype set \cite[]{mak2017polygenic} or from an additional set of external GWAS summary statistics and LD reference \cite[]{pattee2020penalized,witteveen2022publicly}; here we only use the summary statistics that we input to LDpred2-auto.
-Results across 248 phenotypes demonstrate that most of these phenotypes are very polygenic, yet do not have an infinitesimal architecture (i.e.\ not all variants are causal); this is consistent with LDpred2-inf (assuming an infinitesimal architecture, i.e.\ $p=1$) generally providing lower predictive performance than LDpred2-grid (testing different values for parameter $p$) or LDpred2-auto (estimating $p$, \cite{prive2020ldpred2}).
+Results across 248 phenotypes demonstrate that most of these phenotypes are very polygenic, yet do not have an infinitesimal architecture (i.e.\ not all variants are causal); this is consistent with LDpred2-inf (assuming an infinitesimal architecture, i.e.\ $p=1$) generally providing lower predictive performance than LDpred2-grid (testing different values for parameter $p$) or LDpred2-auto (estimating $p$)\cite[]{prive2020ldpred2}.
 We also obtain widespread signatures of negative selection with most $\alpha$ estimates between -1.0 and -0.4, consistent with previous findings \cite[]{zeng2021widespread}.
-However, when looking at the heritability enrichments of several functional annotations for height, we obtain much smaller magnitudes with LDpred2-auto than with stratified LD Score regression (S-LDSC, \cite{finucane2018heritability}). For example, \cite{yengo2022saturated} report fold enrichments of more than 10x for e.g.\ coding and conserved variants, while we get less than 2x. 
+However, when looking at the heritability enrichments of several functional annotations for height, we obtain much smaller magnitudes with LDpred2-auto than with stratified LD Score regression (S-LDSC)\cite{finucane2018heritability}. For example, \citet{yengo2022saturated} report fold enrichments of more than 10x for e.g.\ coding and conserved variants, while we get less than 2x. 
 This is partly due to LDpred2-auto estimates being more conservative as they are shrunk towards no enrichment (the prior), however we do use a very large sample size here so that the prior should not matter much.
 Another possible reason comes from using variants that capture the causal effects by LD, while these tagging variants may be annotated differently from the causal variants, which could cause functional enrichments to be diluted \cite[]{zheng2022leveraging}.
 We also note that this heritability partitioning is performed after running LDpred2-auto for each annotation independently, therefore, unlike S-LDSC, the LDpred2-auto heritability partitioning does not depend on the set of annotations used. 
@@ -450,7 +449,7 @@ Here we have also extended the set of HapMap3 variants recommended to use with L
 Since we used individuals of diverse ancestries for computing the pairwise variant correlations used for constructing this extended set of variants, this new set of variants is beneficial across diverse ancestries (Methods).
 Increasing the genome coverage enables us to capture more of the heritability of phenotypes and therefore reduce the missing heritability, i.e.\ the difference between the family-based heritability and the SNP-based heritability.
 Using the new HapMap3+ set also improves predictive performance by an average of 6.1\% in UKBB analyses here, and particularly for lipoprotein(a) concentration with an $r^2$ of 0.516 instead of 0.344.
-However, we note that we are able to achieve an $r^2$ of 0.677 [0.671, 0.682] when using the penalized regression implementation of \cite{prive2019efficient} on the UKBB individual-level data while restricting to all variants within a 1Mb window of the \textit{LPA} gene.
+However, we note that we are able to achieve an $r^2$ of 0.677 [0.671, 0.682] when using the penalized regression implementation of \citet{prive2019efficient} on the UKBB individual-level data while restricting to all variants within a 1Mb window of the \textit{LPA} gene.
 This means that this extended SNP set is still not tagging all variants perfectly, and that it might be preferable to use a more localized set of variants for phenotypes for which most of the heritability is contained in a single region of the genome.
 When using external GWAS summary statistics, using HapMap3+ instead of HapMap3 variants was more beneficial for larger sample sizes.
 Our intuition and conclusion is that using more variants is beneficial when power is sufficient; however, when power is low (e.g.\ small $N$, small $h^2$, and/or large $p$), it may actually be detrimental.
@@ -509,7 +508,7 @@ The latest version of R package bigsnpr can be installed from GitHub, and a rece
 \vspace*{3em}
 %\clearpage
 
-\bibliographystyle{natbib}
+\bibliographystyle{ajhg}
 \bibliography{refs}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
