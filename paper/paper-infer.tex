@@ -108,8 +108,8 @@ Causal effects are larger when a trait is more heritable, and smaller when it is
 As for the distribution of causal effects relative to their allele frequencies, it is often investigated through a single parameter, usually called $\alpha$ or $S$, to model the effect of negative selection on complex traits whereby variants with lower frequencies are expected to have higher causal effect sizes \cite[]{speed2012improved}.
 In this model, the expected phenotypic variance explained by a genetic variant is proportional to $\big[f(1-f)\big]^\alpha$, where $f$ is the allele frequency of this variant.
 Many methods have been developed to estimate the SNP heritability (referred to as $h^2$ for brevity) and polygenicity ($p$), either globally for the whole genome or locally for specific regions of the genome, as well as $\alpha$. 
-These methods (non-exhaustively) include GCTA\cite{yang2011gcta} ($h^2$), BOLT-REML\cite{loh2015contrasting} ($h^2$ and $p$), LD Score regression\cite{bulik2015ld} ($h^2$), FINEMAP\cite{benner2016finemap} (per-variant $p$, also called posterior inclusion probabilities PIPs, used for fine-mapping), HESS\cite{shi2016contrasting} (local $h^2$), LDAK-SumHer\cite{speed2019sumher} ($h^2$), S-LD4M\cite{oconnor2019extreme} ($p$), GRM-MAF-LD\cite{schoech2019quantification} ($\alpha$), SuSiE\cite{wang2020simple} (PIPs), SBayesS\cite{zeng2021widespread} ($h^2$, $p$, and a third parameter $S$, similar to $\alpha$), and BEAVR\cite{johnson2021estimation} (local $p$).
-
+These methods (non-exhaustively) include GCTA\cite{yang2011gcta} ($h^2$), BOLT-REML\cite{loh2015contrasting} ($h^2$ and $p$), LD Score regression\cite{bulik2015ld} ($h^2$), FINEMAP\cite{benner2016finemap} (per-variant $p$, also called posterior inclusion probabilities PIPs, used for fine-mapping), HESS\cite{shi2016contrasting} (local $h^2$), LDAK-SumHer\cite{speed2019sumher} ($h^2$ and $\alpha$), S-LD4M\cite{oconnor2019extreme} ($p$), GRM-MAF-LD\cite{schoech2019quantification} ($\alpha$), SuSiE\cite{wang2020simple} (PIPs), SBayesS\cite{zeng2021widespread} ($h^2$, $p$, and a third parameter $S$, similar to $\alpha$), and BEAVR\cite{johnson2021estimation} (local $p$).
+ 
 As previously shown by \citet{daetwyler2008accuracy}, $h^2$ and $p$ can also be used to determine how well we can predict a phenotype from using genetic variants alone, with $r^2_\text{max} = h^2 \cdot r^2_{g\hat{g}} = \dfrac{h^2}{1 + (1 - r^2_\text{max}) \frac{M p}{N h^2}}$, where $r^2_\text{max}$ and $r^2_{g\hat{g}}$ are the maximum achievable squared correlations between the genetic predictor and respectively the phenotype and its genetic component, $N$ is the sample size, $M$ is the number of variants, so $M p$ is the number of causal variants. 
 Such genetic predictors are called polygenic scores (PGS), and are getting closer to being included as part of existing clinical risk models for diseases \cite[]{torkamani2018personal,lambert2019towards,kumuthini2022clinical}.
 LDpred2 is a widely used polygenic score method that can directly build PGS using resulting summary statistics from genome-wide associations studies (GWAS), making it highly applicable \cite[]{prive2020ldpred2,pain2021evaluation,kulm2021systematic}.
@@ -134,6 +134,8 @@ We call `HapMap3+' this extended set of 1,444,196 SNPs, and recommend using it w
 
 %\clearpage
 \section*{Materials and Methods}
+
+We have extensively used R packages bigstatsr and bigsnpr \cite[]{prive2017efficient} for analyzing large genetic data, packages from the future framework \cite[]{bengtsson2020unifying} for easy scheduling and parallelization of analyses on the HPC cluster, and packages from the tidyverse suite \cite[]{wickham2019welcome} for shaping and visualizing results.
 
 \subsection*{Data for simulations}
 
@@ -174,7 +176,7 @@ Then, for the sake of simplicity, we use a greedy approach, where we repeatedly 
 Note that we only allow non-ambiguous SNPs to be included.
 This results in an extended set of 1,444,196 SNPs, of which we compute the LD matrix (within a 3 cM window) and apply the optimal algorithm developed in \citet{prive2021optimal} to obtain 431 independent LD blocks.
 Since we use individuals of diverse ancestries for computing the pairwise variant correlations used for constructing this extended set of variants, we expect this new set of variants to be beneficial across diverse ancestries.
-Indeed, from the 11.5M variants we aimed at tagging, 82.1\% (resp.\ 69.1\%), 80.0\% (resp.\ 66.7\%), 79.3\% (resp.\ 66.1\%), 75.4\% (resp.\ 65.3\%), and 66.6\% (resp.\ 48.6\%) are tagged at $r^2 > 50\%$ (resp.\ $r^2 > 80\%$) by at least one HapMap3+ variant, respectively in North-West Europeans, Middle Easterns, South Asians, East Asians, and West Africans (results extrapolated from variants in chromosome 22).
+Indeed, from the 11.5M variants we aimed at tagging, 82.1\% (respectively 69.1\%), 80.0\% (resp.\ 66.7\%), 79.3\% (resp.\ 66.1\%), 75.4\% (resp.\ 65.3\%), and 66.6\% (resp.\ 48.6\%) are tagged at $r^2 > 50\%$ (resp.\ $r^2 > 80\%$) by at least one HapMap3+ variant, respectively in North-West Europeans, Middle Easterns, South Asians, East Asians, and West Africans (results extrapolated from variants in chromosome 22).
 
 \subsection*{Optional extended model and inference with LDpred2-auto}
 
@@ -314,7 +316,7 @@ As for the inferred predictive performance $r^2$ (from the Gibbs sampler of LDpr
 
 \begin{figure}[!htb]
 	\centerline{\includegraphics[width=0.8\textwidth]{ukbb_r2_MLE}}
-	\caption{Inferred predictive performance $r^2$ from the Gibbs sampler of LDpred2-auto versus the ones obtained in the test set, for all 248 phenotypes defined from the UK Biobank. These are stratified by the polygenicity estimated from LDpred2-auto. Green dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $r^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. Colors represent the number of chains kept (out of 50). ``F\_height'' and ``M\_height'' use females and males only, respectively (in both GWAS and test sets). \label{fig:ukbb_r2}}
+	\caption{Inferred predictive performance $r^2$ in the UK Biobank. This compares the $r^2$ inferred from the Gibbs sampler of LDpred2-auto (Methods) versus the ones obtained in the test set, for all 248 phenotypes defined from the UK Biobank. These are stratified by the polygenicity estimated from LDpred2-auto. Green dashed lines represent the 1:1 line. The 95\% confidence interval for the LDpred2-auto estimate is obtained from the 2.5\% and 97.5\% quantiles of all the $r^2$ estimates from the iterations (after burn-in) of the chains kept. The 95\% confidence interval for $r^2$ in the test set is obtained from bootstrap. Colors represent the number of chains kept (out of 50). ``F\_height'' and ``M\_height'' use females and males only, respectively (in both GWAS and test sets). \label{fig:ukbb_r2}}
 \end{figure}
 
 To investigate whether estimates from LDpred2-auto are robust to some misspecifications, we test using two alternative LD references (Methods).
@@ -354,7 +356,7 @@ However, running LDpred2 with this extended set of variants takes around 50\% mo
 In this section, we use the extended set of variants constructed here, HapMap3+, for which we define 431 independent LD blocks (Methods).
 We compute local per-block $h^2$ estimates, and report the UKBB phenotypes for which one block contributes to at least 10\% of the total heritability of all blocks in Figure S36.
 For lipoprotein(a) concentration, ``red hair'' and ``disorders of iron metabolism'' (phecode 275.1), almost all heritability comes from one LD block only.
-We also perform the same analysis with external GWAS summary statistics for 90 cardiovascular proteins \cite[]{folkersen2020genomic}; 22 (resp.\ 8) of them have at least 50\% (resp.\ 80\%) of their heritability explained by a single block (Figure S37). 
+We also perform the same analysis with external GWAS summary statistics for 90 cardiovascular proteins \cite[]{folkersen2020genomic}; 22 (respectively 8) of them have at least 50\% (respectively 80\%) of their heritability explained by a single block (Figure S37). 
 
 Across 169 UKBB phenotypes with more than 25 chains kept, we compute the median heritability per block, and compare it to the number of variants in these blocks; the median heritability explained by a block of variants is largely proportional to the number of variants in this block (Figure S38).
 The outlier block explaining a much larger heritability contains the HLA region.
@@ -482,8 +484,6 @@ Authors thank members of the NCRR/QGG StatGen group and Marc-Andr\'e Legault for
 Authors also thank GenomeDK and Aarhus University for providing computational resources and support that contributed to these research results.
 This research has been conducted using the UK Biobank Resource under Application Number 58024; authors thank all the UK Biobank participants for contributing to such useful data for Research.
 
-\section*{Funding}
-
 F.P., C.A.\ and B.J.V.\ are supported by the Danish National Research Foundation (Niels Bohr Professorship to Prof.\ John McGrath), the Lundbeck Foundation Initiative for Integrative Psychiatric Research, iPSYCH (R102-A9118, R155-2014-1724, R248-2017-2003), and a Lundbeck Foundation Fellowship (R335-2019-2339 to B.J.V.).
 
 \section*{Declaration of Interests}
@@ -494,12 +494,20 @@ The other authors have no competing interests to declare.
 \section*{Code and data availability}
 
 The UK Biobank data is available through a procedure described at \url{https://www.ukbiobank.ac.uk/using-the-resource/}. 
-Descriptions of UK Biobank phenotypes used here are available at \url{https://github.com/privefl/paper-infer/blob/main/phenotype-description.tsv}.
-Simulation and UKBB results are available at \url{https://github.com/privefl/paper-infer/tree/main/results}.
-LD matrices for HapMap3+ variants computed from the N.W. European UKBB data used in this paper are available at \url{https://doi.org/10.6084/m9.figshare.21305061}.
+UK Biobank received ethical approval from the NHS National Research Ethics Service North West (11/NW/0382). The present analyses were conducted under UK Biobank data application number 58024.
 All code used for this paper is available at \url{https://github.com/privefl/paper-infer/tree/main/code}.
-We have extensively used R packages bigstatsr and bigsnpr \cite[]{prive2017efficient} for analyzing large genetic data, packages from the future framework \cite[]{bengtsson2020unifying} for easy scheduling and parallelization of analyses on the HPC cluster, and packages from the tidyverse suite \cite[]{wickham2019welcome} for shaping and visualizing results.
-The latest version of R package bigsnpr can be installed from GitHub, and a recent enough version can be installed from CRAN.
+
+\section*{Web Resources}
+
+\noindent Descriptions of UK Biobank phenotypes used here, \url{https://github.com/privefl/paper-infer/blob/main/phenotype-description.tsv}
+
+\noindent Simulation and UKBB results from this study,  \url{https://github.com/privefl/paper-infer/tree/main/results}
+
+\noindent LD matrices for HapMap3+ variants computed from the N.W. European UKBB data used in this paper, \url{https://doi.org/10.6084/m9.figshare.21305061}
+
+\noindent A tutorial on running LDpred2 with R package bigsnpr (for both prediction and inference), \url{https://privefl.github.io/bigsnpr/articles/LDpred2.html}
+
+
 
 %\noindent[TODO: TABLE EXPORTING RESULTS (ESTIMATES)]
 
