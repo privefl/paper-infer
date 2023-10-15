@@ -115,22 +115,22 @@ grid$res <- furrr::future_pmap(grid[1:5], function(p, h2, alpha, N, num) {
   # Run methods
   source('code/simu-methods.R', local = TRUE)
   list(
-    LDpred2_newfilter = runonce::save_run(
+    `LDpred2-auto_altfilter` = runonce::save_run(
       run_ldpred2_new(jump_sign = FALSE, use_mle = TRUE, coef_shrink = 0.95),
       file = paste0("results_simu/LDpred2_newfilter_", params, ".rds")),
-    LDpred2_noMLE = runonce::save_run(
+    `LDpred2-auto_noMLE` = runonce::save_run(
       run_ldpred2(jump_sign = FALSE, use_mle = FALSE, coef_shrink = 0.95),
       file = paste0("results_simu/LDpred2_noMLE_", params, ".rds")),
-    LDpred2_nojump = runonce::save_run(
+    `LDpred2-auto_nojump` = runonce::save_run(
       run_ldpred2(jump_sign = FALSE, use_mle = TRUE,  coef_shrink = 0.95),
       file = paste0("results_simu/LDpred2_nojump_", params, ".rds")),
-    LDpred2_jump = runonce::save_run(
+    `LDpred2-auto_jump` = runonce::save_run(
       run_ldpred2(jump_sign = TRUE,  use_mle = TRUE,  coef_shrink = 0.95),
       file = paste0("results_simu/LDpred2_", params, ".rds")),
     SBayesS = runonce::save_run(
       run_sbayess(),
       file = paste0("results_simu/SBayesS_", params, ".rds")),
-    LDSc = list(all_h2 = ldsc)
+    LDSC = list(all_h2 = ldsc)
   )
 })
 
@@ -148,22 +148,19 @@ grid %>%
     r2 = list(unname(r2)),
     n_keep_infer = `if`(grepl("LDpred2", Method), `if`(is.null(all_h2), 0, NCOL(all_h2)), NA),
     n_keep_pred  = `if`(grepl("LDpred2", Method), `if`(is.null(all_r2), 0, NCOL(all_r2) / 500 * 20), NA),
-    r2_est = list(`if`(Method == "LDSc", NULL,
+    r2_est = list(`if`(Method == "LDSC", NULL,
                        unname(quantile(all_r2, probs = c(0.5, 0.025, 0.975))))),
     h2_est = list(
-      `if`(Method == "LDSc", all_h2[["h2"]] + c(0, -1.96, 1.96) * all_h2[["h2_se"]],
+      `if`(Method == "LDSC", all_h2[["h2"]] + c(0, -1.96, 1.96) * all_h2[["h2_se"]],
            unname(quantile(all_h2, probs = c(0.5, 0.025, 0.975))))
     ),
-    p_est = list(`if`(Method == "LDSc", NULL,
+    p_est = list(`if`(Method == "LDSC", NULL,
                       unname(quantile(all_p, probs = c(0.5, 0.025, 0.975))))),
-    alpha_est = list(`if`(Method %in% c("LDSc", "LDpred2_noMLE"), NULL,
+    alpha_est = list(`if`(Method %in% c("LDSC", "LDpred2-auto_noMLE"), NULL,
                           unname(quantile(all_alpha, probs = c(0.5, 0.025, 0.975))))),
   ) %>%
   relocate(n_keep_infer, n_keep_pred, .after = use_mle) %>%
   ungroup() %>%
-  mutate(Method = factor(Method, levels = Method[1:6],
-                         labels = sub("LDpred2_", "LDpred2-auto_",
-                                      sub("newfilter", "altfilter", Method[1:6])))) %>%
   select(-starts_with("all"), -postp) %>%
   tidyr::unnest_wider(where(is.list), names_sep = "_") %>%
   mutate(across(r2_1:alpha_est_3, ~ signif(., digits = 4))) %>%
@@ -174,6 +171,7 @@ grid %>%
 #### Just one simulation with CIs of the estimates ####
 
 library(ggplot2)
+library(latex2exp)
 
 grid2 <- grid %>%
   filter(num == 1) %>%
@@ -183,16 +181,14 @@ grid2 <- grid %>%
   mutate(r2 = lapply(r2, unname),
          n_keep_infer = purrr::map_dbl(all_h2, ~ `if`(is.null(.), 0, NCOL(.))),
          n_keep_pred  = purrr::map_dbl(all_r2, ~ `if`(is.null(.), 0, NCOL(.) / 500 * 20)),
-         Method = factor(Method, levels = Method[1:6],
-                         labels = sub("LDpred2_", "LDpred2-auto_",
-                                      sub("newfilter", "altfilter", Method[1:6]))),
+         Method = factor(Method, levels = Method[1:6]),
          p = as.factor(p)) %>%
   relocate(n_keep_infer, n_keep_pred, .after = Method) %>%
   print(n = 20)
 
 
 ggplot(filter(grid2, grepl("LDpred2", Method))) +
-  geom_histogram(aes(n_keep_infer, fill = Method), color = "black", size = 0.1,
+  geom_histogram(aes(n_keep_infer, fill = Method), color = "black", linewidth = 0.1,
                  breaks = seq(0, 50, by = 2)) +
   bigstatsr::theme_bigstatsr(0.8) +
   facet_grid(p ~ N + h2, labeller = label_both) +
@@ -202,7 +198,7 @@ ggplot(filter(grid2, grepl("LDpred2", Method))) +
 
 
 grid2_r2 <- grid2 %>%
-  filter(Method != "LDSc") %>%
+  filter(Method != "LDSC") %>%
   mutate(r2_est = purrr::map(all_r2, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("r2",     names_sep = "_") %>%
   tidyr::unnest_wider("r2_est", names_sep = "_")
@@ -222,7 +218,7 @@ grid2_r2 %>%
   geom_errorbar(aes(ymin = r2_est_2, ymax = r2_est_3), width = 0.3) +
   theme(legend.key.height = unit(50, "pt"),
         axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
-  labs(y = "Inferred r2  (+ 95% CI of the estimate)",
+  labs(y = TeX("Inferred $r^2$  (+ 95% CI of the estimate)"),
        x = "Method", color = "# chains")
 # ggsave("figures/est_r2_one_20K.pdf",  width = 9, height = 13)
 # ggsave("figures/est_r2_one_200K.pdf", width = 9, height = 13)
@@ -231,7 +227,7 @@ grid2_r2 %>%
 grid2 %>%
   filter(N == 20e3, alpha == -0.5) %>%
   mutate(h2_est = purrr::map2(all_h2, Method, ~ {
-    `if`(.y == "LDSc", .x[["h2"]] + c(0, -1.96, 1.96) * .x[["h2_se"]],
+    `if`(.y == "LDSC", .x[["h2"]] + c(0, -1.96, 1.96) * .x[["h2_se"]],
          unname(quantile(.x, probs = c(0.5, 0.025, 0.975))))
   })) %>%
   tidyr::unnest_wider("h2_est", names_sep = "_") %>%
@@ -246,14 +242,14 @@ grid2 %>%
   theme(legend.key.height = unit(40, "pt"),
         axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95),
         plot.margin = unit(c(0.2, 0.2, 0.2, 0.6), "cm")) +
-  labs(y = "Inferred h2  (+ 95% CI of the estimate)",
+  labs(y = TeX("Inferred $h^2$  (+ 95% CI of the estimate)"),
        x = "Method", color = "# chains")
 # ggsave("figures/est_h2_one_main.pdf", width = 10, height = 6)
 
 grid2 %>%
   filter(N == 20e3) %>%
   mutate(h2_est = purrr::map2(all_h2, Method, ~ {
-    `if`(.y == "LDSc", .x[["h2"]] + c(0, -1.96, 1.96) * .x[["h2_se"]],
+    `if`(.y == "LDSC", .x[["h2"]] + c(0, -1.96, 1.96) * .x[["h2_se"]],
          unname(quantile(.x, probs = c(0.5, 0.025, 0.975))))
   })) %>%
   tidyr::unnest_wider("h2_est", names_sep = "_") %>%
@@ -267,14 +263,14 @@ grid2 %>%
   facet_grid(h2 + p ~ N + alpha, scales = "free_y", labeller = label_both) +
   theme(legend.key.height = unit(50, "pt"),
         axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
-  labs(y = "Inferred h2  (+ 95% CI of the estimate)",
+  labs(y = TeX("Inferred $h^2$  (+ 95% CI of the estimate)"),
        x = "Method", color = "# chains")
 # ggsave("figures/est_h2_one_20K.pdf",  width = 10, height = 13)
 # ggsave("figures/est_h2_one_200K.pdf", width = 10, height = 13)
 
 
 grid2 %>%
-  filter(N == 20e3, Method != "LDSc", alpha == -0.5) %>%
+  filter(N == 20e3, Method != "LDSC", alpha == -0.5) %>%
   mutate(p_est = purrr::map(all_p, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("p_est", names_sep = "_") %>%
   ggplot(aes(Method, p_est_1, color = ifelse(grepl("LDpred2", Method), n_keep_infer, NA))) +
@@ -295,7 +291,7 @@ grid2 %>%
 # ggsave("figures/est_p_one_main.pdf", width = 10, height = 6)
 
 grid2 %>%
-  filter(N == 20e3, Method != "LDSc") %>%
+  filter(N == 200e3, Method != "LDSC") %>%
   mutate(p_est = purrr::map(all_p, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("p_est", names_sep = "_") %>%
   ggplot(aes(Method, p_est_1, color = ifelse(grepl("LDpred2", Method), n_keep_infer, NA))) +
@@ -317,7 +313,7 @@ grid2 %>%
 
 
 grid2 %>%
-  filter(N == 20e3, !Method %in% c("LDSc", "LDpred2-auto_noMLE"), alpha == -0.5) %>%
+  filter(N == 20e3, !Method %in% c("LDSC", "LDpred2-auto_noMLE"), alpha == -0.5) %>%
   mutate(alpha_est = purrr::map(all_alpha, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("alpha_est", names_sep = "_") %>%
   ggplot(aes(Method, alpha_est_1, color = ifelse(grepl("LDpred2", Method), n_keep_infer, NA))) +
@@ -337,7 +333,7 @@ grid2 %>%
 # ggsave("figures/est_alpha_one_main.pdf", width = 9, height = 6)
 
 grid2 %>%
-  filter(N == 20e3, !Method %in% c("LDSc", "LDpred2-auto_noMLE")) %>%
+  filter(N == 200e3, !Method %in% c("LDSC", "LDpred2-auto_noMLE")) %>%
   mutate(alpha_est = purrr::map(all_alpha, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("alpha_est", names_sep = "_") %>%
   ggplot(aes(Method, alpha_est_1, color = ifelse(grepl("LDpred2", Method), n_keep_infer, NA))) +
@@ -361,7 +357,7 @@ grid$res2 <- purrr::pmap(grid[1:5], function(p, h2, alpha, N, num) {
   print(params <- paste(c(p, h2, alpha, N, num), collapse = "_"))
   list(
     simu_pheno = readRDS(paste0("results_simu/simu_", params, ".rds")),
-    LDpred2_nojump = readRDS(paste0("results_simu/LDpred2_nojump_", params, ".rds"))
+    `LDpred2-auto_nojump` = readRDS(paste0("results_simu/LDpred2_nojump_", params, ".rds"))
   )
 })
 
@@ -369,7 +365,7 @@ grid3 <- grid %>%
   filter(num == 1) %>%
   select(-res) %>%
   tidyr::unnest_wider(res2) %>%
-  tidyr::unnest_wider(LDpred2_nojump) %>%
+  tidyr::unnest_wider(`LDpred2-auto_nojump`) %>%
   mutate(n_keep = purrr::map_dbl(all_h2, ~ `if`(is.null(.), 0, NCOL(.))))
 
 grid3$prop <- purrr::pmap(grid3[c("simu_pheno", "postp")], function(simu_pheno, postp) {
@@ -424,40 +420,36 @@ grid3 %>%
   scale_x_continuous(breaks = seq(0, 1, by = 0.04),
                      minor_breaks = seq(0, 1, by = 0.01)) +
   scale_y_continuous(breaks = seq(0, 1, by = 0.02)) +
-  labs(x = "Estimated per-block heritability  (as percentage of h2)",
-       y = "Simulated per-block heritability  (as percentage of h2)",
+  labs(x = TeX("Estimated per-block heritability  (as percentage of $h^2$)"),
+       y = TeX("Simulated per-block heritability  (as percentage of $h^2$)"),
        color = "# chains")
 # ggsave("figures/local_h2_calib.pdf", width = 10, height = 7)
 
 
 #### Multiple simulations to validate CIs ####
 
-library(dplyr)
-library(ggplot2)
-
 grid4 <- grid %>%
   select(-any_of("res2")) %>%
   filter(alpha == -0.5) %>%
   tidyr::unnest_wider("res") %>%
   tidyr::pivot_longer(-(1:5), names_to = "Method") %>%
-  filter(Method != "LDpred2_newfilter") %>%
+  filter(Method != "LDpred2-auto_altfilter") %>%
   tidyr::unnest_wider("value") %>%
   mutate(r2 = lapply(r2, unname),
          n_keep = purrr::map_dbl(all_h2, ~ `if`(is.null(.), 0, NCOL(.))),
-         Method = factor(Method, levels = Method[1:5],
-                         labels = sub("LDpred2_", "LDpred2-auto_", Method[1:5])),
+         Method = factor(Method, levels = Method[1:5]),
          p = as.factor(p)) %>%
   relocate(n_keep, .after = Method) %>%
   print(n = 20)
 
 grid4_r2 <- grid4 %>%
-  filter(Method != "LDSc") %>%
+  filter(Method != "LDSC") %>%
   mutate(r2_est = purrr::map(all_r2, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("r2",     names_sep = "_") %>%
   tidyr::unnest_wider("r2_est", names_sep = "_")
 
 grid4_r2 %>%
-  filter(N == 200e3) %>%
+  filter(N == 20e3) %>%
   ggplot(aes(Method, r2_est_1, color = ifelse(Method == "SBayesS", NA, n_keep))) +
   scale_color_gradient(high = "#0072B2", low = "#D55E00", limits = c(0, 50),
                        na.value = "black") +
@@ -472,16 +464,16 @@ grid4_r2 %>%
   theme(legend.position = "top", legend.key.width = unit(50, "pt"),
         axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
   guides(color = guide_colorbar(title.vjust = 0.9)) +
-  labs(y = "Inferred r2  (+ 95% CI of the estimate)",
+  labs(y = TeX("Inferred $r^2$  (+ 95% CI of the estimate)"),
        x = "Method", color = "# chains")
 # ggsave("figures/est_r2_ten_20K.pdf", width = 11, height = 14)
 # ggsave("figures/est_r2_ten_200K.pdf", width = 11, height = 14)
 
 
 grid4 %>%
-  filter(N == 200e3) %>%
+  filter(N == 20e3) %>%
   mutate(h2_est = purrr::map2(all_h2, Method, ~ {
-    `if`(.y == "LDSc", .x[["h2"]] + c(0, -1.96, 1.96) * .x[["h2_se"]],
+    `if`(.y == "LDSC", .x[["h2"]] + c(0, -1.96, 1.96) * .x[["h2_se"]],
          unname(quantile(.x, probs = c(0.5, 0.025, 0.975))))
   })) %>%
   tidyr::unnest_wider("h2_est", names_sep = "_") %>%
@@ -496,14 +488,14 @@ grid4 %>%
   theme(legend.position = "top", legend.key.width = unit(50, "pt"),
         axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
   guides(color = guide_colorbar(title.vjust = 0.9)) +
-  labs(y = "Inferred h2  (+ 95% CI of the estimate)",
+  labs(y = TeX("Inferred $h^2$  (+ 95% CI of the estimate)"),
        x = "Method", color = "# chains")
 # ggsave("figures/est_h2_ten_20K.pdf", width = 11, height = 14)
 # ggsave("figures/est_h2_ten_200K.pdf", width = 11, height = 14)
 
 
 grid4 %>%
-  filter(N == 20e3, Method != "LDSc") %>%
+  filter(N == 20e3, Method != "LDSC") %>%
   mutate(p_est = purrr::map(all_p, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("p_est", names_sep = "_") %>%
   ggplot(aes(Method, p_est_1, color = ifelse(grepl("LDpred2", Method), n_keep, NA))) +
@@ -526,7 +518,7 @@ grid4 %>%
 
 
 grid4 %>%
-  filter(N == 20e3, !Method %in% c("LDSc", "LDpred2-auto_noMLE")) %>%
+  filter(N == 20e3, !Method %in% c("LDSC", "LDpred2-auto_noMLE")) %>%
   mutate(alpha_est = purrr::map(all_alpha, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("alpha_est", names_sep = "_") %>%
   ggplot(aes(Method, alpha_est_1, color = ifelse(grepl("LDpred2", Method), n_keep, NA))) +

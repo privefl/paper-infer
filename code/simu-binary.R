@@ -52,16 +52,16 @@ grid$res <- furrr::future_pmap(grid, function(p, h2, alpha, K, num) {
   # Run methods
   source('code/simu-methods.R', local = TRUE)
   res_lin <- list(
-    LDpred2_noMLE = runonce::save_run(
+    `LDpred2-auto_noMLE` = runonce::save_run(
       run_ldpred2(jump_sign = FALSE, use_mle = FALSE, coef_shrink = 0.95),
       file = paste0("results_simu_binary/LDpred2_noMLE_lin_", params, ".rds")),
-    LDpred2_MLE = runonce::save_run(
+    `LDpred2-auto_MLE` = runonce::save_run(
       run_ldpred2(jump_sign = FALSE, use_mle = TRUE,  coef_shrink = 0.95),
       file = paste0("results_simu_binary/LDpred2_nojump_lin_", params, ".rds")),
     SBayesS = runonce::save_run(
       run_sbayess(),
       file = paste0("results_simu_binary/SBayesS_lin_", params, ".rds")),
-    LDSc = list(all_h2 = ldsc)
+    LDSC = list(all_h2 = ldsc)
   )
 
 
@@ -80,16 +80,16 @@ grid$res <- furrr::future_pmap(grid, function(p, h2, alpha, K, num) {
 
   # Run methods
   res_log <- list(
-    LDpred2_noMLE = runonce::save_run(
+    `LDpred2-auto_noMLE` = runonce::save_run(
       run_ldpred2(jump_sign = FALSE, use_mle = FALSE, coef_shrink = 0.95),
       file = paste0("results_simu_binary/LDpred2_noMLE_log_", params, ".rds")),
-    LDpred2_MLE = runonce::save_run(
+    `LDpred2-auto_MLE` = runonce::save_run(
       run_ldpred2(jump_sign = FALSE, use_mle = TRUE,  coef_shrink = 0.95),
       file = paste0("results_simu_binary/LDpred2_nojump_log_", params, ".rds")),
     SBayesS = runonce::save_run(
       run_sbayess(),
       file = paste0("results_simu_binary/SBayesS_log_", params, ".rds")),
-    LDSc = list(all_h2 = ldsc)
+    LDSC = list(all_h2 = ldsc)
   )
 
 
@@ -111,21 +111,20 @@ grid %>%
   mutate(
     r2 = list(unname(r2)),
     n_keep = `if`(grepl("LDpred2", Method), `if`(is.null(all_h2), 0, NCOL(all_h2)), NA),
-    r2_est = list(`if`(Method == "LDSc", NULL,
+    r2_est = list(`if`(Method == "LDSC", NULL,
                        unname(quantile(all_r2, probs = c(0.5, 0.025, 0.975))))),
     h2_est = list(
-      `if`(Method == "LDSc", all_h2[["h2"]] + c(0, -1.96, 1.96) * all_h2[["h2_se"]],
+      `if`(Method == "LDSC", all_h2[["h2"]] + c(0, -1.96, 1.96) * all_h2[["h2_se"]],
            unname(quantile(all_h2, probs = c(0.5, 0.025, 0.975))))
     ),
-    p_est = list(`if`(Method == "LDSc", NULL,
+    p_est = list(`if`(Method == "LDSC", NULL,
                       unname(quantile(all_p, probs = c(0.5, 0.025, 0.975))))),
-    alpha_est = list(`if`(Method %in% c("LDSc", "LDpred2_noMLE"), NULL,
+    alpha_est = list(`if`(Method %in% c("LDSC", "LDpred2-auto_noMLE"), NULL,
                           unname(quantile(all_alpha, probs = c(0.5, 0.025, 0.975))))),
   ) %>%
   relocate(n_keep, .after = use_mle) %>%
   ungroup() %>%
-  mutate(Method = factor(Method, levels = Method[1:4],
-                         labels = sub("LDpred2_", "LDpred2-auto_", Method[1:4]))) %>%
+  mutate(Method = factor(Method, levels = Method[1:4])) %>%
   select(-starts_with("all"), -postp) %>%
   tidyr::unnest_wider(where(is.list), names_sep = "_") %>%
   mutate(across(r2_1:alpha_est_3, ~ signif(., digits = 4))) %>%
@@ -136,6 +135,8 @@ grid %>%
 #### Just one simulation with CIs of the estimates ####
 
 library(ggplot2)
+library(latex2exp)
+
 
 grid2 <- grid %>%
   filter(num == 1) %>%
@@ -145,8 +146,7 @@ grid2 <- grid %>%
   tidyr::pivot_longer(-(1:6), names_to = "Method") %>%
   tidyr::unnest_wider("value") %>%
   mutate(n_keep = purrr::map_dbl(all_h2, ~ `if`(is.null(.), 0, NCOL(.))),
-         Method = factor(Method, levels = Method[1:4],
-                         labels = sub("LDpred2_", "LDpred2-auto_", Method[1:4])),
+         Method = factor(Method, levels = Method[1:4]),
          p = as.factor(p)) %>%
   relocate(n_keep, .after = Method) %>%
   print(n = 100)
@@ -156,7 +156,7 @@ vec_to_liab <- function(x, K, logistic) {
 }
 
 grid2_r2 <- grid2 %>%
-  filter(Method != "LDSc") %>%
+  filter(Method != "LDSC") %>%
   mutate(r2 = lapply(r2, unname),
          r2_est = purrr::map(all_r2, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("r2",     names_sep = "_") %>%
@@ -184,14 +184,14 @@ grid2_r2 %>%
         axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
   guides(shape = guide_legend(override.aes = list(size = 2.5), label.hjust = 1),
          color = guide_colorbar(title.vjust = 0.9)) +
-  labs(y = "Inferred r2  (+ 95% CI of the estimate)",
+  labs(y = TeX("Inferred $r^2$  (+ 95% CI of the estimate)"),
        x = "Method", color = "# chains", shape = "Use Neff?")
 # ggsave("figures/est_binary_r2_one.pdf", width = 10, height = 13)
 
 
 grid2 %>%
   mutate(h2_est = purrr::map2(all_h2, Method, ~ {
-    `if`(.y == "LDSc", .x[["h2"]] + c(0, -1.96, 1.96) * .x[["h2_se"]],
+    `if`(.y == "LDSC", .x[["h2"]] + c(0, -1.96, 1.96) * .x[["h2_se"]],
          unname(quantile(.x, probs = c(0.5, 0.025, 0.975))))
   })) %>%
   tidyr::unnest_wider("h2_est", names_sep = "_") %>%
@@ -213,13 +213,13 @@ grid2 %>%
         axis.text.x = element_text(angle = 40, vjust = 0.95, hjust = 0.95)) +
   guides(shape = guide_legend(override.aes = list(size = 2.5), label.hjust = 1),
          color = guide_colorbar(title.vjust = 0.9)) +
-  labs(y = "Inferred h2  (+ 95% CI of the estimate)",
+  labs(y = TeX("Inferred $h^2$  (+ 95% CI of the estimate)"),
        x = "Method", color = "# chains", shape = "Use Neff?")
 # ggsave("figures/est_binary_h2_one.pdf", width = 10, height = 13)
 
 
 grid2 %>%
-  filter(Method != "LDSc") %>%
+  filter(Method != "LDSC") %>%
   mutate(p_est = purrr::map(all_p, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("p_est", names_sep = "_") %>%
   ggplot(aes(Method, p_est_1, shape = ifelse(logistic, "Yes", "No"),
@@ -246,7 +246,7 @@ grid2 %>%
 
 
 grid2 %>%
-  filter(!Method %in% c("LDSc", "LDpred2-auto_noMLE")) %>%
+  filter(!Method %in% c("LDSC", "LDpred2-auto_noMLE")) %>%
   mutate(alpha_est = purrr::map(all_alpha, ~ unname(quantile(., probs = c(0.5, 0.025, 0.975))))) %>%
   tidyr::unnest_wider("alpha_est", names_sep = "_") %>%
   ggplot(aes(Method, alpha_est_1, shape = ifelse(logistic, "Yes", "No"),

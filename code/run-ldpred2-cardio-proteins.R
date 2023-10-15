@@ -1,7 +1,7 @@
 library(dplyr)
 urls <- readLines("https://zenodo.org/record/2615265#.YvuAdBxBy01") %>%
-  grep(value = TRUE, pattern = "type=\"application/gzip\" href=\"https://zenodo.org/record/2615265/files/.+\\.txt\\.gz\">") %>%
-  sub(pattern = ".+href=\"(https://zenodo.org/record/2615265/files/.+\\.txt\\.gz)\">", replacement = "\\1")
+  grep(value = TRUE, pattern = "type=\"application/gzip\" href=\"https://zenodo.org/records/2615265/files/.+\\.txt\\.gz\">") %>%
+  sub(pattern = ".+href=\"(https://zenodo.org/records/2615265/files/.+\\.txt\\.gz)\">", replacement = "\\1")
 
 bigassertr::assert_dir("cardio_proteins")
 
@@ -146,11 +146,14 @@ with(res_local_h2, sum((max_local_h2 / h2) > 0.5))  # 22
 with(res_local_h2, sum((max_local_h2 / h2) > 0.8))  # 8
 
 library(ggplot2)
+library(latex2exp)
 ggplot(tidyr::pivot_longer(res_local_h2, c(h2, max_local_h2)),
        aes(protein, value, fill = name, color = name)) +
   theme_bw(13) +
-  scale_color_manual(values = c("#0072B2FF", "#00000033")) +  # "#E69F0000"
-  scale_fill_manual(values = c("#0072B200", "#E69F0099")) +
+  scale_color_manual(values = c("#0072B2FF", "#00000033"),
+                     labels = c(TeX("$h^2$ (sum of all 431 blocks)"), TeX("maximum block-$h^2$"))) +
+  scale_fill_manual(values = c("#0072B200", "#E69F0099"),
+                    labels = c(TeX("$h^2$ (sum of all 431 blocks)"), TeX("maximum block-$h^2$"))) +
   geom_col(position = "identity") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
         legend.position = "top") +

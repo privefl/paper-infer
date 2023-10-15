@@ -365,8 +365,9 @@ Across 169 UKBB phenotypes with more than 25 chains kept, we compute the median 
 The outlier block explaining a much larger heritability contains the HLA region.
 Across the same phenotypes, we then compute per-variant median probabilities of being causal, and report them in a Manhattan-like plot in Figure S39.
 Some variants in multiple small regions across the genome have a larger probability of being causal across many phenotypes; interestingly, these are mapped to genes that are known to be associated with many different traits (up to more than 300) in the GWAS Catalog \cite[]{buniello2019nhgri}.
-To verify that this is not driven by population structure, we compute pcadapt chi-square statistics that quantify whether a variant is associated with population structure \cite[]{prive2020performing}; the log-statistics have a small negative correlation of -5.5\% with the probabilities of being causal.
-To verify that this does not correspond to regions of low LD, we compute LD scores; the median probabilities of being causal have a small correlation of 11.6\% with the LD scores and of -6.8\% with the log of LD scores.
+To verify that this is not driven by population structure, we compute pcadapt chi-square statistics that quantify whether a variant is associated with population structure \cite[]{prive2020performing}; the log-statistics have only a small correlation of 5.9\% with the probabilities of being causal.
+To verify that this does not correspond to regions of low LD, we compute LD scores; the median probabilities of being causal have a correlation of 32.0\% with the LD scores and of 26.4\% with the log of LD scores.
+Therefore the posterior probabilities of being causal obtained from LDpred2-auto tend to slightly increase with LD scores.
 
 Finally, since the HapMap3+ variants still represent a rather small proportion of common variants, we showcase running LDpred2-auto using a more dense set of variants from a small region, as usually done for fine-mapping.
 We identify the most significant HapMap3+ variant for height, rs2871960 on chromosome 3, and read all the variants within a 500kb distance that have a MAF larger than 0.005 and INFO score larger than 0.5 in the UK Biobank; there are 3881 such variants.

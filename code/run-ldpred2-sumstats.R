@@ -157,9 +157,12 @@ grid$res <- furrr::future_pmap(grid[1:6], function(pheno, pheno_file, set, mle,
 library(dplyr)
 library(ggplot2)
 theme_set(theme_bw(14))
+library(latex2exp)
 
 grid2 <- grid %>%
-  tidyr::unnest_wider("res") %>%
+  select(-res_file) %>%
+  tidyr::unnest_wider("res", names_sep = "_") %>%
+  rename_with(~ sub("res_", "", .)) %>%
   rowwise() %>%
   mutate(n_keep = `if`(is.null(all_h2), 0, ncol(all_h2)))
 
@@ -195,16 +198,21 @@ for (PHENO in unique(grid3$pheno)) {
 
   grid3 %>%
     filter(pheno == PHENO) %>%
-    mutate(mle = ifelse(mle, "Yes", "No")) %>%
+    mutate(mle = ifelse(mle, "Yes", "No"),
+           name = factor(name, levels = c(
+             "alpha_est", "h2_est", "h2_ldsc_est", "p_est", "r2", "r2_est"),
+             labels = sapply(c("$alpha$ (LDpred2-auto)", "$h^2$ (LDpred2-auto)",
+                               "$h^2$ (LDSC)", "$p$ (LDpred2-auto)",
+                               "$r^2$ (in test set)", "$r^2$ (LDpred2-auto)"), TeX))) %>%
     ggplot(aes(coef_shrink, value_1, color = set, shape = mle, linetype = mle)) +
     bigstatsr::theme_bigstatsr(0.65) +
-    facet_wrap(~ pheno + name, scales = "free_y") +
+    facet_wrap(~ pheno + name, scales = "free_y", labeller = label_parsed) +
     geom_point(size = 2) +
     geom_line() +
     theme(legend.position = c(0.85, 0.2), legend.key.width = unit(2, "line")) +
     scale_shape_manual(values = c(3, 16, 17)) +
     scale_color_manual(values = c('#E69F00', '#56B4E9', '#CC79A7')) +
-    labs(y = "Estimate  (+ 95% CI of the estimate)", x = "LD shrinkage factor",
+    labs(y = "Estimate", x = "LD shrinkage factor",
          color = "Set", shape = "Use MLE?", linetype = "Use MLE?")
 
   ggsave(paste0("figures/ldpred2_", PHENO, ".pdf"), width = 9, height = 6)
