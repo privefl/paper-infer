@@ -100,7 +100,7 @@ multi_auto <- snp_ldpred2_auto(corr, df_beta, h2_init = h2_est,
 # Filter for best chains and average remaining ones
 # -> the effects sizes of your polygenic score
 (range <- sapply(multi_auto, function(auto) diff(range(auto$corr_est))))
-(keep <- (range > (0.95 * quantile(range, 0.95, na.rm = TRUE))))
+(keep <- which(range > (0.95 * quantile(range, 0.95, na.rm = TRUE))))
 
 beta_auto <- rowMeans(sapply(multi_auto[keep], function(auto) auto$beta_est))
 
