@@ -34,7 +34,7 @@ info_snp <- snp_match(sumstats, map_ldref)
 # 1,411,710 variants have been matched; 0 were flipped and 6 were reversed.
 (info_snp <- tidyr::drop_na(tibble::as_tibble(info_snp)))
 
-# better to use af of GWAS and INFO scores as well (then can use 0.7 instead of 0.5 in L35)
+# better to use af of GWAS and INFO scores as well (then can use 0.7 instead of 0.5 in L42)
 sd_ldref <- with(info_snp, sqrt(2 * af_UKBB * (1 - af_UKBB)))
 sd_ss <- with(info_snp, 2 / sqrt(n_eff * beta_se^2))
 
