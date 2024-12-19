@@ -80,8 +80,11 @@ for (chr in 1:22) {
   }
 }
 
-# Heritability estimation of LD score regression
-# to be used as a starting value in LDpred2-auto
+# SNP-heritability estimation from LD score regression,
+# to be used as a starting value in LDpred2-auto.
+# Here `ld` is a pre-computed column of `map_ldref` and therefore `df_beta`.
+# It corresponds to the pre-computed LD scores for the full set of HM3+ variants 
+# (therefore the need for `ld_size = nrow(map_ldref)` instead of `length(ld)`).
 (ldsc <- with(df_beta, snp_ldsc(ld, ld_size = nrow(map_ldref),
                                 chi2 = (beta / beta_se)^2,
                                 sample_size = n_eff,
