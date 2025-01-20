@@ -15,7 +15,7 @@ readRDS(runonce::download_file(
 
 
 ## Breast cancer summary statistics
-
+# options(timeout = 1000)
 tgz <- runonce::download_file(
   "http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST004001-GCST005000/GCST004988/oncoarray_bcac_public_release_oct17%20(1).txt.gz",
   dir = "tmp-data", fname = "sumstats_BRCA.txt.gz")
